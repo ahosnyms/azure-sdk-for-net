@@ -153,7 +153,7 @@ namespace Microsoft.Azure.Management.HDInsight
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
-                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.0.9-preview");
+                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.5.6-preview");
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();
@@ -344,7 +344,7 @@ namespace Microsoft.Azure.Management.HDInsight
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
-                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.0.9-preview");
+                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.5.6-preview");
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();
@@ -617,7 +617,7 @@ namespace Microsoft.Azure.Management.HDInsight
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
-                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.0.9-preview");
+                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.5.6-preview");
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();
@@ -661,6 +661,8 @@ namespace Microsoft.Azure.Management.HDInsight
                     }
                     
                     propertiesValue["osType"] = clusterCreateParameters.Properties.OperatingSystemType.ToString();
+                    
+                    propertiesValue["Tier"] = clusterCreateParameters.Properties.ClusterTier.ToString();
                     
                     if (clusterCreateParameters.Properties.ClusterDefinition != null)
                     {
@@ -942,6 +944,13 @@ namespace Microsoft.Azure.Management.HDInsight
                                 {
                                     OSType osTypeInstance = ((OSType)Enum.Parse(typeof(OSType), ((string)osTypeValue), true));
                                     propertiesInstance.OperatingSystemType = osTypeInstance;
+                                }
+                                
+                                JToken tierValue = propertiesValue2["Tier"];
+                                if (tierValue != null && tierValue.Type != JTokenType.Null)
+                                {
+                                    Tier tierInstance = ((Tier)Enum.Parse(typeof(Tier), ((string)tierValue), true));
+                                    propertiesInstance.ClusterTier = tierInstance;
                                 }
                                 
                                 JToken clusterDefinitionValue2 = propertiesValue2["clusterDefinition"];
@@ -1369,7 +1378,7 @@ namespace Microsoft.Azure.Management.HDInsight
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
-                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.0.9-preview");
+                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.5.6-preview");
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();
@@ -1531,7 +1540,7 @@ namespace Microsoft.Azure.Management.HDInsight
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
-                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.0.9-preview");
+                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.5.6-preview");
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();
@@ -1659,7 +1668,7 @@ namespace Microsoft.Azure.Management.HDInsight
             {
                 delayInSeconds = client.LongRunningOperationInitialTimeout;
             }
-            while ((result.State != Microsoft.Azure.Management.HDInsight.Models.AsyncOperationState.InProgress) == false)
+            while (result.State == AsyncOperationState.InProgress)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 await TaskEx.Delay(delayInSeconds * 1000, cancellationToken).ConfigureAwait(false);
@@ -1722,7 +1731,7 @@ namespace Microsoft.Azure.Management.HDInsight
             {
                 delayInSeconds = client.LongRunningOperationInitialTimeout;
             }
-            while ((result.State != Microsoft.Azure.Management.HDInsight.Models.AsyncOperationState.InProgress) == false)
+            while (result.State == AsyncOperationState.InProgress)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 await TaskEx.Delay(delayInSeconds * 1000, cancellationToken).ConfigureAwait(false);
@@ -1785,7 +1794,7 @@ namespace Microsoft.Azure.Management.HDInsight
             {
                 delayInSeconds = client.LongRunningOperationInitialTimeout;
             }
-            while ((result.Cluster.Properties.ProvisioningState != Microsoft.Azure.Management.HDInsight.Models.HDInsightClusterProvisioningState.InProgress) == false)
+            while (result.Cluster.Properties.ProvisioningState == HDInsightClusterProvisioningState.InProgress)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 await TaskEx.Delay(delayInSeconds * 1000, cancellationToken).ConfigureAwait(false);
@@ -1844,7 +1853,7 @@ namespace Microsoft.Azure.Management.HDInsight
             {
                 delayInSeconds = client.LongRunningOperationInitialTimeout;
             }
-            while ((result.State != Microsoft.Azure.Management.HDInsight.Models.AsyncOperationState.InProgress) == false)
+            while (result.State == AsyncOperationState.InProgress)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 await TaskEx.Delay(delayInSeconds * 1000, cancellationToken).ConfigureAwait(false);
@@ -1945,7 +1954,7 @@ namespace Microsoft.Azure.Management.HDInsight
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
-                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.0.9-preview");
+                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.5.6-preview");
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();
@@ -2060,6 +2069,13 @@ namespace Microsoft.Azure.Management.HDInsight
                                 {
                                     OSType osTypeInstance = ((OSType)Enum.Parse(typeof(OSType), ((string)osTypeValue), true));
                                     propertiesInstance.OperatingSystemType = osTypeInstance;
+                                }
+                                
+                                JToken tierValue = propertiesValue["Tier"];
+                                if (tierValue != null && tierValue.Type != JTokenType.Null)
+                                {
+                                    Tier tierInstance = ((Tier)Enum.Parse(typeof(Tier), ((string)tierValue), true));
+                                    propertiesInstance.ClusterTier = tierInstance;
                                 }
                                 
                                 JToken clusterDefinitionValue = propertiesValue["clusterDefinition"];
@@ -2474,7 +2490,7 @@ namespace Microsoft.Azure.Management.HDInsight
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
-                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.0.9-preview");
+                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.5.6-preview");
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();
@@ -3018,7 +3034,7 @@ namespace Microsoft.Azure.Management.HDInsight
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
-                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.0.9-preview");
+                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.5.6-preview");
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();
@@ -3163,7 +3179,7 @@ namespace Microsoft.Azure.Management.HDInsight
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
-                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.0.9-preview");
+                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.5.6-preview");
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();
@@ -3278,6 +3294,13 @@ namespace Microsoft.Azure.Management.HDInsight
                                 {
                                     OSType osTypeInstance = ((OSType)Enum.Parse(typeof(OSType), ((string)osTypeValue), true));
                                     propertiesInstance.OperatingSystemType = osTypeInstance;
+                                }
+                                
+                                JToken tierValue = propertiesValue["Tier"];
+                                if (tierValue != null && tierValue.Type != JTokenType.Null)
+                                {
+                                    Tier tierInstance = ((Tier)Enum.Parse(typeof(Tier), ((string)tierValue), true));
+                                    propertiesInstance.ClusterTier = tierInstance;
                                 }
                                 
                                 JToken clusterDefinitionValue = propertiesValue["clusterDefinition"];
@@ -3666,7 +3689,7 @@ namespace Microsoft.Azure.Management.HDInsight
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
-                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.0.9-preview");
+                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.5.6-preview");
                 httpRequest.Headers.Add("x-ms-version", "2015-03-01-preview");
                 
                 // Set Credentials
@@ -3712,7 +3735,7 @@ namespace Microsoft.Azure.Management.HDInsight
                         {
                             responseDoc = JToken.Parse(responseContent);
                         }
-
+                        
                         if (responseDoc != null && responseDoc.Type != JTokenType.Null)
                         {
                             JToken statusValue = responseDoc["status"];
@@ -3721,20 +3744,20 @@ namespace Microsoft.Azure.Management.HDInsight
                                 AsyncOperationState statusInstance = ((AsyncOperationState)Enum.Parse(typeof(AsyncOperationState), ((string)statusValue), true));
                                 result.State = statusInstance;
                             }
-
+                            
                             JToken errorValue = responseDoc["error"];
                             if (errorValue != null && errorValue.Type != JTokenType.Null)
                             {
                                 ErrorInfo errorInstance = new ErrorInfo();
                                 result.ErrorInfo = errorInstance;
-
+                                
                                 JToken codeValue = errorValue["code"];
                                 if (codeValue != null && codeValue.Type != JTokenType.Null)
                                 {
                                     string codeInstance = ((string)codeValue);
                                     errorInstance.Code = codeInstance;
                                 }
-
+                                
                                 JToken messageValue = errorValue["message"];
                                 if (messageValue != null && messageValue.Type != JTokenType.Null)
                                 {
@@ -3743,7 +3766,7 @@ namespace Microsoft.Azure.Management.HDInsight
                                 }
                             }
                         }
-
+                        
                     }
                     result.StatusCode = statusCode;
                     if (httpResponse.Headers.Contains("x-ms-request-id"))
@@ -3835,7 +3858,7 @@ namespace Microsoft.Azure.Management.HDInsight
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
-                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.0.9-preview");
+                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.5.6-preview");
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();
@@ -3955,6 +3978,13 @@ namespace Microsoft.Azure.Management.HDInsight
                                         {
                                             OSType osTypeInstance = ((OSType)Enum.Parse(typeof(OSType), ((string)osTypeValue), true));
                                             propertiesInstance.OperatingSystemType = osTypeInstance;
+                                        }
+                                        
+                                        JToken tierValue = propertiesValue["Tier"];
+                                        if (tierValue != null && tierValue.Type != JTokenType.Null)
+                                        {
+                                            Tier tierInstance = ((Tier)Enum.Parse(typeof(Tier), ((string)tierValue), true));
+                                            propertiesInstance.ClusterTier = tierInstance;
                                         }
                                         
                                         JToken clusterDefinitionValue = propertiesValue["clusterDefinition"];
@@ -4371,7 +4401,7 @@ namespace Microsoft.Azure.Management.HDInsight
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
-                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.0.9-preview");
+                httpRequest.Headers.Add("User-Agent", "ARM SDK v1.5.6-preview");
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();
@@ -4491,6 +4521,13 @@ namespace Microsoft.Azure.Management.HDInsight
                                         {
                                             OSType osTypeInstance = ((OSType)Enum.Parse(typeof(OSType), ((string)osTypeValue), true));
                                             propertiesInstance.OperatingSystemType = osTypeInstance;
+                                        }
+                                        
+                                        JToken tierValue = propertiesValue["Tier"];
+                                        if (tierValue != null && tierValue.Type != JTokenType.Null)
+                                        {
+                                            Tier tierInstance = ((Tier)Enum.Parse(typeof(Tier), ((string)tierValue), true));
+                                            propertiesInstance.ClusterTier = tierInstance;
                                         }
                                         
                                         JToken clusterDefinitionValue = propertiesValue["clusterDefinition"];
@@ -4878,7 +4915,7 @@ namespace Microsoft.Azure.Management.HDInsight
             {
                 delayInSeconds = client.LongRunningOperationInitialTimeout;
             }
-            while ((result.State != Microsoft.Azure.Management.HDInsight.Models.AsyncOperationState.InProgress) == false)
+            while (result.State == AsyncOperationState.InProgress)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 await TaskEx.Delay(delayInSeconds * 1000, cancellationToken).ConfigureAwait(false);
