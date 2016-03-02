@@ -226,6 +226,8 @@
     <Compile Include="Customizations\Operations\Datasets\DatasetOperations.cs" />
     <Compile Include="Customizations\Operations\Datasets\DatasetOperationsExtensions.cs" />
     <Compile Include="Customizations\DataFactoryManagementClient.Customization.cs" />
+    <Compile Include="DataPipelineManagementClient.Customization.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Generated\**\*.cs" />
   </ItemGroup>
   <ItemGroup>

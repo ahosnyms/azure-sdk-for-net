@@ -13,13 +13,13 @@
 // limitations under the License.
 //
 
-using Microsoft.Azure.Subscriptions;
 using ResourceGroups.Tests;
 
 namespace Microsoft.Azure.Test
 {
     using Microsoft.Azure.Management.Resources;
     using Microsoft.Azure.Management.Resources.Models;
+    using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
     using System;
     using System.Linq;
 
@@ -28,35 +28,15 @@ namespace Microsoft.Azure.Test
         /// <summary>
         /// Default constructor for management clients, using the TestSupport Infrastructure
         /// </summary>
-        /// <param name="testBase">the test class</param>
-        /// <returns>A resource management client, created from the current context (environment variables)</returns>
-        public static ResourceManagementClient GetResourceManagementClient(this TestBase testBase)
-        {
-            return TestBase.GetServiceClient<ResourceManagementClient>(new CSMTestEnvironmentFactory());
-        }
-
-        /// <summary>
-        /// Default constructor for management clients, using the TestSupport Infrastructure
-        /// </summary>
         /// <param name="handler"></param>
         /// <returns>A resource management client, created from the current context (environment variables)</returns>
-        public static ResourceManagementClient GetResourceManagementClientWithHandler(RecordedDelegatingHandler handler)
+        public static ResourceManagementClient GetResourceManagementClientWithHandler(MockContext context, RecordedDelegatingHandler handler)
         {
             handler.IsPassThrough = true;
-            return TestBase.GetServiceClient<ResourceManagementClient>(new CSMTestEnvironmentFactory()).WithHandler(handler);
+            var client = context.GetServiceClient<ResourceManagementClient>(handler);
+            return client;
         }
 
-        /// <summary>
-        /// Default constructor for management clients, using the TestSupport Infrastructure
-        /// </summary>
-        /// <param name="testBase">the test class</param>
-        /// <returns>A subscription client, created from the current context (environment variables)</returns>
-        public static SubscriptionClient GetSubscriptionClient(this TestBase testBase)
-        {
-            return TestBase.GetServiceClient<SubscriptionClient>(new CSMTestEnvironmentFactory());
-        }
-
-        /// <summary>
         /// Get a default resource location for a given resource type
         /// </summary>
         /// <param name="client">The resource management client</param>
@@ -68,9 +48,9 @@ namespace Microsoft.Azure.Test
             string[] parts = resourceType.Split('/');
             string providerName = parts[0];
             var provider = client.Providers.Get(providerName);
-            foreach (var resource in provider.Provider.ResourceTypes)
+            foreach (var resource in provider.ResourceTypes)
             {
-                if (string.Equals(resource.Name, parts[1], StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(resource.ResourceType, parts[1], StringComparison.OrdinalIgnoreCase))
                 {
                     location = resource.Locations.LastOrDefault<string>();
                 }
@@ -80,7 +60,7 @@ namespace Microsoft.Azure.Test
         }
 
         /// <summary>
-        /// Equality comparison for locatiosn returned by resource management
+        /// Equality comparison for locations returned by resource management
         /// </summary>
         /// <param name="expected">The expected location</param>
         /// <param name="actual">The actual location returned by resource management</param>

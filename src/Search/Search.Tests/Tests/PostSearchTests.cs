@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿// 
 // Copyright (c) Microsoft.  All rights reserved. 
 // 
@@ -18,6 +19,17 @@ using Xunit;
 
 namespace Microsoft.Azure.Search.Tests
 {
+=======
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for
+// license information.
+
+namespace Microsoft.Azure.Search.Tests
+{
+    using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+    using Xunit;
+
+>>>>>>> origin/AutoRest
     public class PostSearchTests : SearchTests
     {
         [Fact]
@@ -143,5 +155,26 @@ namespace Microsoft.Azure.Search.Tests
         {
             Run(TestCanSearchWithDateTimeInStaticModel);
         }
+<<<<<<< HEAD
+=======
+
+        [Fact]
+        public void CanRoundTripNonNullableValueTypes()
+        {
+            Run(TestCanRoundTripNonNullableValueTypes);
+        }
+
+        [Fact]
+        public void NullCannotBeConvertedToValueType()
+        {
+            Run(TestNullCannotBeConvertedToValueType);
+        }
+
+        [Fact]
+        public void CanFilterNonNullableType()
+        {
+            Run(TestCanFilterNonNullableType);
+        }
+>>>>>>> origin/AutoRest
     }
 }

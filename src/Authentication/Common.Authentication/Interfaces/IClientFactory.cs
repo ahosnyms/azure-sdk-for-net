@@ -24,11 +24,15 @@ namespace Microsoft.Azure.Common.Authentication
 {
     public interface IClientFactory
     {
+        TClient CreateArmClient<TClient>(AzureContext context, AzureEnvironment.Endpoint endpoint) where TClient : Microsoft.Rest.ServiceClient<TClient>;
+
+        TClient CreateCustomArmClient<TClient>(params object[] parameters) where TClient : Microsoft.Rest.ServiceClient<TClient>;
+
         TClient CreateClient<TClient>(AzureContext context, AzureEnvironment.Endpoint endpoint) where TClient : ServiceClient<TClient>;
 
-        TClient CreateClient<TClient>(AzureProfile profile, AzureEnvironment.Endpoint endpoint) where TClient : ServiceClient<TClient>;
+        TClient CreateClient<TClient>(AzureSMProfile profile, AzureEnvironment.Endpoint endpoint) where TClient : ServiceClient<TClient>;
 
-        TClient CreateClient<TClient>(AzureProfile profile, AzureSubscription subscription, AzureEnvironment.Endpoint endpoint) where TClient : ServiceClient<TClient>;
+        TClient CreateClient<TClient>(AzureSMProfile profile, AzureSubscription subscription, AzureEnvironment.Endpoint endpoint) where TClient : ServiceClient<TClient>;
 
         TClient CreateCustomClient<TClient>(params object[] parameters) where TClient : ServiceClient<TClient>;
 
@@ -39,6 +43,10 @@ namespace Microsoft.Azure.Common.Authentication
         void AddAction(IClientAction action);
 
         void RemoveAction(Type actionType);
+
+        void AddHandler<T>(T handler) where T: DelegatingHandler, ICloneable;
+
+        void RemoveHandler(Type handlerType);
 
         /// <summary>
         /// Adds user agent to UserAgents collection with empty version.
@@ -53,9 +61,6 @@ namespace Microsoft.Azure.Common.Authentication
         /// <param name="productVersion">Product version.</param>
         void AddUserAgent(string productName, string productVersion);
 
-        /// <summary>
-        /// Gets a hash set of user agents to be included in created clients.
-        /// </summary>
-        HashSet<ProductInfoHeaderValue> UserAgents { get; }
+        HashSet<ProductInfoHeaderValue> UserAgents { get; set; }
     }
 }

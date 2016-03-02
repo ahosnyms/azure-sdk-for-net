@@ -7,6 +7,7 @@
       "RequestBody": "",
       "RequestHeaders": {
         "x-ms-client-request-id": [
+<<<<<<< HEAD
           "7f1226c3-5231-4ca0-8e98-ac598160a936"
         ],
         "User-Agent": [
@@ -14,6 +15,18 @@
         ]
       },
       "ResponseBody": "{\r\n  \"value\": [\r\n    {\r\n      \"unit\": \"Count\",\r\n      \"currentValue\": 0,\r\n      \"limit\": 100,\r\n      \"name\": {\r\n        \"value\": \"StorageAccounts\",\r\n        \"localizedValue\": \"Storage Accounts\"\r\n      }\r\n    }\r\n  ]\r\n}",
+=======
+          "8b5b5e4d-9c25-4023-ac8b-be453c8b078c"
+        ],
+        "accept-language": [
+          "en-US"
+        ],
+        "User-Agent": [
+          "Microsoft.Azure.Management.Storage.StorageManagementClient/2.0.0.0"
+        ]
+      },
+      "ResponseBody": "{\r\n  \"value\": [\r\n    {\r\n      \"unit\": \"Count\",\r\n      \"currentValue\": 8,\r\n      \"limit\": 100,\r\n      \"name\": {\r\n        \"value\": \"StorageAccounts\",\r\n        \"localizedValue\": \"Storage Accounts\"\r\n      }\r\n    }\r\n  ]\r\n}",
+>>>>>>> origin/AutoRest
       "ResponseHeaders": {
         "Content-Length": [
           "217"
@@ -28,7 +41,11 @@
           "no-cache"
         ],
         "x-ms-request-id": [
+<<<<<<< HEAD
           "60d3fc88-7312-4a08-b234-c66196852705"
+=======
+          "7b8acc1d-6dae-49b0-9d74-9badc060a1c9"
+>>>>>>> origin/AutoRest
         ],
         "Cache-Control": [
           "no-cache"
@@ -38,6 +55,7 @@
           "Microsoft-HTTPAPI/2.0"
         ],
         "x-ms-ratelimit-remaining-subscription-reads": [
+<<<<<<< HEAD
           "14995"
         ],
         "x-ms-correlation-request-id": [
@@ -45,12 +63,25 @@
         ],
         "x-ms-routing-request-id": [
           "WESTUS:20150929T010746Z:60d3fc88-7312-4a08-b234-c66196852705"
+=======
+          "14985"
+        ],
+        "x-ms-correlation-request-id": [
+          "7b8acc1d-6dae-49b0-9d74-9badc060a1c9"
+        ],
+        "x-ms-routing-request-id": [
+          "WESTUS:20151113T175654Z:7b8acc1d-6dae-49b0-9d74-9badc060a1c9"
+>>>>>>> origin/AutoRest
         ],
         "Strict-Transport-Security": [
           "max-age=31536000; includeSubDomains"
         ],
         "Date": [
+<<<<<<< HEAD
           "Tue, 29 Sep 2015 01:07:46 GMT"
+=======
+          "Fri, 13 Nov 2015 17:56:53 GMT"
+>>>>>>> origin/AutoRest
         ]
       },
       "StatusCode": 200

@@ -463,6 +463,7 @@ namespace Microsoft.Azure.Insights
             EntityProperty timestamp = entity["TIMESTAMP"];
             switch (timestamp.PropertyType)
             {
+<<<<<<< HEAD
                 case EdmType.DateTime:
                     metricValue.Timestamp = timestamp.DateTime ?? entity.Timestamp.UtcDateTime;
                     break;
@@ -478,6 +479,10 @@ namespace Microsoft.Azure.Insights
                     metricValue.Timestamp = entity.Timestamp.UtcDateTime;
                     break;
             }
+=======
+                Timestamp = entity["TIMESTAMP"].DateTimeOffsetValue != null ? entity["TIMESTAMP"].DateTimeOffsetValue.Value.DateTime : entity.Timestamp.UtcDateTime
+            };
+>>>>>>> origin/AutoRest
 
             foreach (string key in entity.Properties.Keys)
             {

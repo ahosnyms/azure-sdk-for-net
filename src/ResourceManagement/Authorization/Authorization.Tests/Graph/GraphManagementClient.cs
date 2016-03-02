@@ -13,7 +13,6 @@
 // limitations under the License.
 //
 
-using Hyak.Common;
 using Microsoft.Azure.Test;
 using Microsoft.Azure.Test.HttpRecorder;
 using System;
@@ -25,7 +24,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+<<<<<<< HEAD
 using Xunit;
+=======
+using Microsoft.Rest;
+using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+>>>>>>> origin/AutoRest
 
 namespace Authorization.Tests
 {
@@ -69,8 +73,8 @@ namespace Authorization.Tests
 
         public string UserDomain { get; private set; }
 
-        public GraphManagementClient(TestEnvironment testEnv)
-            : base()
+        public GraphManagementClient(TestEnvironment testEnv, params DelegatingHandler[] handlers)
+            : base(handlers)
         {
             this.HttpClient.Timeout = TimeSpan.FromSeconds(300);
 
@@ -80,6 +84,7 @@ namespace Authorization.Tests
             }
 
             this.testEnvironment = testEnv;
+<<<<<<< HEAD
             if (this.testEnvironment != null 
                 && this.testEnvironment.AuthorizationContext != null 
                 && this.testEnvironment.AuthorizationContext.UserId != null)
@@ -91,6 +96,16 @@ namespace Authorization.Tests
                     atIndex != username.Length - 1)
                 {
                     this.UserDomain = username.Substring(atIndex);
+=======
+            if (testEnv != null  && testEnv.UserName != null)
+            {
+                var atIndex = this.testEnvironment.UserName.IndexOf("@");
+
+                if (atIndex != -1 &&
+                    atIndex != this.testEnvironment.UserName.Length - 1)
+                {
+                    this.UserDomain = this.testEnvironment.UserName.Substring(atIndex);
+>>>>>>> origin/AutoRest
                 }
             }
             else
@@ -99,12 +114,6 @@ namespace Authorization.Tests
             }
         }  
         
-
-        public override GraphManagementClient WithHandler(DelegatingHandler handler)
-        {
-            return (GraphManagementClient)WithHandler(new GraphManagementClient(this.testEnvironment), handler);
-        }
-
         public Guid CreateUser(string userName)
         {
             var createBody = string.Format(
@@ -212,7 +221,11 @@ namespace Authorization.Tests
 
             this.CallServerSync(request);
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> origin/AutoRest
         public IEnumerable<string> ListGroups(string groupNameFilter = null)
         {
             var returnValue = new List<string>();
@@ -250,9 +263,15 @@ namespace Authorization.Tests
             return string.Format(
                 GraphUriFormatter,
                 this.testEnvironment.Endpoints.GraphUri.ToString(),
+<<<<<<< HEAD
                 this.testEnvironment.AuthorizationContext == null || this.testEnvironment.AuthorizationContext.TenantId == null ?
                 GraphManagementClient.DefaultTenantId :
                     this.testEnvironment.AuthorizationContext.TenantId,
+=======
+                /*this.testEnvironment == null  || this.testEnvironment.Tenant == null?*/
+                GraphManagementClient.DefaultTenantId /*:
+                    this.testEnvironment.Tenant*/,
+>>>>>>> origin/AutoRest
                 suffix,
                 GraphManagementClient.GraphApiVersion);
         }
@@ -266,11 +285,13 @@ namespace Authorization.Tests
             httpRequest.Headers.Add("Accept", "application/json;odata=minimalmetadata");
 
 
-            if (this.testEnvironment.AuthorizationContext != null)
+            if (this.testEnvironment != null && this.testEnvironment.Credentials != null)
             {
-                httpRequest.Headers.Authorization = new AuthenticationHeaderValue(
-                                                this.testEnvironment.AuthorizationContext.AccessTokenType,
-                                                this.testEnvironment.AuthorizationContext.AccessToken);
+                // Not Supported in current code
+                // var tokenCredentials = (TokenCredentials)this.testEnvironment.Credentials;
+                // httpRequest.Headers.Authorization = new AuthenticationHeaderValue(
+                //                                this.testEnvironment.AccessTokenType,
+                //                                this.testEnvironment.AuthorizationContext.AccessToken);
             }
 
             if(body != null)

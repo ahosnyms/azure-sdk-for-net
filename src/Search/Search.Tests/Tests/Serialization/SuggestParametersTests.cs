@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿// 
 // Copyright (c) Microsoft.  All rights reserved. 
 // 
@@ -17,9 +18,19 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Azure.Search.Models;
 using Xunit;
+=======
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for
+// license information.
+>>>>>>> origin/AutoRest
 
 namespace Microsoft.Azure.Search.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.Azure.Search.Models;
+    using Xunit;
+
     public sealed class SuggestParametersTests
     {
         [Fact]

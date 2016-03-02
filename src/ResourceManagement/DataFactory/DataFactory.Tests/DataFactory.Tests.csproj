@@ -41,6 +41,8 @@
     <Compile Include="ScenarioTests\BasicDelegatingHandler.cs" />
     <Compile Include="ScenarioTests\OAuthTests.cs" />
     <Compile Include="ScenarioTests\PipelineTests.cs" />
+    <Compile Include="ScenarioTests\SqlCopyPipelineTests.cs" />
+    <Compile Include="ScenarioTests\TableTests.cs" />
     <Compile Include="ScenarioTests\TestHelper.cs" />
     <Compile Include="UnitTests\ActivityConfigurationTests.cs" />
     <Compile Include="UnitTests\ActivityTypeTests.cs" />
@@ -63,7 +65,6 @@
     <Compile Include="UnitTests\UnitTestBase.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Resources\DA_CuratedWikiData.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -74,6 +75,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\DP_Wikisamplev2json.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\linkedService.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\LinkedService_CuratedWikiData.json">
@@ -92,6 +96,28 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="SessionRecords\DataFactory.Tests.ScenarioTests.PipelineTests\WikipediaPipelineE2ETest.json">
+    <None Include="Resources\SqlStoredProcedureParameters\LinkedService_SqlAzure.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\SqlStoredProcedureParameters\Pipeline_Copy.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\SqlStoredProcedureParameters\Table_SinkTable.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\SqlStoredProcedureParameters\Table_SourceTable.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\table.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="SessionRecords\DataFactories.DataPipeline.Test.ScenarioTests.PipelineTests\WikipediaPipelineTest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="SessionRecords\DataFactories.DataPipeline.Test.ScenarioTests.SqlCopyPipelineTests\SqlCopyPipelineTest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="SessionRecords\DataFactories.DataPipeline.Test.ScenarioTests.TableTests\TestCreateTable.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

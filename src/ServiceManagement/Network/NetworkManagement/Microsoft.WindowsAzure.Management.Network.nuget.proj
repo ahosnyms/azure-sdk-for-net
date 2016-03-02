@@ -5,7 +5,11 @@
     Microsoft.WindowsAzure.Management.Network
     -->
     <SdkNuGetPackage Include="Microsoft.WindowsAzure.Management.Network">
+<<<<<<< HEAD
       <PackageVersion>7.0.4</PackageVersion>
+=======
+      <PackageVersion>7.0.2</PackageVersion>
+>>>>>>> origin/AutoRest
       <Folder>$(MSBuildThisFileDirectory)</Folder>
     </SdkNuGetPackage>
   </ItemGroup>

@@ -29,6 +29,18 @@ namespace Microsoft.Azure.Management.Sql.Models
     /// </summary>
     public partial class DataMaskingRuleProperties
     {
+        private string _aliasName;
+        
+        /// <summary>
+        /// Optional. Gets or sets the alias name on which the data masking
+        /// rule is applied.
+        /// </summary>
+        public string AliasName
+        {
+            get { return this._aliasName; }
+            set { this._aliasName = value; }
+        }
+        
         private string _columnName;
         
         /// <summary>
@@ -111,6 +123,7 @@ namespace Microsoft.Azure.Management.Sql.Models
             set { this._replacementString = value; }
         }
         
+<<<<<<< HEAD
         private string _ruleState;
         
         /// <summary>
@@ -134,6 +147,8 @@ namespace Microsoft.Azure.Management.Sql.Models
             set { this._schemaName = value; }
         }
         
+=======
+>>>>>>> origin/AutoRest
         private string _suffixSize;
         
         /// <summary>

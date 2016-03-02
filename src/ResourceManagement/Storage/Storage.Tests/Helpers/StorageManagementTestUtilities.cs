@@ -18,12 +18,14 @@ using Microsoft.Azure.Management.Resources;
 using Microsoft.Azure.Management.Resources.Models;
 using Microsoft.Azure.Management.Storage;
 using Microsoft.Azure.Management.Storage.Models;
-using Microsoft.Azure.Test;
+using Microsoft.Rest;
+using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
 using ResourceGroups.Tests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using Xunit;
@@ -33,11 +35,11 @@ namespace Storage.Tests.Helpers
     public static class StorageManagementTestUtilities
     {
         public static bool IsTestTenant = false;
-        private static SubscriptionCloudCredentials Creds = null;
+        private static HttpClientHandler Handler = null;
 
         // These should be filled in only if test tenant is true
-        private static string certName = null;
-        private static string certPassword = null;
+        public static string certName = null;
+        public static string certPassword = null;
         private static string testSubscription = null;
         private static Uri testUri = null;
 
@@ -50,43 +52,50 @@ namespace Storage.Tests.Helpers
                 {"key2","value2"}
             };
 
-        public static ResourceManagementClient GetResourceManagementClient(RecordedDelegatingHandler handler)
+        public static ResourceManagementClient GetResourceManagementClient(MockContext context, RecordedDelegatingHandler handler)
         {
             if (IsTestTenant)
             {
-                ResourceManagementClient resourcesClient = new ResourceManagementClient(GetCreds());
+                return null;
+            }
+            else
+            {
+                handler.IsPassThrough = true;
+                ResourceManagementClient resourcesClient = context.GetServiceClient<ResourceManagementClient>(handler);
                 return resourcesClient;
             }
-            else
-            {
-                handler.IsPassThrough = true;
-                return TestBase.GetServiceClient<ResourceManagementClient>(new CSMTestEnvironmentFactory()).WithHandler(handler);
-            }
         }
 
-        public static StorageManagementClient GetStorageManagementClient(RecordedDelegatingHandler handler)
+        public static StorageManagementClient GetStorageManagementClient(MockContext context, RecordedDelegatingHandler handler)
         {
+            StorageManagementClient storageClient;
             if (IsTestTenant)
             {
-                return new StorageManagementClient(GetCreds(), testUri);
+                storageClient = new StorageManagementClient(new TokenCredentials("xyz"), GetHandler());
+                storageClient.SubscriptionId = testSubscription;
+                storageClient.BaseUri = testUri;
             }
             else
             {
                 handler.IsPassThrough = true;
-                return TestBase.GetServiceClient<StorageManagementClient>(new CSMTestEnvironmentFactory()).WithHandler(handler);
+                storageClient = context.GetServiceClient<StorageManagementClient>(handler);
             }
+            return storageClient;
         }
 
-        private static SubscriptionCloudCredentials GetCreds() 
+        private static HttpClientHandler GetHandler() 
         {
-            if (Creds == null)
+#if DNX451
+            if (Handler == null)
             {
+                //talk to yugangw-msft, if the code doesn't work under dnx451 (same with net451)
                 X509Certificate2 cert = new X509Certificate2(certName, certPassword);
-                Creds = new CertificateCloudCredentials(testSubscription, cert);
+                Handler = new System.Net.Http.WebRequestHandler();
+                ((WebRequestHandler)Handler).ClientCertificates.Add(cert);
                 ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => { return true; };
             }
-
-            return Creds;
+#endif
+            return Handler;
         }
 
         public static StorageAccountCreateParameters GetDefaultStorageAccountParameters()
@@ -131,10 +140,10 @@ namespace Storage.Tests.Helpers
 
         public static void VerifyAccountProperties(StorageAccount account, bool useDefaults)
         {
+            Assert.NotNull(account);
             Assert.NotNull(account.Id);
             Assert.NotNull(account.Location);
             Assert.NotNull(account.Name);
-            Assert.NotNull(account);
             Assert.NotNull(account.AccountType);
             Assert.NotNull(account.CreationTime);
 
@@ -151,7 +160,7 @@ namespace Storage.Tests.Helpers
                 Assert.NotNull(account.PrimaryEndpoints.File);
             }
 
-            Assert.Equal(Microsoft.Azure.Management.Storage.Models.ProvisioningState.Succeeded, account.ProvisioningState);
+            Assert.Equal(ProvisioningState.Succeeded, account.ProvisioningState);
             Assert.Null(account.LastGeoFailoverTime);
 
             switch (account.AccountType)

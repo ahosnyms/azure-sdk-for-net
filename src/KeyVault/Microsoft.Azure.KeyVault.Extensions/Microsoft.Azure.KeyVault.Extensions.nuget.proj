@@ -5,7 +5,11 @@
     Microsoft.Azure.KeyVault.Extensions
     -->
     <SdkNuGetPackage Include="Microsoft.Azure.KeyVault.Extensions">
+<<<<<<< HEAD
       <PackageVersion>1.0.1</PackageVersion>
+=======
+      <PackageVersion>0.9.1-preview</PackageVersion>
+>>>>>>> origin/AutoRest
       <Folder>$(MSBuildThisFileDirectory)</Folder>
     </SdkNuGetPackage>
   </ItemGroup>

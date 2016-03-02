@@ -128,7 +128,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
             url = url + Uri.EscapeDataString(inputName);
             url = url + "/test";
             List<string> queryParameters = new List<string>();
+<<<<<<< HEAD
             queryParameters.Add("api-version=2015-09-01");
+=======
+            queryParameters.Add("api-version=2015-04-01");
+>>>>>>> origin/AutoRest
             if (queryParameters.Count > 0)
             {
                 url = url + "?" + string.Join("&", queryParameters);
@@ -267,11 +271,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
                     {
                         result.RequestId = httpResponse.Headers.GetValues("x-ms-request-id").FirstOrDefault();
                     }
-                    if (statusCode == HttpStatusCode.NotFound)
+                    if (statusCode == HttpStatusCode.BadRequest)
                     {
                         result.Status = OperationStatus.Failed;
                     }
-                    if (statusCode == HttpStatusCode.BadRequest)
+                    if (statusCode == HttpStatusCode.NotFound)
                     {
                         result.Status = OperationStatus.Failed;
                     }
@@ -375,7 +379,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
                 url = url + Uri.EscapeDataString(parameters.Input.Name);
             }
             List<string> queryParameters = new List<string>();
+<<<<<<< HEAD
             queryParameters.Add("api-version=2015-09-01");
+=======
+            queryParameters.Add("api-version=2015-04-01");
+>>>>>>> origin/AutoRest
             if (queryParameters.Count > 0)
             {
                 url = url + "?" + string.Join("&", queryParameters);
@@ -1616,7 +1624,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
             url = url + "/inputs/";
             url = url + Uri.EscapeDataString(inputName);
             List<string> queryParameters = new List<string>();
+<<<<<<< HEAD
             queryParameters.Add("api-version=2015-09-01");
+=======
+            queryParameters.Add("api-version=2015-04-01");
+>>>>>>> origin/AutoRest
             if (queryParameters.Count > 0)
             {
                 url = url + "?" + string.Join("&", queryParameters);
@@ -2372,7 +2384,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
             url = url + "/inputs/";
             url = url + Uri.EscapeDataString(inputName);
             List<string> queryParameters = new List<string>();
+<<<<<<< HEAD
             queryParameters.Add("api-version=2015-09-01");
+=======
+            queryParameters.Add("api-version=2015-04-01");
+>>>>>>> origin/AutoRest
             if (queryParameters.Count > 0)
             {
                 url = url + "?" + string.Join("&", queryParameters);
@@ -2529,7 +2545,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
             url = url + "/inputs/";
             url = url + Uri.EscapeDataString(inputName);
             List<string> queryParameters = new List<string>();
+<<<<<<< HEAD
             queryParameters.Add("api-version=2015-09-01");
+=======
+            queryParameters.Add("api-version=2015-04-01");
+>>>>>>> origin/AutoRest
             if (queryParameters.Count > 0)
             {
                 url = url + "?" + string.Join("&", queryParameters);
@@ -3285,7 +3305,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
             url = url + "/inputs";
             List<string> queryParameters = new List<string>();
             queryParameters.Add("$select=" + Uri.EscapeDataString(parameters.PropertiesToSelect));
+<<<<<<< HEAD
             queryParameters.Add("api-version=2015-09-01");
+=======
+            queryParameters.Add("api-version=2015-04-01");
+>>>>>>> origin/AutoRest
             if (queryParameters.Count > 0)
             {
                 url = url + "?" + string.Join("&", queryParameters);
@@ -4059,7 +4083,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
             url = url + "/inputs/";
             url = url + Uri.EscapeDataString(inputName);
             List<string> queryParameters = new List<string>();
+<<<<<<< HEAD
             queryParameters.Add("api-version=2015-09-01");
+=======
+            queryParameters.Add("api-version=2015-04-01");
+>>>>>>> origin/AutoRest
             if (queryParameters.Count > 0)
             {
                 url = url + "?" + string.Join("&", queryParameters);

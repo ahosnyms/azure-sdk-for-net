@@ -3,7 +3,11 @@
   <metadata minClientVersion="2.5">
     <id>Microsoft.Azure.Management.Batch</id>
     <title>Microsoft Azure Batch Management Library</title>
+<<<<<<< HEAD
     <releaseNotes>Updated to use API version 2015-09-01.</releaseNotes>
+=======
+    <releaseNotes>Updated the handling of invalid characters with Batch account operations.</releaseNotes>
+>>>>>>> origin/AutoRest
     <version>$version$</version>
     <authors>Microsoft</authors>
     <owners>azure-sdk, Microsoft</owners>

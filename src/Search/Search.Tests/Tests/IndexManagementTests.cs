@@ -1,31 +1,19 @@
-﻿// 
-// Copyright (c) Microsoft.  All rights reserved. 
-// 
-// Licensed under the Apache License, Version 2.0 (the "License"); 
-// you may not use this file except in compliance with the License. 
-// You may obtain a copy of the License at 
-//   http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software 
-// distributed under the License is distributed on an "AS IS" BASIS, 
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-// See the License for the specific language governing permissions and 
-// limitations under the License. 
-// 
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using Hyak.Common;
-using Microsoft.Azure.Search.Models;
-using Microsoft.Azure.Search.Tests.Utilities;
-using Microsoft.Azure.Test;
-using Microsoft.Azure.Test.TestCategories;
-using Xunit;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for
+// license information.
 
 namespace Microsoft.Azure.Search.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net;
+    using Microsoft.Azure.Search.Models;
+    using Microsoft.Azure.Search.Tests.Utilities;
+    using Microsoft.Rest.Azure;
+    using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+    using Xunit;
+
     public sealed class IndexManagementTests : SearchTestBase<SearchServiceFixture>
     {
         [Fact]
@@ -37,10 +25,9 @@ namespace Microsoft.Azure.Search.Tests
 
                 Index index = CreateTestIndex();
 
-                IndexDefinitionResponse createResponse = searchClient.Indexes.Create(index);
-                Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+                Index createdIndex = searchClient.Indexes.Create(index);
                 
-                AssertIndexesEqual(index, createResponse.Index);
+                AssertIndexesEqual(index, createdIndex);
             });
         }
 
@@ -61,19 +48,18 @@ namespace Microsoft.Azure.Search.Tests
                     {
                         Functions = new ScoringFunction[]
                         {
-                            new MagnitudeScoringFunction(new MagnitudeScoringParameters(1, 4), "rating", 2.0)
+                            new MagnitudeScoringFunction(
+                                "rating", 
+                                boost: 2.0, 
+                                boostingRangeStart: 1, 
+                                boostingRangeEnd: 4)
                         }
                     }
                 };
 
-                IndexDefinitionResponse createResponse = searchClient.Indexes.Create(inputIndex);
-                Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+                Index resultIndex = searchClient.Indexes.Create(inputIndex);
 
-                Index resultIndex = createResponse.Index;
-
-                const long ExpectedMaxAgeInSeconds = 5 * 60;
-                Assert.Equal(ExpectedMaxAgeInSeconds, resultIndex.CorsOptions.MaxAgeInSeconds);
-
+                Assert.False(resultIndex.CorsOptions.MaxAgeInSeconds.HasValue); // No value means use the default age.
                 Assert.Equal(ScoringFunctionAggregation.Sum, resultIndex.ScoringProfiles[0].FunctionAggregation);
 
                 var function = resultIndex.ScoringProfiles[0].Functions[0] as MagnitudeScoringFunction;
@@ -112,13 +98,10 @@ namespace Microsoft.Azure.Search.Tests
 
                 Index index = CreateTestIndex();
 
-                IndexDefinitionResponse createResponse = searchClient.Indexes.Create(index);
-                Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+                searchClient.Indexes.Create(index);
+                Index createdIndex = searchClient.Indexes.Get(index.Name);
 
-                IndexDefinitionResponse getResponse = searchClient.Indexes.Get(index.Name);
-                Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
-
-                AssertIndexesEqual(index, getResponse.Index);
+                AssertIndexesEqual(index, createdIndex);
             });
         }
 
@@ -151,23 +134,20 @@ namespace Microsoft.Azure.Search.Tests
                 initialIndex.DefaultScoringProfile = null;
                 initialIndex.CorsOptions.AllowedOrigins = new[] { "*" };
 
-                IndexDefinitionResponse createResponse = searchClient.Indexes.Create(initialIndex);
-                Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+                Index index = searchClient.Indexes.Create(initialIndex);
 
                 // Give the index time to stabilize before continuing the test.
                 // TODO: Remove this workaround once the retry hang bug is fixed.
                 TestUtilities.Wait(TimeSpan.FromSeconds(20));
 
                 // Now update the index.
-                Index index = createResponse.Index;
                 index.ScoringProfiles = fullFeaturedIndex.ScoringProfiles;
                 index.DefaultScoringProfile = fullFeaturedIndex.DefaultScoringProfile;
                 index.CorsOptions.AllowedOrigins = fullFeaturedIndex.CorsOptions.AllowedOrigins;
 
-                IndexDefinitionResponse updateResponse = searchClient.Indexes.CreateOrUpdate(index);
-                Assert.Equal(HttpStatusCode.OK, updateResponse.StatusCode);
+                Index updatedIndex = searchClient.Indexes.CreateOrUpdate(index);
 
-                AssertIndexesEqual(fullFeaturedIndex, updateResponse.Index);
+                AssertIndexesEqual(fullFeaturedIndex, updatedIndex);
             });
         }
 
@@ -180,8 +160,9 @@ namespace Microsoft.Azure.Search.Tests
 
                 Index index = CreateTestIndex();
 
-                IndexDefinitionResponse createOrUpdateResponse = searchClient.Indexes.CreateOrUpdate(index);
-                Assert.Equal(HttpStatusCode.Created, createOrUpdateResponse.StatusCode);
+                AzureOperationResponse<Index> createOrUpdateResponse = 
+                    searchClient.Indexes.CreateOrUpdateWithHttpMessagesAsync(index).Result;
+                Assert.Equal(HttpStatusCode.Created, createOrUpdateResponse.Response.StatusCode);
             });
         }
 
@@ -196,18 +177,20 @@ namespace Microsoft.Azure.Search.Tests
                 Index index = CreateTestIndex();
 
                 // Try delete before the index even exists.
-                AzureOperationResponse deleteResponse = searchClient.Indexes.Delete(index.Name);
-                Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+                AzureOperationResponse deleteResponse = 
+                    searchClient.Indexes.DeleteWithHttpMessagesAsync(index.Name).Result;
+                Assert.Equal(HttpStatusCode.NotFound, deleteResponse.Response.StatusCode);
 
-                IndexDefinitionResponse createResponse = searchClient.Indexes.Create(index);
-                Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+                AzureOperationResponse<Index> createResponse = 
+                    searchClient.Indexes.CreateWithHttpMessagesAsync(index).Result;
+                Assert.Equal(HttpStatusCode.Created, createResponse.Response.StatusCode);
 
                 // Now delete twice.
-                deleteResponse = searchClient.Indexes.Delete(index.Name);
-                Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+                deleteResponse = searchClient.Indexes.DeleteWithHttpMessagesAsync(index.Name).Result;
+                Assert.Equal(HttpStatusCode.NoContent, deleteResponse.Response.StatusCode);
 
-                deleteResponse = searchClient.Indexes.Delete(index.Name);
-                Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+                deleteResponse = searchClient.Indexes.DeleteWithHttpMessagesAsync(index.Name).Result;
+                Assert.Equal(HttpStatusCode.NotFound, deleteResponse.Response.StatusCode);
             });
         }
 
@@ -221,11 +204,9 @@ namespace Microsoft.Azure.Search.Tests
 
                 Index index = CreateTestIndex();
 
-                IndexDefinitionResponse createResponse = searchClient.Indexes.Create(index);
-                Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+                searchClient.Indexes.Create(index);
 
-                IndexGetStatisticsResponse stats = searchClient.Indexes.GetStatistics(index.Name);
-                Assert.Equal(HttpStatusCode.OK, stats.StatusCode);
+                IndexGetStatisticsResult stats = searchClient.Indexes.GetStatistics(index.Name);
                 Assert.Equal(0, stats.DocumentCount);
                 Assert.Equal(0, stats.StorageSize);
             });
@@ -239,13 +220,11 @@ namespace Microsoft.Azure.Search.Tests
                 SearchServiceClient searchClient = Data.GetSearchServiceClient();
 
                 Index index = CreateTestIndex();
+                searchClient.Indexes.Create(index);
 
-                IndexDefinitionResponse createResponse = searchClient.Indexes.Create(index);
-                Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-
-                // Explicitly delete the index to test the Delete operation. Otherwise the UndoHandler would delete it.
-                AzureOperationResponse deleteResponse = searchClient.Indexes.Delete(index.Name);
-                Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+                searchClient.Indexes.Delete(index.Name);
+                
+                Assert.False(searchClient.Indexes.Exists(index.Name));
             });
         }
 
@@ -259,25 +238,18 @@ namespace Microsoft.Azure.Search.Tests
                 Index index1 = CreateTestIndex();
                 Index index2 = CreateTestIndex();
 
-                IndexDefinitionResponse createResponse = searchClient.Indexes.Create(index1);
-                Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+                searchClient.Indexes.Create(index1);
+                searchClient.Indexes.Create(index2);
 
-                createResponse = searchClient.Indexes.Create(index2);
-                Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
-
-                IndexListResponse listResponse = searchClient.Indexes.List();
-                Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+                IndexListResult listResponse = searchClient.Indexes.List();
                 Assert.Equal(2, listResponse.Indexes.Count);
 
-                IEnumerable<string> indexNames = listResponse.Indexes.Select(i => i.Name);
+                IList<string> indexNames = listResponse.Indexes.Select(i => i.Name).ToList();
                 Assert.Contains(index1.Name, indexNames);
                 Assert.Contains(index2.Name, indexNames);
 
-                IndexListNamesResponse listNamesResponse = searchClient.Indexes.ListNames();
-                Assert.Equal(HttpStatusCode.OK, listNamesResponse.StatusCode);
-                Assert.Equal(2, listNamesResponse.IndexNames.Count);
-
-                indexNames = listNamesResponse.IndexNames;
+                indexNames = searchClient.Indexes.ListNames();
+                Assert.Equal(2, indexNames.Count);
                 Assert.Contains(index1.Name, indexNames);
                 Assert.Contains(index2.Name, indexNames);
             });
@@ -313,8 +285,12 @@ namespace Microsoft.Azure.Search.Tests
             {
                 SearchServiceClient client = Data.GetSearchServiceClient();
 
-                Index index = new Index() { Name = TestUtilities.GenerateName() };
-                index.Fields.Add(new Field("id", DataType.String) { IsKey = true });
+                Index index = 
+                    new Index() 
+                    { 
+                        Name = SearchTestUtilities.GenerateName(),
+                        Fields = new[] { new Field("id", DataType.String) { IsKey = true } }.ToList()
+                    };
 
                 var allAnalyzers =
                     new[]
@@ -408,14 +384,13 @@ namespace Microsoft.Azure.Search.Tests
                     index.Fields.Add(new Field(fieldName, fieldType, allAnalyzers[i]));
                 }
 
-                IndexDefinitionResponse createResponse = client.Indexes.Create(index);
-                Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+                client.Indexes.Create(index);
             });
         }
 
         private static Index CreateTestIndex()
         {
-            string indexName = TestUtilities.GenerateName();
+            string indexName = SearchTestUtilities.GenerateName();
 
             var index = new Index()
             {
@@ -445,21 +420,27 @@ namespace Microsoft.Azure.Search.Tests
                         Functions = new ScoringFunction[]
                         {
                             new MagnitudeScoringFunction(
-                                new MagnitudeScoringParameters(1, 4) { ShouldBoostBeyondRangeByConstant = true },
-                                "rating",
-                                2.0) { Interpolation = ScoringFunctionInterpolation.Constant },
+                                "rating", 
+                                boost: 2.0, 
+                                boostingRangeStart: 1, 
+                                boostingRangeEnd: 4, 
+                                shouldBoostBeyondRangeByConstant: true, 
+                                interpolation: ScoringFunctionInterpolation.Constant),
                             new DistanceScoringFunction(
-                                new DistanceScoringParameters("loc", 5),
-                                "location",
-                                1.5) { Interpolation = ScoringFunctionInterpolation.Linear },
+                                "location", 
+                                boost: 1.5, 
+                                referencePointParameter: "loc", 
+                                boostingDistance: 5, 
+                                interpolation: ScoringFunctionInterpolation.Linear),
                             new FreshnessScoringFunction(
-                                new FreshnessScoringParameters(TimeSpan.FromDays(365)),
-                                "lastRenovationDate",
-                                1.1) { Interpolation = ScoringFunctionInterpolation.Logarithmic }
+                                "lastRenovationDate", 
+                                boost: 1.1, 
+                                boostingDuration: TimeSpan.FromDays(365), 
+                                interpolation: ScoringFunctionInterpolation.Logarithmic)
                         },
                         TextWeights = new TextWeights()
                         {
-                            Weights = new Dictionary<string, double>() { { "description", 1.5 }, { "category", 2.0 } }
+                            Weights = new Dictionary<string, double?>() { { "description", 1.5 }, { "category", 2.0 } }
                         }
                     },
                     new ScoringProfile("ProfileTwo")
@@ -467,10 +448,11 @@ namespace Microsoft.Azure.Search.Tests
                         FunctionAggregation = ScoringFunctionAggregation.Maximum,
                         Functions = new[]
                         {
-                            new TagScoringFunction(new TagScoringParameters("mytags"), "tags", 1.5)
-                            {
-                                Interpolation = ScoringFunctionInterpolation.Linear
-                            }
+                            new TagScoringFunction(
+                                "tags", 
+                                boost: 1.5, 
+                                tagsParameter: "mytags", 
+                                interpolation: ScoringFunctionInterpolation.Linear)
                         }
                     },
                     new ScoringProfile("ProfileThree")
@@ -478,7 +460,7 @@ namespace Microsoft.Azure.Search.Tests
                         FunctionAggregation = ScoringFunctionAggregation.Minimum,
                         Functions = new[]
                         {
-                            new MagnitudeScoringFunction(new MagnitudeScoringParameters(0, 10), "rating", 3.0)
+                            new MagnitudeScoringFunction("rating", 3.0, new MagnitudeScoringParameters(0, 10))
                             {
                                 Interpolation = ScoringFunctionInterpolation.Quadratic
                             }
@@ -489,7 +471,7 @@ namespace Microsoft.Azure.Search.Tests
                         FunctionAggregation = ScoringFunctionAggregation.FirstMatching,
                         Functions = new[]
                         {
-                            new MagnitudeScoringFunction(new MagnitudeScoringParameters(1, 5), "rating", 3.14)
+                            new MagnitudeScoringFunction("rating", 3.14, new MagnitudeScoringParameters(1, 5))
                             {
                                 Interpolation = ScoringFunctionInterpolation.Constant
                             }
@@ -582,8 +564,8 @@ namespace Microsoft.Azure.Search.Tests
         }
 
         private static void AssertTextWeightsEqual(
-            KeyValuePair<string, double> expected, 
-            KeyValuePair<string, double> actual)
+            KeyValuePair<string, double?> expected, 
+            KeyValuePair<string, double?> actual)
         {
             Assert.Equal(expected.Key, actual.Key);
             Assert.Equal(expected.Value, actual.Value);
@@ -633,8 +615,8 @@ namespace Microsoft.Azure.Search.Tests
             Assert.Equal(expected.Parameters.BoostingRangeEnd, actual.Parameters.BoostingRangeEnd);
             Assert.Equal(expected.Parameters.BoostingRangeStart, actual.Parameters.BoostingRangeStart);
             Assert.Equal(
-                expected.Parameters.ShouldBoostBeyondRangeByConstant, 
-                actual.Parameters.ShouldBoostBeyondRangeByConstant);
+                expected.Parameters.ShouldBoostBeyondRangeByConstant.GetValueOrDefault(), 
+                actual.Parameters.ShouldBoostBeyondRangeByConstant.GetValueOrDefault());
         }
 
         private static void AssertFreshnessScoringFunctionsEqual(
