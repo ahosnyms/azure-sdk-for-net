@@ -37,7 +37,7 @@ using Newtonsoft.Json.Linq;
 namespace Microsoft.Azure.Management.TrafficManager
 {
     /// <summary>
-    /// Operations for managing Traffic Manager profiles.
+    /// Operations for managing WATMv2 profiles.
     /// </summary>
     internal partial class ProfileOperations : IServiceOperations<TrafficManagerManagementClient>, IProfileOperations
     {
@@ -64,6 +64,7 @@ namespace Microsoft.Azure.Management.TrafficManager
         }
         
         /// <summary>
+<<<<<<< HEAD
         /// Create or update a Traffic Manager endpoint.
         /// </summary>
         /// <param name='parameters'>
@@ -263,24 +264,24 @@ namespace Microsoft.Azure.Management.TrafficManager
         
         /// <summary>
         /// Create or update a Traffic Manager profile.
+=======
+        /// Create or update a WATMv2 profile within a resource group.
+>>>>>>> origin/AutoRest
         /// </summary>
         /// <param name='resourceGroupName'>
-        /// Required. The name of the resource group containing the Traffic
-        /// Manager profile.
+        /// Required. The name of the resource group.
         /// </param>
         /// <param name='profileName'>
-        /// Required. The name of the Traffic Manager profile.
+        /// Required. The name of the zone without a terminating dot.
         /// </param>
         /// <param name='parameters'>
-        /// Required. The Traffic Manager profile parameters supplied to the
-        /// CreateOrUpdate operation.
+        /// Required. Parameters supplied to the CreateOrUpdate operation.
         /// </param>
         /// <param name='cancellationToken'>
         /// Cancellation token.
         /// </param>
         /// <returns>
-        /// The response to a Traffic Manager profile 'CreateOrUpdate'
-        /// operation.
+        /// The response to a Profile CreateOrUpdate operation.
         /// </returns>
         public async Task<ProfileCreateOrUpdateResponse> CreateOrUpdateAsync(string resourceGroupName, string profileName, ProfileCreateOrUpdateParameters parameters, CancellationToken cancellationToken)
         {
@@ -307,23 +308,47 @@ namespace Microsoft.Azure.Management.TrafficManager
             }
             if (parameters.Profile.Properties != null)
             {
-                if (parameters.Profile.Properties.DnsConfig != null)
+                if (parameters.Profile.Properties.DnsConfig == null)
                 {
-                    if (parameters.Profile.Properties.DnsConfig.RelativeName == null)
+                    throw new ArgumentNullException("parameters.Profile.Properties.DnsConfig");
+                }
+                if (parameters.Profile.Properties.DnsConfig.RelativeName == null)
+                {
+                    throw new ArgumentNullException("parameters.Profile.Properties.DnsConfig.RelativeName");
+                }
+                if (parameters.Profile.Properties.Endpoints != null)
+                {
+                    foreach (Endpoint endpointsParameterItem in parameters.Profile.Properties.Endpoints)
                     {
-                        throw new ArgumentNullException("parameters.Profile.Properties.DnsConfig.RelativeName");
+                        if (endpointsParameterItem.Properties == null)
+                        {
+                            throw new ArgumentNullException("parameters.Profile.Properties.Endpoints.Properties");
+                        }
+                        if (endpointsParameterItem.Properties.EndpointStatus == null)
+                        {
+                            throw new ArgumentNullException("parameters.Profile.Properties.Endpoints.Properties.EndpointStatus");
+                        }
+                        if (endpointsParameterItem.Properties.Target == null)
+                        {
+                            throw new ArgumentNullException("parameters.Profile.Properties.Endpoints.Properties.Target");
+                        }
                     }
                 }
-                if (parameters.Profile.Properties.MonitorConfig != null)
+                if (parameters.Profile.Properties.MonitorConfig == null)
                 {
-                    if (parameters.Profile.Properties.MonitorConfig.Path == null)
-                    {
-                        throw new ArgumentNullException("parameters.Profile.Properties.MonitorConfig.Path");
-                    }
-                    if (parameters.Profile.Properties.MonitorConfig.Protocol == null)
-                    {
-                        throw new ArgumentNullException("parameters.Profile.Properties.MonitorConfig.Protocol");
-                    }
+                    throw new ArgumentNullException("parameters.Profile.Properties.MonitorConfig");
+                }
+                if (parameters.Profile.Properties.MonitorConfig.Path == null)
+                {
+                    throw new ArgumentNullException("parameters.Profile.Properties.MonitorConfig.Path");
+                }
+                if (parameters.Profile.Properties.MonitorConfig.Protocol == null)
+                {
+                    throw new ArgumentNullException("parameters.Profile.Properties.MonitorConfig.Protocol");
+                }
+                if (parameters.Profile.Properties.TrafficRoutingMethod == null)
+                {
+                    throw new ArgumentNullException("parameters.Profile.Properties.TrafficRoutingMethod");
                 }
             }
             
@@ -350,7 +375,7 @@ namespace Microsoft.Azure.Management.TrafficManager
             url = url + "/resourceGroups/";
             url = url + Uri.EscapeDataString(resourceGroupName);
             url = url + "/providers/";
-            url = url + "Microsoft.Network";
+            url = url + "microsoft.network";
             url = url + "/trafficmanagerprofiles/";
             url = url + Uri.EscapeDataString(profileName);
             List<string> queryParameters = new List<string>();
@@ -403,42 +428,33 @@ namespace Microsoft.Azure.Management.TrafficManager
                         propertiesValue["profileStatus"] = parameters.Profile.Properties.ProfileStatus;
                     }
                     
-                    if (parameters.Profile.Properties.TrafficRoutingMethod != null)
+                    propertiesValue["trafficRoutingMethod"] = parameters.Profile.Properties.TrafficRoutingMethod;
+                    
+                    JObject dnsConfigValue = new JObject();
+                    propertiesValue["dnsConfig"] = dnsConfigValue;
+                    
+                    dnsConfigValue["relativeName"] = parameters.Profile.Properties.DnsConfig.RelativeName;
+                    
+                    if (parameters.Profile.Properties.DnsConfig.Fqdn != null)
                     {
-                        propertiesValue["trafficRoutingMethod"] = parameters.Profile.Properties.TrafficRoutingMethod;
+                        dnsConfigValue["fqdn"] = parameters.Profile.Properties.DnsConfig.Fqdn;
                     }
                     
-                    if (parameters.Profile.Properties.DnsConfig != null)
+                    dnsConfigValue["ttl"] = parameters.Profile.Properties.DnsConfig.Ttl;
+                    
+                    JObject monitorConfigValue = new JObject();
+                    propertiesValue["monitorConfig"] = monitorConfigValue;
+                    
+                    if (parameters.Profile.Properties.MonitorConfig.ProfileMonitorStatus != null)
                     {
-                        JObject dnsConfigValue = new JObject();
-                        propertiesValue["dnsConfig"] = dnsConfigValue;
-                        
-                        dnsConfigValue["relativeName"] = parameters.Profile.Properties.DnsConfig.RelativeName;
-                        
-                        if (parameters.Profile.Properties.DnsConfig.Fqdn != null)
-                        {
-                            dnsConfigValue["fqdn"] = parameters.Profile.Properties.DnsConfig.Fqdn;
-                        }
-                        
-                        dnsConfigValue["ttl"] = parameters.Profile.Properties.DnsConfig.Ttl;
+                        monitorConfigValue["profileMonitorStatus"] = parameters.Profile.Properties.MonitorConfig.ProfileMonitorStatus;
                     }
                     
-                    if (parameters.Profile.Properties.MonitorConfig != null)
-                    {
-                        JObject monitorConfigValue = new JObject();
-                        propertiesValue["monitorConfig"] = monitorConfigValue;
-                        
-                        if (parameters.Profile.Properties.MonitorConfig.ProfileMonitorStatus != null)
-                        {
-                            monitorConfigValue["profileMonitorStatus"] = parameters.Profile.Properties.MonitorConfig.ProfileMonitorStatus;
-                        }
-                        
-                        monitorConfigValue["protocol"] = parameters.Profile.Properties.MonitorConfig.Protocol;
-                        
-                        monitorConfigValue["port"] = parameters.Profile.Properties.MonitorConfig.Port;
-                        
-                        monitorConfigValue["path"] = parameters.Profile.Properties.MonitorConfig.Path;
-                    }
+                    monitorConfigValue["protocol"] = parameters.Profile.Properties.MonitorConfig.Protocol;
+                    
+                    monitorConfigValue["port"] = parameters.Profile.Properties.MonitorConfig.Port;
+                    
+                    monitorConfigValue["path"] = parameters.Profile.Properties.MonitorConfig.Path;
                     
                     if (parameters.Profile.Properties.Endpoints != null)
                     {
@@ -463,8 +479,12 @@ namespace Microsoft.Azure.Management.TrafficManager
                                 endpointValue["type"] = endpointsItem.Type;
                             }
                             
-                            if (endpointsItem.Properties != null)
+                            JObject propertiesValue2 = new JObject();
+                            endpointValue["properties"] = propertiesValue2;
+                            
+                            if (endpointsItem.Properties.TargetResourceId != null)
                             {
+<<<<<<< HEAD
                                 JObject propertiesValue2 = new JObject();
                                 endpointValue["properties"] = propertiesValue2;
                                 
@@ -507,6 +527,33 @@ namespace Microsoft.Azure.Management.TrafficManager
                                 {
                                     propertiesValue2["minChildEndpoints"] = endpointsItem.Properties.MinChildEndpoints.Value;
                                 }
+=======
+                                propertiesValue2["targetResourceId"] = endpointsItem.Properties.TargetResourceId;
+                            }
+                            
+                            propertiesValue2["target"] = endpointsItem.Properties.Target;
+                            
+                            propertiesValue2["endpointStatus"] = endpointsItem.Properties.EndpointStatus;
+                            
+                            if (endpointsItem.Properties.Weight != null)
+                            {
+                                propertiesValue2["weight"] = endpointsItem.Properties.Weight.Value;
+                            }
+                            
+                            if (endpointsItem.Properties.Priority != null)
+                            {
+                                propertiesValue2["priority"] = endpointsItem.Properties.Priority.Value;
+                            }
+                            
+                            if (endpointsItem.Properties.EndpointLocation != null)
+                            {
+                                propertiesValue2["endpointLocation"] = endpointsItem.Properties.EndpointLocation;
+                            }
+                            
+                            if (endpointsItem.Properties.EndpointMonitorStatus != null)
+                            {
+                                propertiesValue2["endpointMonitorStatus"] = endpointsItem.Properties.EndpointMonitorStatus;
+>>>>>>> origin/AutoRest
                             }
                         }
                         propertiesValue["endpoints"] = endpointsArray;
@@ -838,14 +885,13 @@ namespace Microsoft.Azure.Management.TrafficManager
         }
         
         /// <summary>
-        /// Deletes a Traffic Manager profile.
+        /// Deletes a WATMv2 profile within a resource group.
         /// </summary>
         /// <param name='resourceGroupName'>
-        /// Required. The name of the resource group containing the Traffic
-        /// Manager profile to be deleted.
+        /// Required. The name of the resource group.
         /// </param>
         /// <param name='profileName'>
-        /// Required. The name of the Traffic Manager profile to be deleted.
+        /// Required. The name of the zone without a terminating dot.
         /// </param>
         /// <param name='cancellationToken'>
         /// Cancellation token.
@@ -888,7 +934,7 @@ namespace Microsoft.Azure.Management.TrafficManager
             url = url + "/resourceGroups/";
             url = url + Uri.EscapeDataString(resourceGroupName);
             url = url + "/providers/";
-            url = url + "Microsoft.Network";
+            url = url + "microsoft.network";
             url = url + "/trafficmanagerprofiles/";
             url = url + Uri.EscapeDataString(profileName);
             List<string> queryParameters = new List<string>();
@@ -984,20 +1030,19 @@ namespace Microsoft.Azure.Management.TrafficManager
         }
         
         /// <summary>
-        /// Gets a Traffic Manager profile.
+        /// Gets a WATMv2 profile within a resource group.
         /// </summary>
         /// <param name='resourceGroupName'>
-        /// Required. The name of the resource group containing the Traffic
-        /// Manager profile.
+        /// Required. The name of the resource group.
         /// </param>
         /// <param name='profileName'>
-        /// Required. The name of the Traffic Manager profile.
+        /// Required. The name of the zone without a terminating dot.
         /// </param>
         /// <param name='cancellationToken'>
         /// Cancellation token.
         /// </param>
         /// <returns>
-        /// The response to a Traffic Manager profile 'Create' operation.
+        /// The response to a Profile Create operation.
         /// </returns>
         public async Task<ProfileGetResponse> GetAsync(string resourceGroupName, string profileName, CancellationToken cancellationToken)
         {
@@ -1033,7 +1078,7 @@ namespace Microsoft.Azure.Management.TrafficManager
             url = url + "/resourceGroups/";
             url = url + Uri.EscapeDataString(resourceGroupName);
             url = url + "/providers/";
-            url = url + "Microsoft.Network";
+            url = url + "microsoft.network";
             url = url + "/trafficmanagerprofiles/";
             url = url + Uri.EscapeDataString(profileName);
             List<string> queryParameters = new List<string>();
@@ -1361,14 +1406,13 @@ namespace Microsoft.Azure.Management.TrafficManager
         }
         
         /// <summary>
-        /// Lists all Traffic Manager profiles within a subscription.
+        /// Lists all WATMv2 profile within a subscription.
         /// </summary>
         /// <param name='cancellationToken'>
         /// Cancellation token.
         /// </param>
         /// <returns>
-        /// The response to a Traffic Manager profile 'ListAll' or
-        /// 'ListAllInResourceGroup' operation.
+        /// The response to a Profile ProfileListAll operation.
         /// </returns>
         public async Task<ProfileListResponse> ListAllAsync(CancellationToken cancellationToken)
         {
@@ -1392,7 +1436,7 @@ namespace Microsoft.Azure.Management.TrafficManager
                 url = url + Uri.EscapeDataString(this.Client.Credentials.SubscriptionId);
             }
             url = url + "/providers/";
-            url = url + "Microsoft.Network";
+            url = url + "microsoft.network";
             url = url + "/trafficmanagerprofiles";
             List<string> queryParameters = new List<string>();
             queryParameters.Add("api-version=2015-11-01");
@@ -1726,18 +1770,16 @@ namespace Microsoft.Azure.Management.TrafficManager
         }
         
         /// <summary>
-        /// Lists all Traffic Manager profiles within a resource group.
+        /// Lists all WATMv2 profiles within a resource group.
         /// </summary>
         /// <param name='resourceGroupName'>
-        /// Required. The name of the resource group containing the Traffic
-        /// Manager profiles to be listed.
+        /// Required. The name of the resource group.
         /// </param>
         /// <param name='cancellationToken'>
         /// Cancellation token.
         /// </param>
         /// <returns>
-        /// The response to a Traffic Manager profile 'ListAll' or
-        /// 'ListAllInResourceGroup' operation.
+        /// The response to a Profile ProfileListAll operation.
         /// </returns>
         public async Task<ProfileListResponse> ListAllInResourceGroupAsync(string resourceGroupName, CancellationToken cancellationToken)
         {
@@ -1768,7 +1810,7 @@ namespace Microsoft.Azure.Management.TrafficManager
             url = url + "/resourceGroups/";
             url = url + Uri.EscapeDataString(resourceGroupName);
             url = url + "/providers/";
-            url = url + "Microsoft.Network";
+            url = url + "microsoft.network";
             url = url + "/trafficmanagerprofiles";
             List<string> queryParameters = new List<string>();
             queryParameters.Add("api-version=2015-11-01");
@@ -2100,6 +2142,7 @@ namespace Microsoft.Azure.Management.TrafficManager
                 }
             }
         }
+<<<<<<< HEAD
         
         /// <summary>
         /// Update a Traffic Manager profile.
@@ -2678,5 +2721,7 @@ namespace Microsoft.Azure.Management.TrafficManager
                 }
             }
         }
+=======
+>>>>>>> origin/AutoRest
     }
 }

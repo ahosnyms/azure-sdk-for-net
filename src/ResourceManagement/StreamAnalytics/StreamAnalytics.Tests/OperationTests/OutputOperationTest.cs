@@ -155,9 +155,10 @@ namespace StreamAnalytics.Tests.OperationTests
                     Assert.Equal(2, jobGetResponse.Job.Properties.Outputs.Count);
 
                     // Delete the outputs
-                    AzureOperationResponse deleteOutputOperationResponse = client.Outputs.Delete(resourceGroupName, resourceName, outputName);
-                    Assert.Equal(HttpStatusCode.OK, deleteOutputOperationResponse.StatusCode);
+                    AzureOperationResponse deleteInputOperationResponse = client.Outputs.Delete(resourceGroupName, resourceName, outputName);
+                    Assert.Equal(HttpStatusCode.OK, deleteInputOperationResponse.StatusCode);
 
+<<<<<<< HEAD
                     deleteOutputOperationResponse = client.Outputs.Delete(resourceGroupName, resourceName, outputName2);
                     Assert.Equal(HttpStatusCode.OK, deleteOutputOperationResponse.StatusCode);
 
@@ -287,6 +288,10 @@ namespace StreamAnalytics.Tests.OperationTests
                     // Delete the output
                     AzureOperationResponse deleteOutputOperationResponse = client.Outputs.Delete(resourceGroupName, resourceName, outputName);
                     Assert.Equal(HttpStatusCode.OK, deleteOutputOperationResponse.StatusCode);
+=======
+                    deleteInputOperationResponse = client.Outputs.Delete(resourceGroupName, resourceName, outputName2);
+                    Assert.Equal(HttpStatusCode.OK, deleteInputOperationResponse.StatusCode);
+>>>>>>> origin/AutoRest
 
                     // Check that there are 0 outputs in the job
                     jobGetParameters = new JobGetParameters("outputs");
@@ -399,8 +404,8 @@ namespace StreamAnalytics.Tests.OperationTests
                     Assert.NotEqual(outputCreateOrUpdateResponse.Output.Properties.Etag, outputPatchResponse.Properties.Etag);
 
                     // Delete the output
-                    AzureOperationResponse deleteOutputOperationResponse = client.Outputs.Delete(resourceGroupName, resourceName, outputName);
-                    Assert.Equal(HttpStatusCode.OK, deleteOutputOperationResponse.StatusCode);
+                    AzureOperationResponse deleteInputOperationResponse = client.Outputs.Delete(resourceGroupName, resourceName, outputName);
+                    Assert.Equal(HttpStatusCode.OK, deleteInputOperationResponse.StatusCode);
 
                     // Check that there are 0 outputs in the job
                     jobGetParameters = new JobGetParameters("outputs");
@@ -541,8 +546,8 @@ namespace StreamAnalytics.Tests.OperationTests
                     Assert.NotEqual(outputCreateOrUpdateResponse.Output.Properties.Etag, outputPatchResponse.Properties.Etag);
 
                     // Delete the output
-                    AzureOperationResponse deleteOutputOperationResponse = client.Outputs.Delete(resourceGroupName, resourceName, outputName);
-                    Assert.Equal(HttpStatusCode.OK, deleteOutputOperationResponse.StatusCode);
+                    AzureOperationResponse deleteInputOperationResponse = client.Outputs.Delete(resourceGroupName, resourceName, outputName);
+                    Assert.Equal(HttpStatusCode.OK, deleteInputOperationResponse.StatusCode);
 
                     // Check that there are 0 outputs in the job
                     jobGetParameters = new JobGetParameters("outputs");
@@ -557,6 +562,7 @@ namespace StreamAnalytics.Tests.OperationTests
                 }
             }
         }
+<<<<<<< HEAD
 
         [Fact]
         public void Test_OutputOperations_ServiceBusQueue()
@@ -915,5 +921,7 @@ namespace StreamAnalytics.Tests.OperationTests
                 }
             }
         }
+=======
+>>>>>>> origin/AutoRest
     }
 }

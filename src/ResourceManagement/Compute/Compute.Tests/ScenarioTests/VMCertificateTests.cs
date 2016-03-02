@@ -16,14 +16,11 @@
 using Microsoft.Azure.Management.Compute;
 using Microsoft.Azure.Management.Compute.Models;
 using Microsoft.Azure.Management.Resources;
-using Microsoft.Azure.Management.Storage.Models;
-using Microsoft.Azure.Test;
-using System.Linq;
-using System.Net;
-using Xunit;
+using Microsoft.Rest.Azure;
+using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
 using System;
 using System.Collections.Generic;
-using Microsoft.Azure;
+using Xunit;
 
 namespace Compute.Tests
 {
@@ -42,16 +39,15 @@ namespace Compute.Tests
         [Fact(Skip = "TODO: Wait for KMS Client")]
         public void TestVMCertificatesOperations()
         {
-            using (var context = UndoContext.Current)
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
-                context.Start();
-                EnsureClientsInitialized();
+                EnsureClientsInitialized(context);
 
                 ImageReference imageRef = GetPlatformVMImage(useWindowsImage: true);
                 // Create resource group
-                var rgName = TestUtilities.GenerateName(TestPrefix);
-                string storageAccountName = TestUtilities.GenerateName(TestPrefix);
-                string asName = TestUtilities.GenerateName("as");
+                var rgName = ComputeManagementTestUtilities.GenerateName(TestPrefix);
+                string storageAccountName = ComputeManagementTestUtilities.GenerateName(TestPrefix);
+                string asName = ComputeManagementTestUtilities.GenerateName("as");
                 VirtualMachine inputVM;
 
                 Action<VirtualMachine> AddCertificateInfo = SetCertificateInfo;
@@ -63,34 +59,32 @@ namespace Compute.Tests
 
                     var vm1 = CreateVM_NoAsyncTracking(rgName, asName, storageAccountOutput, imageRef, out inputVM, AddCertificateInfo);
 
-                    var lroResponse = m_CrpClient.VirtualMachines.Delete(rgName, inputVM.Name);
-                    Assert.True(lroResponse.Status != OperationStatus.Failed);
+                    m_CrpClient.VirtualMachines.Delete(rgName, inputVM.Name);
                 }
                 finally
                 {
-                    var deleteResourceGroupResponse = m_ResourcesClient.ResourceGroups.Delete(rgName);
-                    Assert.True(deleteResourceGroupResponse.StatusCode == HttpStatusCode.OK);
+                    m_ResourcesClient.ResourceGroups.Delete(rgName);
                 }
             }
         }
 
         public void SetCertificateInfo(VirtualMachine vm)
         {
-            SourceVaultReference vault = GetDefaultSourceVault();
+            SubResource vault = GetDefaultSourceVault();
 
             VaultCertificate vmCert = GetDefaultVaultCert();
 
             var secretGroup = new VaultSecretGroup() {SourceVault = vault, VaultCertificates = new List<VaultCertificate>(){vmCert}};
 
-            vm.OSProfile.Secrets = new List<VaultSecretGroup>() { secretGroup };
+            vm.OsProfile.Secrets = new List<VaultSecretGroup>() { secretGroup };
         }
 
         //TODO: Create Source Vault Dynamically
-        public SourceVaultReference GetDefaultSourceVault()
+        public SubResource GetDefaultSourceVault()
         {
-            return new SourceVaultReference()
+            return new SubResource()
             {
-                ReferenceUri = @"/subscriptions/05cacd0c-6f9b-492e-b673-d8be41a7644f/resourceGroups/RgTest1/providers/Microsoft.KeyVault/vaults/TestVault123"
+                Id = @"/subscriptions/05cacd0c-6f9b-492e-b673-d8be41a7644f/resourceGroups/RgTest1/providers/Microsoft.KeyVault/vaults/TestVault123"
             };
         }
 

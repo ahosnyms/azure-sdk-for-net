@@ -118,8 +118,12 @@ namespace Microsoft.Azure.Management.Batch
             : base()
         {
             this._accounts = new AccountOperations(this);
+<<<<<<< HEAD
             this._subscriptions = new SubscriptionOperations(this);
             this._apiVersion = "2015-09-01";
+=======
+            this._apiVersion = "2014-05-01-privatepreview";
+>>>>>>> origin/AutoRest
             this._longRunningOperationInitialTimeout = -1;
             this._longRunningOperationRetryTimeout = -1;
             this.HttpClient.Timeout = TimeSpan.FromSeconds(300);
@@ -185,8 +189,12 @@ namespace Microsoft.Azure.Management.Batch
             : base(httpClient)
         {
             this._accounts = new AccountOperations(this);
+<<<<<<< HEAD
             this._subscriptions = new SubscriptionOperations(this);
             this._apiVersion = "2015-09-01";
+=======
+            this._apiVersion = "2014-05-01-privatepreview";
+>>>>>>> origin/AutoRest
             this._longRunningOperationInitialTimeout = -1;
             this._longRunningOperationRetryTimeout = -1;
             this.HttpClient.Timeout = TimeSpan.FromSeconds(300);
@@ -322,7 +330,11 @@ namespace Microsoft.Azure.Management.Batch
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
+<<<<<<< HEAD
                 httpRequest.Headers.Add("x-ms-version", "2015-09-01");
+=======
+                httpRequest.Headers.Add("x-ms-version", "2014-05-01-privatepreview");
+>>>>>>> origin/AutoRest
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();
@@ -561,7 +573,11 @@ namespace Microsoft.Azure.Management.Batch
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
+<<<<<<< HEAD
                 httpRequest.Headers.Add("x-ms-version", "2015-09-01");
+=======
+                httpRequest.Headers.Add("x-ms-version", "2014-05-01-privatepreview");
+>>>>>>> origin/AutoRest
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();

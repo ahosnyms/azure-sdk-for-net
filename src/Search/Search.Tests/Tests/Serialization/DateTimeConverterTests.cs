@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿// 
 // Copyright (c) Microsoft.  All rights reserved. 
 // 
@@ -20,9 +21,22 @@ using Microsoft.Azure.Search.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
+=======
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for
+// license information.
+>>>>>>> origin/AutoRest
 
 namespace Microsoft.Azure.Search.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using Microsoft.Azure.Search.Serialization;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+    using Xunit;
+
     public sealed class DateTimeConverterTests
     {
         private readonly JsonSerializerSettings _serializerSettings =

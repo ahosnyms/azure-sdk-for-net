@@ -1,25 +1,13 @@
-﻿// 
-// Copyright (c) Microsoft.  All rights reserved. 
-// 
-// Licensed under the Apache License, Version 2.0 (the "License"); 
-// you may not use this file except in compliance with the License. 
-// You may obtain a copy of the License at 
-//   http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software 
-// distributed under the License is distributed on an "AS IS" BASIS, 
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-// See the License for the specific language governing permissions and 
-// limitations under the License. 
-// 
-
-using System.Net;
-using Microsoft.Azure.Management.Search.Models;
-using Microsoft.Azure.Search.Tests.Utilities;
-using Xunit;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for
+// license information.
 
 namespace Microsoft.Azure.Management.Search.Tests
 {
+    using Microsoft.Azure.Management.Search.Models;
+    using Microsoft.Azure.Search.Tests.Utilities;
+    using Xunit;
+
     public sealed class AdminKeyTests : SearchTestBase<SearchServiceFixture>
     {
         [Fact]
@@ -30,14 +18,14 @@ namespace Microsoft.Azure.Management.Search.Tests
                 SearchManagementClient searchMgmt = GetSearchManagementClient();
 
                 // List admin keys
-                AdminKeyResponse adminKeyResponse = 
+                AdminKeyResult adminKeyResult = 
                     searchMgmt.AdminKeys.List(Data.ResourceGroupName, Data.SearchServiceName);
 
-                Assert.Equal(HttpStatusCode.OK, adminKeyResponse.StatusCode);
-                Assert.NotNull(adminKeyResponse.PrimaryKey);
-                Assert.NotNull(adminKeyResponse.SecondaryKey);
-                Assert.NotEmpty(adminKeyResponse.PrimaryKey);
-                Assert.NotEmpty(adminKeyResponse.SecondaryKey);
+                Assert.NotNull(adminKeyResult);
+                Assert.NotNull(adminKeyResult.PrimaryKey);
+                Assert.NotNull(adminKeyResult.SecondaryKey);
+                Assert.NotEmpty(adminKeyResult.PrimaryKey);
+                Assert.NotEmpty(adminKeyResult.SecondaryKey);
             });
         }
     }

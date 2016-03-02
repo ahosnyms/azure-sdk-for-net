@@ -13,13 +13,14 @@
 // limitations under the License.
 //
 
-using System.Linq;
 using Microsoft.Azure.Management.Compute;
 using Microsoft.Azure.Management.Compute.Models;
-using Microsoft.Azure.Test;
-using System.Net;
-using Microsoft.Azure.Management.Network.Models;
 using Microsoft.Azure.Management.Resources;
+using Microsoft.Rest.Azure;
+using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+using System;
+using System.Collections.Generic;
+using System.Net;
 using Xunit;
 
 namespace Compute.Tests
@@ -29,16 +30,19 @@ namespace Compute.Tests
         [Fact]
         public void TestVMDiskSizeScenario()
         {
-            using (var context = UndoContext.Current)
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
-                context.Start();
-                EnsureClientsInitialized();
+                EnsureClientsInitialized(context);
 
                 ImageReference imageRef = GetPlatformVMImage(useWindowsImage: true);
+                var image = m_CrpClient.VirtualMachineImages.Get(
+                    this.m_location, imageRef.Publisher, imageRef.Offer, imageRef.Sku, imageRef.Version);
+                Assert.True(image != null);
+
                 // Create resource group
-                var rgName = TestUtilities.GenerateName(TestPrefix);
-                string storageAccountName = TestUtilities.GenerateName(TestPrefix);
-                string asName = TestUtilities.GenerateName("as");
+                var rgName = ComputeManagementTestUtilities.GenerateName(TestPrefix);
+                string storageAccountName = ComputeManagementTestUtilities.GenerateName(TestPrefix);
+                string asName = ComputeManagementTestUtilities.GenerateName("as");
                 VirtualMachine inputVM;
 
                 try
@@ -47,18 +51,15 @@ namespace Compute.Tests
 
                     var vm1 = CreateVM_NoAsyncTracking(rgName, asName, storageAccountOutput, imageRef, out inputVM, (vm) =>
                     {
-                        vm.StorageProfile.OSDisk.DiskSizeGB = 100;
+                        vm.StorageProfile.OsDisk.DiskSizeGB = 150;
                     });
 
                     var getVMResponse = m_CrpClient.VirtualMachines.Get(rgName, inputVM.Name);
-                    Assert.True(getVMResponse.StatusCode == HttpStatusCode.OK);
-                    ValidateVM(inputVM, getVMResponse.VirtualMachine,
-                        Helpers.GetVMReferenceId(m_subId, rgName, inputVM.Name));
+                    ValidateVM(inputVM, getVMResponse, Helpers.GetVMReferenceId(m_subId, rgName, inputVM.Name));
                 }
                 finally
                 {
-                    var deleteResourceGroupResponse = m_ResourcesClient.ResourceGroups.Delete(rgName);
-                    Assert.True(deleteResourceGroupResponse.StatusCode == HttpStatusCode.OK);
+                    m_ResourcesClient.ResourceGroups.Delete(rgName);
                 }
             }
         }

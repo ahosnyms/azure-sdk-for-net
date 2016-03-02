@@ -13,14 +13,17 @@
 // limitations under the License.
 //
 
-using System.Net;
 using Microsoft.Azure.Management.Compute;
 using Microsoft.Azure.Management.Compute.Models;
 using Microsoft.Azure.Management.Network;
 using Microsoft.Azure.Management.Network.Models;
 using Microsoft.Azure.Management.Resources;
 using Microsoft.Azure.Management.Resources.Models;
-using Microsoft.Azure.Test;
+using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+using Microsoft.Azure.Test.HttpRecorder;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Compute.Tests
@@ -30,18 +33,16 @@ namespace Compute.Tests
         [Fact]
         public void TestNicVirtualMachineReference()
         {
-            using (var context = UndoContext.Current)
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
-                context.Start();
-                EnsureClientsInitialized();
+                EnsureClientsInitialized(context);
 
                 ImageReference imageRef = GetPlatformVMImage(useWindowsImage: true);
 
-                string rgName = TestUtilities.GenerateName(TestPrefix);
-                string asName = TestUtilities.GenerateName("as");
-                string storageAccountName = TestUtilities.GenerateName(TestPrefix);
+                string rgName = ComputeManagementTestUtilities.GenerateName(TestPrefix);
+                string asName = ComputeManagementTestUtilities.GenerateName("as");
+                string storageAccountName = ComputeManagementTestUtilities.GenerateName(TestPrefix);
                 VirtualMachine inputVM;
-
                 try
                 {   
                     // Create the resource Group, it might have been already created during StorageAccount creation.
@@ -49,44 +50,45 @@ namespace Compute.Tests
                         rgName,
                         new ResourceGroup
                         {
-                            Location = m_location
+                            Location = m_location,
+                            Tags = new Dictionary<string, string>() { { rgName, DateTime.UtcNow.ToString("u") } }
                         });
 
                     // Create Storage Account, so that both the VMs can share it
                     var storageAccountOutput = CreateStorageAccount(rgName, storageAccountName);
 
-                    SubnetGetResponse subnetResponse = CreateVNET(rgName);
+                    Subnet subnetResponse = CreateVNET(rgName);
 
-                    NetworkInterfaceGetResponse nicResponse = CreateNIC(rgName, subnetResponse.Subnet, null);
+                    NetworkInterface nicResponse = CreateNIC(rgName, subnetResponse, null);
 
                     string asetId = CreateAvailabilitySet(rgName, asName);
 
-                    inputVM = CreateDefaultVMInput(rgName, storageAccountName, imageRef, asetId, nicResponse.NetworkInterface.Id);
+                    inputVM = CreateDefaultVMInput(rgName, storageAccountName, imageRef, asetId, nicResponse.Id);
                     
                     string expectedVMReferenceId = Helpers.GetVMReferenceId(m_subId, rgName, inputVM.Name);
 
                     var createOrUpdateResponse = m_CrpClient.VirtualMachines.CreateOrUpdate(
-                         rgName, inputVM);
+                         rgName, inputVM.Name, inputVM);
 
-                    Assert.True(createOrUpdateResponse.StatusCode == HttpStatusCode.OK);
+                    Assert.NotNull(createOrUpdateResponse);
 
                     var getVMResponse = m_CrpClient.VirtualMachines.Get(rgName, inputVM.Name);
 
                     Assert.True(
-                        getVMResponse.VirtualMachine.AvailabilitySetReference.ReferenceUri
+                        getVMResponse.AvailabilitySet.Id
                             .ToLowerInvariant() == asetId.ToLowerInvariant());
-                    ValidateVM(inputVM, getVMResponse.VirtualMachine, expectedVMReferenceId);
+                    ValidateVM(inputVM, getVMResponse, expectedVMReferenceId);
 
-                    var getNicResponse = m_NrpClient.NetworkInterfaces.Get(rgName, nicResponse.NetworkInterface.Name);
-                    Assert.NotNull(getNicResponse.NetworkInterface.MacAddress);
-                    Assert.NotNull(getNicResponse.NetworkInterface.Primary);
-                    Assert.True(getNicResponse.NetworkInterface.Primary != null && getNicResponse.NetworkInterface.Primary.Value);
+                    var getNicResponse = m_NrpClient.NetworkInterfaces.Get(rgName, nicResponse.Name);
+                    // TODO AutoRest: Recording Passed, but these assertions failed in Playback mode
+                    Assert.NotNull(getNicResponse.MacAddress);
+                    Assert.NotNull(getNicResponse.Primary);
+                    Assert.True(getNicResponse.Primary != null && getNicResponse.Primary.Value);
                 }
                 finally
                 {
                     // Cleanup the created resources
-                    var deleteRg1Response = m_ResourcesClient.ResourceGroups.Delete(rgName);
-                    Assert.True(deleteRg1Response.StatusCode == HttpStatusCode.OK);
+                    m_ResourcesClient.ResourceGroups.Delete(rgName);
                 }
             }
         }
@@ -94,16 +96,15 @@ namespace Compute.Tests
         [Fact]
         public void TestMultiNicVirtualMachineReference()
         {
-            using (var context = UndoContext.Current)
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
-                context.Start();
-                EnsureClientsInitialized();
+                EnsureClientsInitialized(context);
 
                 ImageReference imageRef = GetPlatformVMImage(useWindowsImage: true);
 
-                string rgName = TestUtilities.GenerateName(TestPrefix);
-                string asName = TestUtilities.GenerateName("as");
-                string storageAccountName = TestUtilities.GenerateName(TestPrefix);
+                string rgName = ComputeManagementTestUtilities.GenerateName(TestPrefix);
+                string asName = ComputeManagementTestUtilities.GenerateName("as");
+                string storageAccountName = ComputeManagementTestUtilities.GenerateName(TestPrefix);
                 VirtualMachine inputVM;
 
                 try
@@ -113,59 +114,59 @@ namespace Compute.Tests
                         rgName,
                         new ResourceGroup
                         {
-                            Location = m_location
+                            Location = m_location,
+                            Tags = new Dictionary<string, string>() { { rgName, DateTime.UtcNow.ToString("u") } }
                         });
 
                     // Create Storage Account, so that both the VMs can share it
                     var storageAccountOutput = CreateStorageAccount(rgName, storageAccountName);
 
-                    SubnetGetResponse subnetResponse = CreateVNET(rgName);
+                    Subnet subnetResponse = CreateVNET(rgName);
 
-                    string nicname1 = TestUtilities.GenerateName();
-                    string nicname2 = TestUtilities.GenerateName();
-                    NetworkInterfaceGetResponse nicResponse1 = CreateNIC(rgName, subnetResponse.Subnet, null, nicname1);
-                    NetworkInterfaceGetResponse nicResponse2 = CreateNIC(rgName, subnetResponse.Subnet, null, nicname2);
+                    string nicname1 = ComputeManagementTestUtilities.GenerateName(null);
+                    string nicname2 = ComputeManagementTestUtilities.GenerateName(null);
+                    NetworkInterface nicResponse1 = CreateNIC(rgName, subnetResponse, null, nicname1);
+                    NetworkInterface nicResponse2 = CreateNIC(rgName, subnetResponse, null, nicname2);
                     string asetId = CreateAvailabilitySet(rgName, asName);
 
-                    inputVM = CreateDefaultVMInput(rgName, storageAccountName, imageRef, asetId, nicResponse1.NetworkInterface.Id);
+                    inputVM = CreateDefaultVMInput(rgName, storageAccountName, imageRef, asetId, nicResponse1.Id);
 
-                    inputVM.HardwareProfile.VirtualMachineSize = VirtualMachineSizeTypes.StandardA4;
+                    inputVM.HardwareProfile.VmSize = VirtualMachineSizeTypes.StandardA4;
                     inputVM.NetworkProfile.NetworkInterfaces[0].Primary = false;
 
                     inputVM.NetworkProfile.NetworkInterfaces.Add(new NetworkInterfaceReference
                                                                      {
-                                                                         ReferenceUri = nicResponse2.NetworkInterface.Id, 
+                                                                         Id = nicResponse2.Id, 
                                                                          Primary = true
                                                                      });
 
                     string expectedVMReferenceId = Helpers.GetVMReferenceId(m_subId, rgName, inputVM.Name);
 
-                    var createOrUpdateResponse = m_CrpClient.VirtualMachines.CreateOrUpdate(rgName, inputVM);
-
-                    Assert.True(createOrUpdateResponse.StatusCode == HttpStatusCode.OK);
+                    var createOrUpdateResponse = m_CrpClient.VirtualMachines.CreateOrUpdate(rgName, inputVM.Name, inputVM);
 
                     var getVMResponse = m_CrpClient.VirtualMachines.Get(rgName, inputVM.Name);
 
                     Assert.True(
-                        getVMResponse.VirtualMachine.AvailabilitySetReference.ReferenceUri
+                        getVMResponse.AvailabilitySet.Id
                             .ToLowerInvariant() == asetId.ToLowerInvariant());
-                    ValidateVM(inputVM, getVMResponse.VirtualMachine, expectedVMReferenceId);
+                    ValidateVM(inputVM, getVMResponse, expectedVMReferenceId);
 
-                    var getNicResponse1 = m_NrpClient.NetworkInterfaces.Get(rgName, nicResponse1.NetworkInterface.Name);
-                    Assert.NotNull(getNicResponse1.NetworkInterface.MacAddress);
-                    Assert.NotNull(getNicResponse1.NetworkInterface.Primary);
-                    Assert.True(getNicResponse1.NetworkInterface.Primary != null && !getNicResponse1.NetworkInterface.Primary.Value);
+                    var getNicResponse1 = m_NrpClient.NetworkInterfaces.Get(rgName, nicResponse1.Name);
+                    // TODO AutoRest: Recording Passed, but these assertions failed in Playback mode
+                   Assert.NotNull(getNicResponse1.MacAddress);
+                   Assert.NotNull(getNicResponse1.Primary);
+                   Assert.True(getNicResponse1.Primary != null && !getNicResponse1.Primary.Value);
 
-                    var getNicResponse2 = m_NrpClient.NetworkInterfaces.Get(rgName, nicResponse2.NetworkInterface.Name);
-                    Assert.NotNull(getNicResponse2.NetworkInterface.MacAddress);
-                    Assert.NotNull(getNicResponse2.NetworkInterface.Primary);
-                    Assert.True(getNicResponse2.NetworkInterface.Primary != null && getNicResponse2.NetworkInterface.Primary.Value);
+                    var getNicResponse2 = m_NrpClient.NetworkInterfaces.Get(rgName, nicResponse2.Name);
+                    // TODO AutoRest: Recording Passed, but these assertions failed in Playback mode
+                    Assert.NotNull(getNicResponse2.MacAddress);
+                    Assert.NotNull(getNicResponse2.Primary);
+                    Assert.True(getNicResponse2.Primary != null && getNicResponse2.Primary.Value);
                 }
                 finally
                 {
                     // Cleanup the created resources
-                    var deleteRg1Response = m_ResourcesClient.ResourceGroups.Delete(rgName);
-                    Assert.True(deleteRg1Response.StatusCode == HttpStatusCode.OK);
+                    m_ResourcesClient.ResourceGroups.Delete(rgName);
                 }
             }
         }

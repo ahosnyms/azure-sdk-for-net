@@ -217,10 +217,7 @@ namespace Microsoft.Azure.Management.Redis
                     }
                 }
                 
-                if (parameters.Properties.EnableNonSslPort != null)
-                {
-                    propertiesValue["enableNonSslPort"] = parameters.Properties.EnableNonSslPort.Value;
-                }
+                propertiesValue["enableNonSslPort"] = parameters.Properties.EnableNonSslPort;
                 
                 if (parameters.Properties.TenantSettings != null)
                 {

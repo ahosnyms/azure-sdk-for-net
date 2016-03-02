@@ -21,7 +21,11 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Provides Microsoft Azure Stream Analytics management operations.")]
 
 [assembly: AssemblyVersion("1.0.0.0")]
+<<<<<<< HEAD
 [assembly: AssemblyFileVersion("1.7.1.0")]
+=======
+[assembly: AssemblyFileVersion("1.4.1.0")]
+>>>>>>> origin/AutoRest
 
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]

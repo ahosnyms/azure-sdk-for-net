@@ -196,6 +196,7 @@ namespace Microsoft.Azure.Management.Sql
         }
         
         /// <summary>
+<<<<<<< HEAD
         /// Represents all the operations to manage Azure SQL Database and
         /// Database Server Security Alert policy.  Contains operations to:
         /// Create, Retrieve and Update policy.
@@ -217,6 +218,8 @@ namespace Microsoft.Azure.Management.Sql
         }
         
         /// <summary>
+=======
+>>>>>>> origin/AutoRest
         /// Represents all the operations for operating on Azure SQL Database
         /// Servers.  Contains operations to: Create, Retrieve, Update, and
         /// Delete servers.

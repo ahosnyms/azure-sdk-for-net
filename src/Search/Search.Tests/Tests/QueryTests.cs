@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿// 
 // Copyright (c) Microsoft.  All rights reserved. 
 // 
@@ -17,16 +18,34 @@ using Microsoft.Azure.Search.Tests.Utilities;
 
 namespace Microsoft.Azure.Search.Tests
 {
+=======
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for
+// license information.
+
+namespace Microsoft.Azure.Search.Tests
+{
+    using Microsoft.Azure.Search.Tests.Utilities;
+
+>>>>>>> origin/AutoRest
     public abstract class QueryTests : SearchTestBase<DocumentsFixture>
     {
         protected virtual SearchIndexClient GetClient()
         {
+<<<<<<< HEAD
             return Data.GetSearchIndexClient();
+=======
+            return this.Data.GetSearchIndexClient();
+>>>>>>> origin/AutoRest
         }
 
         protected virtual SearchIndexClient GetClientForQuery()
         {
+<<<<<<< HEAD
             return Data.GetSearchIndexClientForQuery();
+=======
+            return this.Data.GetSearchIndexClientForQuery();
+>>>>>>> origin/AutoRest
         }
     }
 }

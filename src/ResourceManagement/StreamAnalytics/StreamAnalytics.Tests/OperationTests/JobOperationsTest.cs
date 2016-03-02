@@ -320,7 +320,8 @@ namespace StreamAnalytics.Tests.OperationTests
 
         public static bool IsRunning(string jobStatus)
         {
-            return jobStatus == JobRunningState.Running ||
+            return jobStatus == JobRunningState.Idle ||
+                   jobStatus == JobRunningState.Processing ||
                    jobStatus == JobRunningState.Degraded;
         }
     }

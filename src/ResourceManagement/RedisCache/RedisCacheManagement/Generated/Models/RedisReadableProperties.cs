@@ -85,7 +85,11 @@ namespace Microsoft.Azure.Management.Redis.Models
         /// Initializes a new instance of the RedisReadableProperties class
         /// with required arguments.
         /// </summary>
+<<<<<<< HEAD
         public RedisReadableProperties(Sku sku)
+=======
+        public RedisReadableProperties(string redisVersion, Sku sku, bool enableNonSslPort)
+>>>>>>> origin/AutoRest
             : this()
         {
             if (sku == null)
@@ -93,6 +97,7 @@ namespace Microsoft.Azure.Management.Redis.Models
                 throw new ArgumentNullException("sku");
             }
             this.Sku = sku;
+            this.EnableNonSslPort = enableNonSslPort;
         }
     }
 }

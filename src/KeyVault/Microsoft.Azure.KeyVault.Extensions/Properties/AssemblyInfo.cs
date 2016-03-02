@@ -19,8 +19,13 @@ using System.Resources;
 [assembly: AssemblyTitle( "Microsoft Azure Key Vault Extensions Library" )]
 [assembly: AssemblyDescription( "Provides extended capabilities for Azure Key Vault." )]
 
+<<<<<<< HEAD
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.1.0")]
+=======
+[assembly: AssemblyVersion("0.9.0.0")]
+[assembly: AssemblyFileVersion("0.9.1.0")]
+>>>>>>> origin/AutoRest
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
 [assembly: AssemblyProduct("Azure .NET SDK")]

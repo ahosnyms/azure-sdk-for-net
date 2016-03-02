@@ -3,7 +3,11 @@
   <metadata minClientVersion="2.5">
     <id>Microsoft.Azure.KeyVault.Extensions</id>
     <title>Microsoft Azure Key Vault Extensions Library</title>
+<<<<<<< HEAD
     <releaseNotes>Remove hard dependency on RijndaelManaged</releaseNotes>
+=======
+    <releaseNotes>Initial release</releaseNotes>
+>>>>>>> origin/AutoRest
     <version>$version$</version>
     <authors>Microsoft</authors>
     <owners>azure-sdk, Microsoft</owners>
@@ -28,12 +32,12 @@
         <dependency id="Microsoft.Bcl" version="1.1.9" />
         <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
         <dependency id="Microsoft.Bcl.Build" version="1.0.14" />
-        <dependency id="Microsoft.Azure.KeyVault" version="1.0.0" />
-        <dependency id="Microsoft.Azure.KeyVault.Core" version="1.0.0" />
+        <dependency id="Microsoft.Azure.KeyVault" version="0.9.1-preview" />
+        <dependency id="Microsoft.Azure.KeyVault.Core" version="0.9.1-preview" />
       </group>
       <group targetFramework="net45">
-        <dependency id="Microsoft.Azure.KeyVault" version="1.0.0" />
-        <dependency id="Microsoft.Azure.KeyVault.Core" version="1.0.0" />
+        <dependency id="Microsoft.Azure.KeyVault" version="0.9.1-preview" />
+        <dependency id="Microsoft.Azure.KeyVault.Core" version="0.9.1-preview" />
       </group>
     </dependencies>
   </metadata>

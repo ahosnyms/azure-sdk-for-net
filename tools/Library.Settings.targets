@@ -23,7 +23,7 @@
     <LibraryFxTarget Condition="'$(LibraryFxTarget)' == ''">net45</LibraryFxTarget>
   </PropertyGroup>
   
-  <Import Project="references.$(LibraryFxTarget).props" />  
+  <Import Project="references.$(LibraryFxTarget).props" Condition=" '$(AutoRestProjects)' != 'true' " />  
   
   <!--
   Shared Project properties
@@ -33,7 +33,7 @@
     <DocumentationFile>bin\$(Configuration)\$(AssemblyName).xml</DocumentationFile>
     <AdditionalBinariesFolder>$(LibraryFxTarget)\</AdditionalBinariesFolder>
     <NoWarn>1591;1573;1570;1573</NoWarn>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors Condition=" $(SDKTestProject) != 'true' ">true</TreatWarningsAsErrors>
     <CodeAnalysisRuleSet Condition="'$(CodeAnalysisRuleSet)' == ''">AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   
@@ -73,13 +73,16 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition=" '$(LibraryFxTarget)' == 'portable' ">
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile102</TargetFrameworkProfile>
+    <TargetFrameworkVersion Condition=" '$(AutoRestProjects)' != 'true' ">v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion Condition=" '$(AutoRestProjects)'== 'true' ">v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile Condition=" '$(AutoRestProjects)' != 'true' ">Profile102</TargetFrameworkProfile>
+    <TargetFrameworkProfile Condition=" '$(AutoRestProjects)' == 'true' ">Profile111</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
   </PropertyGroup>
+  
   <PropertyGroup Condition=" '$(LibraryFxTarget)' == 'net40' ">
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile />
@@ -92,19 +95,13 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(LibraryFxTarget)' == 'windows8' ">
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(LibraryFxTarget)' == 'wp80' ">
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{C089C8C0-30E0-4E22-80C0-CE093F111A43};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(LibraryFxTarget)' == 'wpa81' ">
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{C089C8C0-30E0-4E22-80C0-CE093F111A43};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
-  </PropertyGroup>
 
+  <ItemGroup Condition=" '$(SDKTestProject)' == 'true' and '$(AutoRestProjects)' == 'true' ">
+    <Compile Include="$(LibraryToolsFolder)\DisableTestRunParallel.cs">
+      <Link>DisableTestRunParallel.cs</Link>
+    </Compile>
+  </ItemGroup>   
+  
   <Target Name="InformationAboutThisBuild" BeforeTargets="BeforeBuild">
     <Error Text="The current build type has not been defined." Condition=" '$(LibraryFxTarget)' == '' " />
     <Message Text="Current build type:            $(LibraryFxTarget)" />
@@ -132,7 +129,7 @@
           DestinationFolder="$(_BinariesDirectory)"/>
   </Target>
 
-  <Target Name="SyncPackageVersions" BeforeTargets="BeforeBuild">
+  <Target Name="SyncPackageVersions" BeforeTargets="BeforeBuild" Condition=" '$(SDKTestProject)' != 'true' ">
     <PropertyGroup>
       <PowerShellExe Condition=" '$(PowerShellExe)'=='' ">%WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe</PowerShellExe>   
       <NuSpecSyncScript>$(LibraryToolsFolder)\Sync-NuspecDependencies.ps1</NuSpecSyncScript>	 
@@ -140,13 +137,5 @@
 
     <!-- Update all explicit references to dependent versions. -->
     <Exec Command="$(PowerShellExe) -NonInteractive -ExecutionPolicy bypass -Command &quot;&amp; { &amp;&apos;$(NuSpecSyncScript)&apos; &apos;$(MSBuildProjectDirectory)&apos; }&quot;" />
-  </Target>
-
-  <!--Use by test projects referencing 3rd party unsigned assembly, so can't build under code sign-->
-  <Target Name="TurnOffCodeSign">
-    <PropertyGroup>
-      <SignAssembly>false</SignAssembly>
-      <DelaySign>false</DelaySign>
-    </PropertyGroup>
   </Target>
 </Project>

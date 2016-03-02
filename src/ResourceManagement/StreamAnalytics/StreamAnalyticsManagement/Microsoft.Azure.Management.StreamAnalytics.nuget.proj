@@ -5,7 +5,11 @@
     Microsoft.Azure.Management.StreamAnalytics
     -->
     <SdkNuGetPackage Include="Microsoft.Azure.Management.StreamAnalytics">
+<<<<<<< HEAD
       <PackageVersion>1.7.1</PackageVersion>
+=======
+      <PackageVersion>1.4.1</PackageVersion>
+>>>>>>> origin/AutoRest
       <Folder>$(MSBuildThisFileDirectory)</Folder>
     </SdkNuGetPackage>
   </ItemGroup>

@@ -136,7 +136,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
                 url = url + Uri.EscapeDataString(parameters.Transformation.Name);
             }
             List<string> queryParameters = new List<string>();
+<<<<<<< HEAD
             queryParameters.Add("api-version=2015-09-01");
+=======
+            queryParameters.Add("api-version=2015-04-01");
+>>>>>>> origin/AutoRest
             if (queryParameters.Count > 0)
             {
                 url = url + "?" + string.Join("&", queryParameters);
@@ -401,7 +405,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
             url = url + "/transformations/";
             url = url + Uri.EscapeDataString(transformationName);
             List<string> queryParameters = new List<string>();
+<<<<<<< HEAD
             queryParameters.Add("api-version=2015-09-01");
+=======
+            queryParameters.Add("api-version=2015-04-01");
+>>>>>>> origin/AutoRest
             if (queryParameters.Count > 0)
             {
                 url = url + "?" + string.Join("&", queryParameters);
@@ -620,7 +628,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
             url = url + "/transformations/";
             url = url + Uri.EscapeDataString(transformationName);
             List<string> queryParameters = new List<string>();
+<<<<<<< HEAD
             queryParameters.Add("api-version=2015-09-01");
+=======
+            queryParameters.Add("api-version=2015-04-01");
+>>>>>>> origin/AutoRest
             if (queryParameters.Count > 0)
             {
                 url = url + "?" + string.Join("&", queryParameters);
@@ -847,7 +859,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
             url = url + "/transformations/";
             url = url + Uri.EscapeDataString(transformationName);
             List<string> queryParameters = new List<string>();
+<<<<<<< HEAD
             queryParameters.Add("api-version=2015-09-01");
+=======
+            queryParameters.Add("api-version=2015-04-01");
+>>>>>>> origin/AutoRest
             if (queryParameters.Count > 0)
             {
                 url = url + "?" + string.Join("&", queryParameters);

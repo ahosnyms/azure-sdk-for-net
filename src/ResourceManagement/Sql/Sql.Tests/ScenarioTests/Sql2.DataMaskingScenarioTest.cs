@@ -22,7 +22,6 @@ using Microsoft.Azure.Management.Sql.Models;
 using Microsoft.Azure.Test;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -42,7 +41,8 @@ namespace Sql2.Tests.ScenarioTests
         private DataMaskingPolicyProperties MakeDefaultDataMaskingPolicyProperties()
         {
             DataMaskingPolicyProperties props = new DataMaskingPolicyProperties();
-            props.DataMaskingState = "NewCustomer";
+            props.DataMaskingState = "Disabled";
+            props.MaskingLevel = "Relaxed";
             props.ExemptPrincipals = "";
             return props;
         }
@@ -55,6 +55,7 @@ namespace Sql2.Tests.ScenarioTests
         private static void VerifyDataMaskingPolicyInformation(DataMaskingPolicyProperties expected, DataMaskingPolicyProperties actual)
         {
             Assert.Equal(expected.DataMaskingState, actual.DataMaskingState);
+            Assert.Equal(expected.MaskingLevel, actual.MaskingLevel);
             Assert.Equal(expected.ExemptPrincipals, actual.ExemptPrincipals);
         }
 
@@ -73,6 +74,7 @@ namespace Sql2.Tests.ScenarioTests
 
             // Modify the policy properties, send and receive, see it its still ok
             properties.DataMaskingState = "Enabled";
+            properties.MaskingLevel = "Relaxed";
             properties.ExemptPrincipals = "principal1;principal2";
             DataMaskingPolicyCreateOrUpdateParameters updateParams = new DataMaskingPolicyCreateOrUpdateParameters(); 
             updateParams.Properties = properties;
@@ -95,14 +97,20 @@ namespace Sql2.Tests.ScenarioTests
         /// </summary>
         /// <param name="uniqueId">A unique id to act as a seed for the ruleId, the masked table name and the masked column name</param>
         /// <returns>A DataMaskingRuleProperties describing the rule</returns>
-        private DataMaskingRuleProperties MakeRuleProperties(int uniqueId, string table, string column)
+        private DataMaskingRuleProperties MakeRuleProperties(int uniqueId)
         {
             DataMaskingRuleProperties props = new DataMaskingRuleProperties();
             props.Id = "ruleId" + uniqueId;
+<<<<<<< HEAD
             props.RuleState = "Enabled";
             props.SchemaName = "DBO";
             props.TableName = table;
             props.ColumnName = column;
+=======
+            props.TableName = "t-name " + uniqueId;
+            props.ColumnName = "col-name " + uniqueId;
+            props.AliasName = null;
+>>>>>>> origin/AutoRest
             props.MaskingFunction = "Default";
             props.NumberFrom = null;
             props.NumberTo = null;
@@ -121,32 +129,14 @@ namespace Sql2.Tests.ScenarioTests
         {
             Assert.Equal(expected.Id, actual.Id);
             Assert.Equal(expected.TableName, actual.TableName);
-            Assert.Equal(expected.ColumnName, actual.ColumnName);   
+            Assert.Equal(expected.ColumnName, actual.ColumnName);
+            Assert.Equal(expected.AliasName, actual.AliasName);
             Assert.Equal(expected.MaskingFunction, actual.MaskingFunction);
             Assert.Equal(expected.NumberFrom, actual.NumberFrom);
             Assert.Equal(expected.NumberTo, actual.NumberTo);
             Assert.Equal(expected.PrefixSize, actual.PrefixSize);
             Assert.Equal(expected.ReplacementString, actual.ReplacementString);
             Assert.Equal(expected.SuffixSize, actual.SuffixSize);
-        }
-
-        private void CreateDatabaseContents(SqlConnection conn, string table, string column)
-        {
-            try
-            {
-                conn.Open();
-                string query = string.Format("CREATE TABLE {0} ({1} NVARCHAR(20) NOT NULL)", table, column);
-                var command = conn.CreateCommand();
-                command.CommandText = query;
-                command.ExecuteReader();
-            }
-            catch
-            {
-            }
-            finally
-            {
-                conn.Close();
-            }
         }
 
         /// <summary>
@@ -170,11 +160,12 @@ namespace Sql2.Tests.ScenarioTests
         {
             DataMaskingPolicyCreateOrUpdateParameters policyParams = new DataMaskingPolicyCreateOrUpdateParameters();
             policyParams.Properties = MakeDefaultDataMaskingPolicyProperties();
-            policyParams.Properties.DataMaskingState = "Enabled";
+            policyParams.Properties.MaskingLevel = "Relaxed";
             sqlClient.DataMasking.CreateOrUpdatePolicy(resourceGroupName, server.Name, database.Name, policyParams);
  
             int ruleCounter = 1;
             DataMaskingRuleCreateOrUpdateParameters ruleParams = new DataMaskingRuleCreateOrUpdateParameters();
+<<<<<<< HEAD
             string serverName = server.Properties.FullyQualifiedDomainName;
             string uid = server.Properties.AdministratorLogin;
             string pwd = server.Properties.AdministratorLoginPassword;
@@ -208,6 +199,9 @@ namespace Sql2.Tests.ScenarioTests
             };
 
             ruleParams.Properties = MakeRuleProperties(ruleCounter++ ,tableName, columnName);
+=======
+            ruleParams.Properties = MakeRuleProperties(ruleCounter++);
+>>>>>>> origin/AutoRest
             string rule1Name = ruleParams.Properties.Id;
            
             var createRuleResponse = sqlClient.DataMasking.CreateOrUpdateRule(resourceGroupName, server.Name, database.Name, rule1Name, ruleParams);            
@@ -222,6 +216,10 @@ namespace Sql2.Tests.ScenarioTests
 
 
             // Modify the policy properties, send and receive, see it its still ok
+<<<<<<< HEAD
+=======
+            ruleParams.Properties.TableName = "tbl2";
+>>>>>>> origin/AutoRest
 
             ruleParams.Properties.PrefixSize = "2";
             ruleParams.Properties.ReplacementString = "ABC";
@@ -238,11 +236,15 @@ namespace Sql2.Tests.ScenarioTests
             VerifyDataMaskingRuleInformation(updatedRule.Properties, ruleParams.Properties);
 
             DataMaskingRuleCreateOrUpdateParameters ruleParams2 = new DataMaskingRuleCreateOrUpdateParameters();
+<<<<<<< HEAD
             tableName = "table2";
             columnName = "column2";
             CreateDatabaseContents(conn, tableName, columnName);
 
             ruleParams2.Properties = MakeRuleProperties(ruleCounter++, tableName, columnName);
+=======
+            ruleParams2.Properties = MakeRuleProperties(ruleCounter++);
+>>>>>>> origin/AutoRest
             string rule2Name = ruleParams2.Properties.Id;
 
             var createSecondRuleResponse = sqlClient.DataMasking.CreateOrUpdateRule(resourceGroupName, server.Name, database.Name, rule2Name, ruleParams2);
@@ -257,8 +259,13 @@ namespace Sql2.Tests.ScenarioTests
             updatedRule = listUpdateResponse.DataMaskingRules.FirstOrDefault(isRuleOnColumn(ruleParams));
             VerifyDataMaskingRuleInformation(updatedRule.Properties, ruleParams.Properties);
 
+<<<<<<< HEAD
             var receivedSecondRule = listAfterSecondCreateResponse.DataMaskingRules.FirstOrDefault(isRuleOnColumn(ruleParams2));
             VerifyDataMaskingRuleInformation(receivedSecondRule.Properties, ruleParams2.Properties);
+=======
+            VerifyDataMaskingRuleInformation(listResponse.DataMaskingRules.FirstOrDefault(r => r.Name == rule1Name).Properties, ruleParams.Properties);
+            VerifyDataMaskingRuleInformation(listResponse.DataMaskingRules.FirstOrDefault(r => r.Name == rule2Name).Properties, ruleParams2.Properties);
+>>>>>>> origin/AutoRest
 
             AzureOperationResponse deleteResponse = sqlClient.DataMasking.Delete(resourceGroupName, server.Name, database.Name, rule1Name);
             TestUtilities.ValidateOperationResponse(deleteResponse, HttpStatusCode.OK);
@@ -267,8 +274,12 @@ namespace Sql2.Tests.ScenarioTests
             TestUtilities.ValidateOperationResponse(listAfterDeleteResponse, HttpStatusCode.OK);
 
             Assert.Equal(listAfterDeleteResponse.DataMaskingRules.Count, 1);
+<<<<<<< HEAD
             var receivedAfterDelete = listAfterSecondCreateResponse.DataMaskingRules.FirstOrDefault(isRuleOnColumn(ruleParams2));
             VerifyDataMaskingRuleInformation(receivedAfterDelete.Properties, ruleParams2.Properties);
+=======
+            VerifyDataMaskingRuleInformation(listResponse.DataMaskingRules.FirstOrDefault(r => r.Name == rule2Name).Properties, ruleParams2.Properties);
+>>>>>>> origin/AutoRest
         }
     
         /// <summary>
@@ -280,7 +291,7 @@ namespace Sql2.Tests.ScenarioTests
             using (UndoContext context = UndoContext.Current)
             {
                 context.Start();
-                Sql2ScenarioHelper.RunDatabaseTestInEnvironment(new BasicDelegatingHandler(), "12.0", TestDataMaskingPolicyAPIs);
+                Sql2ScenarioHelper.RunDatabaseTestInEnvironment(new BasicDelegatingHandler(), "2.0", TestDataMaskingPolicyAPIs);
             }
         }
 
@@ -293,7 +304,7 @@ namespace Sql2.Tests.ScenarioTests
             using (UndoContext context = UndoContext.Current)
             {
                 context.Start();
-                Sql2ScenarioHelper.RunDatabaseTestInEnvironment(new BasicDelegatingHandler(), "12.0", TestDataMaskingRuleAPIs);
+                Sql2ScenarioHelper.RunDatabaseTestInEnvironment(new BasicDelegatingHandler(), "2.0", TestDataMaskingRuleAPIs);
             }
         }
     }

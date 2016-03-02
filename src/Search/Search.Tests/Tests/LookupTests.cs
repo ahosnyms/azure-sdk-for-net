@@ -1,32 +1,19 @@
-﻿// 
-// Copyright (c) Microsoft.  All rights reserved. 
-// 
-// Licensed under the Apache License, Version 2.0 (the "License"); 
-// you may not use this file except in compliance with the License. 
-// You may obtain a copy of the License at 
-//   http://www.apache.org/licenses/LICENSE-2.0 
-// 
-// Unless required by applicable law or agreed to in writing, software 
-// distributed under the License is distributed on an "AS IS" BASIS, 
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-// See the License for the specific language governing permissions and 
-// limitations under the License. 
-// 
-
-using System;
-using System.Linq;
-using System.Net;
-using System.Web;
-using Hyak.Common;
-using Microsoft.Azure.Search.Models;
-using Microsoft.Azure.Search.Tests.Utilities;
-using Microsoft.Azure.Test;
-using Microsoft.Azure.Test.TestCategories;
-using Microsoft.Spatial;
-using Xunit;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for
+// license information.
 
 namespace Microsoft.Azure.Search.Tests
 {
+    using System;
+    using System.Net;
+    using System.Web;
+    using Microsoft.Azure.Search.Models;
+    using Microsoft.Azure.Search.Tests.Utilities;
+    using Microsoft.Rest.Azure;
+    using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+    using Microsoft.Spatial;
+    using Xunit;
+
     public sealed class LookupTests : SearchTestBase<IndexFixture>
     {
         [Fact]
@@ -54,13 +41,12 @@ namespace Microsoft.Azure.Search.Tests
                         { "location", GeographyPoint.Create(47.678581, -122.131577) }
                     };
 
-                var batch = new IndexBatch(new[] { new IndexAction(expectedDoc) });
+                var batch = IndexBatch.Upload(new[] { expectedDoc });
                 client.Documents.Index(batch);
                 SearchTestUtilities.WaitForIndexing();
 
-                DocumentGetResponse getResponse = client.Documents.Get("1");
-                Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
-                SearchAssert.DocumentsEqual(expectedDoc, getResponse.Document);
+                Document actualDoc = client.Documents.Get("1");
+                SearchAssert.DocumentsEqual(expectedDoc, actualDoc);
             });
         }
 
@@ -84,13 +70,12 @@ namespace Microsoft.Azure.Search.Tests
                         { "location", null }
                     };
 
-                var batch = new IndexBatch(new[] { new IndexAction(expectedDoc) });
+                var batch = IndexBatch.Upload(new[] { expectedDoc });
                 client.Documents.Index(batch);
                 SearchTestUtilities.WaitForIndexing();
 
-                DocumentGetResponse getResponse = client.Documents.Get("1", expectedDoc.Keys);
-                Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
-                SearchAssert.DocumentsEqual(expectedDoc, getResponse.Document);
+                Document actualDoc = client.Documents.Get("1", expectedDoc.Keys);
+                SearchAssert.DocumentsEqual(expectedDoc, actualDoc);
             });
         }
 
@@ -117,13 +102,12 @@ namespace Microsoft.Azure.Search.Tests
                         { "hotelName", new DateTimeOffset(2015, 2, 11, 12, 58, 0, TimeSpan.Zero) }
                     };
 
-                var batch = new IndexBatch(new[] { new IndexAction(indexedDoc) });
+                var batch = IndexBatch.Upload(new[] { expectedDoc });
                 client.Documents.Index(batch);
                 SearchTestUtilities.WaitForIndexing();
 
-                DocumentGetResponse getResponse = client.Documents.Get("1", indexedDoc.Keys);
-                Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
-                SearchAssert.DocumentsEqual(expectedDoc, getResponse.Document);
+                Document actualDoc = client.Documents.Get("1", indexedDoc.Keys);
+                SearchAssert.DocumentsEqual(expectedDoc, actualDoc);
             });
         }
 
@@ -152,12 +136,11 @@ namespace Microsoft.Azure.Search.Tests
                         Location = GeographyPoint.Create(47.678581, -122.131577)
                     };
 
-                var batch = IndexBatch.Create(IndexAction.Create(expectedDoc));
+                var batch = IndexBatch.Upload(new[] { expectedDoc });
                 client.Documents.Index(batch);
 
-                DocumentGetResponse<Hotel> response = client.Documents.Get<Hotel>("1");
-                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-                Assert.Equal(expectedDoc, response.Document);
+                Hotel actualDoc = client.Documents.Get<Hotel>("1");
+                Assert.Equal(expectedDoc, actualDoc);
             });
         }
 
@@ -175,13 +158,12 @@ namespace Microsoft.Azure.Search.Tests
                         { "hotelId", complexKey }
                     };
 
-                var batch = new IndexBatch(new[] { new IndexAction(expectedDoc) });
+                var batch = IndexBatch.Upload(new[] { expectedDoc });
                 client.Documents.Index(batch);
                 SearchTestUtilities.WaitForIndexing();
 
-                DocumentGetResponse getResponse = client.Documents.Get(complexKey, expectedDoc.Keys);
-                Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
-                SearchAssert.DocumentsEqual(expectedDoc, getResponse.Document);
+                Document actualDoc = client.Documents.Get(complexKey, expectedDoc.Keys);
+                SearchAssert.DocumentsEqual(expectedDoc, actualDoc);
             });
         }
 
@@ -207,12 +189,11 @@ namespace Microsoft.Azure.Search.Tests
                         LastRenovationDate = new DateTimeOffset(2010, 6, 27, 8, 0, 0, TimeSpan.Zero)
                     };
 
-                var batch = IndexBatch.Create(IndexAction.Create(indexedDoc));
+                var batch = IndexBatch.Upload(new[] { expectedDoc });
                 client.Documents.Index(batch);
 
-                DocumentGetResponse<Hotel> response = client.Documents.Get<Hotel>("1");
-                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-                Assert.Equal(expectedDoc, response.Document);
+                Hotel actualDoc = client.Documents.Get<Hotel>("1");
+                Assert.Equal(expectedDoc, actualDoc);
             });
         }
 
@@ -236,13 +217,12 @@ namespace Microsoft.Azure.Search.Tests
                         Location = null
                     };
 
-                var batch = IndexBatch.Create(IndexAction.Create(expectedDoc));
+                var batch = IndexBatch.Upload(new[] { expectedDoc });
                 client.Documents.Index(batch);
                 SearchTestUtilities.WaitForIndexing();
 
-                DocumentGetResponse<Hotel> getResponse = client.Documents.Get<Hotel>("1");
-                Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
-                Assert.Equal(expectedDoc, getResponse.Document);
+                Hotel actualDoc = client.Documents.Get<Hotel>("1");
+                Assert.Equal(expectedDoc, actualDoc);
             });
         }
 
@@ -256,7 +236,7 @@ namespace Microsoft.Azure.Search.Tests
                 Index index =
                     new Index()
                     {
-                        Name = TestUtilities.GenerateName(),
+                        Name = SearchTestUtilities.GenerateName(),
                         Fields = new[]
                         {
                             new Field("ISBN", DataType.String) { IsKey = true },
@@ -265,18 +245,15 @@ namespace Microsoft.Azure.Search.Tests
                         }
                     };
 
-                IndexDefinitionResponse createIndexResponse = serviceClient.Indexes.Create(index);
-                Assert.Equal(HttpStatusCode.Created, createIndexResponse.StatusCode);
-
-                SearchIndexClient indexClient = Data.GetSearchIndexClient(createIndexResponse.Index.Name);
+                serviceClient.Indexes.Create(index);
+                SearchIndexClient indexClient = Data.GetSearchIndexClient(index.Name);
 
                 var expectedDoc = new Book() { ISBN = "123", Title = "Lord of the Rings", Author = "J.R.R. Tolkien" };
-                var batch = IndexBatch.Create(IndexAction.Create(expectedDoc));
+                var batch = IndexBatch.Upload(new[] { expectedDoc });
                 indexClient.Documents.Index(batch);
 
-                DocumentGetResponse<Book> response = indexClient.Documents.Get<Book>("123");
-                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-                Assert.Equal(expectedDoc, response.Document);
+                Book actualDoc = indexClient.Documents.Get<Book>("123");
+                Assert.Equal(expectedDoc, actualDoc);
             });
         }
 
@@ -311,13 +288,11 @@ namespace Microsoft.Azure.Search.Tests
                         HotelName = "Roach Motel"
                     };
 
-                var batch = IndexBatch.Create(IndexAction.Create(indexedDoc));
+                var batch = IndexBatch.Upload(new[] { indexedDoc });
                 client.Documents.Index(batch);
 
-                DocumentGetResponse<Hotel> response =
-                    client.Documents.Get<Hotel>("2", new[] { "description", "hotelName" });
-                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-                Assert.Equal(expectedDoc, response.Document);
+                Hotel actualDoc = client.Documents.Get<Hotel>("2", new[] { "description", "hotelName" });
+                Assert.Equal(expectedDoc, actualDoc);
             });
         }
 
@@ -350,7 +325,7 @@ namespace Microsoft.Azure.Search.Tests
                         Description = "Surprisingly expensive"
                     };
 
-                var batch = IndexBatch.Create(IndexAction.Create(indexedDoc));
+                var batch = IndexBatch.Upload(new[] { indexedDoc });
                 client.Documents.Index(batch);
 
                 string[] selectedFields = new[] { "hotelId", "ThisFieldDoesNotExist" };

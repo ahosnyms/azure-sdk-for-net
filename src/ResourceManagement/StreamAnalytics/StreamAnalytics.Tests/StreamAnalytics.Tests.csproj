@@ -63,12 +63,6 @@
     <None Include="SessionRecords\StreamAnalytics.Tests.OperationTests.OutputOperationsTest\Test_OutputOperations_EventHub.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="SessionRecords\StreamAnalytics.Tests.OperationTests.OutputOperationsTest\Test_OutputOperations_ServiceBusQueue.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="SessionRecords\StreamAnalytics.Tests.OperationTests.OutputOperationsTest\Test_OutputOperations_ServiceBusTopic.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="SessionRecords\StreamAnalytics.Tests.OperationTests.SubscriptionOperationsTest\Test_SubscriptionOperations_E2E.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

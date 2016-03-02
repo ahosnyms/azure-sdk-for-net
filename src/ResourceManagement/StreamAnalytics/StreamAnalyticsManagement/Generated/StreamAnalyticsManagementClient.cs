@@ -159,7 +159,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
             this._outputs = new OutputOperations(this);
             this._subscriptions = new SubscriptionOperations(this);
             this._transformations = new TransformationOperations(this);
+<<<<<<< HEAD
             this._apiVersion = "2015-09-01";
+=======
+            this._apiVersion = "2015-04-01";
+>>>>>>> origin/AutoRest
             this._longRunningOperationInitialTimeout = -1;
             this._longRunningOperationRetryTimeout = -1;
             this.HttpClient.Timeout = TimeSpan.FromSeconds(60);
@@ -240,7 +244,11 @@ namespace Microsoft.Azure.Management.StreamAnalytics
             this._outputs = new OutputOperations(this);
             this._subscriptions = new SubscriptionOperations(this);
             this._transformations = new TransformationOperations(this);
+<<<<<<< HEAD
             this._apiVersion = "2015-09-01";
+=======
+            this._apiVersion = "2015-04-01";
+>>>>>>> origin/AutoRest
             this._longRunningOperationInitialTimeout = -1;
             this._longRunningOperationRetryTimeout = -1;
             this.HttpClient.Timeout = TimeSpan.FromSeconds(60);
@@ -385,6 +393,10 @@ namespace Microsoft.Azure.Management.StreamAnalytics
                 httpRequest.RequestUri = new Uri(url);
                 
                 // Set Headers
+<<<<<<< HEAD
+=======
+                httpRequest.Headers.Add("x-ms-version", "2015-04-01");
+>>>>>>> origin/AutoRest
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();
@@ -512,6 +524,10 @@ namespace Microsoft.Azure.Management.StreamAnalytics
                 
                 // Set Headers
                 httpRequest.Headers.Add("x-ms-client-request-id", Guid.NewGuid().ToString());
+<<<<<<< HEAD
+=======
+                httpRequest.Headers.Add("x-ms-version", "2015-04-01");
+>>>>>>> origin/AutoRest
                 
                 // Set Credentials
                 cancellationToken.ThrowIfCancellationRequested();

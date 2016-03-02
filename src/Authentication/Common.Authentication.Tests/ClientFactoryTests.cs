@@ -13,14 +13,15 @@
 // ----------------------------------------------------------------------------------
 
 using Microsoft.Azure.Common.Authentication;
-using Microsoft.Azure.Common.Authentication.Factories;
 using Microsoft.Azure.Common.Authentication.Models;
 using Microsoft.WindowsAzure.Management.Storage;
 using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Security;
 using System.Linq;
+using System.Net.Http;
+using System.Security;
+using Microsoft.Azure.Common.Authentication.Factories;
+using Microsoft.WindowsAzure.Commands.Common.Test.Mocks;
 using Xunit;
 
 namespace Common.Authentication.Test
@@ -72,7 +73,6 @@ namespace Common.Authentication.Test
 
             AzureContext context = new AzureContext
             (
-
                 new AzureSubscription()
                 {
                     Account = userAccount,
@@ -95,6 +95,7 @@ namespace Common.Authentication.Test
             // Authenticate!
             AzureSession.AuthenticationFactory.Authenticate(context.Account, context.Environment, "common", password, ShowDialog.Always);
             
+            AzureSession.ClientFactory.AddUserAgent("TestUserAgent", "1.0");
             // Create the client
             var client = AzureSession.ClientFactory.CreateClient<StorageManagementClient>(context, AzureEnvironment.Endpoint.ServiceManagement);
 
@@ -123,6 +124,6 @@ namespace Common.Authentication.Test
             Assert.True(factory.UserAgents.Any(u => u.Product.Name == "test1" && u.Product.Version == "456"));
             Assert.True(factory.UserAgents.Any(u => u.Product.Name == "test3" && u.Product.Version == null));
         }
+
     }
 }
-;

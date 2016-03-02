@@ -13,11 +13,21 @@
 // limitations under the License.
 //
 
+<<<<<<< HEAD
 using Microsoft.Azure;
 using Microsoft.Azure.Management.Compute;
 using Microsoft.Azure.Management.Compute.Models;
 using Microsoft.Azure.Management.Resources;
 using Microsoft.Azure.Test;
+=======
+using Microsoft.Azure.Management.Compute;
+using Microsoft.Azure.Management.Compute.Models;
+using Microsoft.Azure.Management.Resources;
+using Microsoft.Rest.Azure;
+using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+using System;
+using System.Collections.Generic;
+>>>>>>> origin/AutoRest
 using System.Net;
 using Xunit;
 
@@ -36,6 +46,7 @@ namespace Compute.Tests
         /// Delete RG
         /// TODO: Add negative test case validation
         /// </summary>
+<<<<<<< HEAD
         [Fact]
         [Trait("Name", "TestDiskEncryption")]
         public void TestVMDiskEncryption()
@@ -50,6 +61,23 @@ namespace Compute.Tests
                 var rgName = TestUtilities.GenerateName(TestPrefix);
                 string storageAccountName = TestUtilities.GenerateName(TestPrefix);
                 string asName = TestUtilities.GenerateName("as");
+=======
+        [Fact(Skip = "For AutoRest")]
+        [Trait("Name", "TestDiskEncryption")]
+        public void TestVMDiskEncryption()
+        {
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
+            {
+                EnsureClientsInitialized(context);
+
+                ImageReference imageRef = GetPlatformVMImage(useWindowsImage: true);
+
+                // Create resource group
+                var rgName = ComputeManagementTestUtilities.GenerateName(TestPrefix);
+                string storageAccountName = ComputeManagementTestUtilities.GenerateName(TestPrefix);
+                string asName = ComputeManagementTestUtilities.GenerateName("as");
+
+>>>>>>> origin/AutoRest
                 try
                 {
                     // Create Storage Account, so that both the VMs can share it
@@ -59,14 +87,20 @@ namespace Compute.Tests
                     CreateVM_NoAsyncTracking(rgName, asName, storageAccountOutput, imageRef, out inputVM1,
                         (vm) =>
                         {
+<<<<<<< HEAD
                             vm.StorageProfile.OSDisk.EncryptionSettings = GetEncryptionSettings();
                             vm.HardwareProfile.VirtualMachineSize = "Standard_D1";
+=======
+                            vm.StorageProfile.OsDisk.EncryptionSettings = GetEncryptionSettings();
+                            vm.HardwareProfile.VmSize = "Standard_D1";
+>>>>>>> origin/AutoRest
                         });
                     //Create VM with encryptionKey and KEK
                     VirtualMachine inputVM2;
                     CreateVM_NoAsyncTracking(rgName, asName, storageAccountOutput, imageRef, out inputVM2,
                         (vm) =>
                         {
+<<<<<<< HEAD
                             vm.StorageProfile.OSDisk.EncryptionSettings = GetEncryptionSettings(addKek:true);
                             vm.HardwareProfile.VirtualMachineSize = "Standard_D1";
                         });
@@ -80,6 +114,18 @@ namespace Compute.Tests
                 {
                     var deleteResourceGroupResponse = m_ResourcesClient.ResourceGroups.Delete(rgName);
                     Assert.True(deleteResourceGroupResponse.StatusCode == HttpStatusCode.OK);
+=======
+                            vm.StorageProfile.OsDisk.EncryptionSettings = GetEncryptionSettings(addKek:true);
+                            vm.HardwareProfile.VmSize = "Standard_D1";
+                        });
+                    
+                    m_CrpClient.VirtualMachines.Delete(rgName, inputVM1.Name);
+                    m_CrpClient.VirtualMachines.Delete(rgName, inputVM2.Name);
+                }
+                finally
+                {
+                    m_ResourcesClient.ResourceGroups.Delete(rgName);
+>>>>>>> origin/AutoRest
                 }
             }
         }

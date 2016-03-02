@@ -209,18 +209,6 @@ namespace Microsoft.Azure.Management.Sql
             get { return this._recommendedIndexes; }
         }
         
-        private IReplicationLinkOperations _databaseReplicationLinks;
-        
-        /// <summary>
-        /// Represents all the operations for operating on Azure SQL Database
-        /// Replication Links.  Contains operations to: Delete and Retrieve
-        /// replication links.
-        /// </summary>
-        public virtual IReplicationLinkOperations DatabaseReplicationLinks
-        {
-            get { return this._databaseReplicationLinks; }
-        }
-        
         private ISecureConnectionPolicyOperations _secureConnection;
         
         /// <summary>
@@ -233,6 +221,7 @@ namespace Microsoft.Azure.Management.Sql
             get { return this._secureConnection; }
         }
         
+<<<<<<< HEAD
         private ISecurityAlertPolicyOperations _securityAlertPolicy;
         
         /// <summary>
@@ -258,6 +247,8 @@ namespace Microsoft.Azure.Management.Sql
             get { return this._serverAdministrators; }
         }
         
+=======
+>>>>>>> origin/AutoRest
         private IServerOperations _servers;
         
         /// <summary>
@@ -342,10 +333,12 @@ namespace Microsoft.Azure.Management.Sql
             this._firewallRules = new FirewallRuleOperations(this);
             this._recommendedElasticPools = new RecommendedElasticPoolOperations(this);
             this._recommendedIndexes = new RecommendedIndexOperations(this);
-            this._databaseReplicationLinks = new ReplicationLinkOperations(this);
             this._secureConnection = new SecureConnectionPolicyOperations(this);
+<<<<<<< HEAD
             this._securityAlertPolicy = new SecurityAlertPolicyOperations(this);
             this._serverAdministrators = new ServerAdministratorOperations(this);
+=======
+>>>>>>> origin/AutoRest
             this._servers = new ServerOperations(this);
             this._serverUpgrades = new ServerUpgradeOperations(this);
             this._serviceObjectives = new ServiceObjectiveOperations(this);
@@ -427,10 +420,12 @@ namespace Microsoft.Azure.Management.Sql
             this._firewallRules = new FirewallRuleOperations(this);
             this._recommendedElasticPools = new RecommendedElasticPoolOperations(this);
             this._recommendedIndexes = new RecommendedIndexOperations(this);
-            this._databaseReplicationLinks = new ReplicationLinkOperations(this);
             this._secureConnection = new SecureConnectionPolicyOperations(this);
+<<<<<<< HEAD
             this._securityAlertPolicy = new SecurityAlertPolicyOperations(this);
             this._serverAdministrators = new ServerAdministratorOperations(this);
+=======
+>>>>>>> origin/AutoRest
             this._servers = new ServerOperations(this);
             this._serverUpgrades = new ServerUpgradeOperations(this);
             this._serviceObjectives = new ServiceObjectiveOperations(this);
