@@ -1,0 +1,173 @@
+{
+  "Entries": [
+    {
+      "RequestUri": "/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/resourcegroups/csmrg6168?api-version=2015-11-01",
+      "EncodedRequestUri": "L3N1YnNjcmlwdGlvbnMvNDVjMGFkNDYtYWUzZi00OTNlLTkxY2UtOTI5N2UwOTUzZmMxL3Jlc291cmNlZ3JvdXBzL2NzbXJnNjE2OD9hcGktdmVyc2lvbj0yMDE1LTExLTAx",
+      "RequestMethod": "PUT",
+      "RequestBody": "{\r\n  \"location\": \"West Europe\"\r\n}",
+      "RequestHeaders": {
+        "Content-Type": [
+          "application/json; charset=utf-8"
+        ],
+        "Content-Length": [
+          "33"
+        ],
+        "User-Agent": [
+          "Microsoft.Azure.Management.Resources.ResourceManagementClient/2.0.0.0"
+        ]
+      },
+      "ResponseBody": "{\r\n  \"id\": \"/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/resourceGroups/csmrg6168\",\r\n  \"name\": \"csmrg6168\",\r\n  \"location\": \"westeurope\",\r\n  \"properties\": {\r\n    \"provisioningState\": \"Succeeded\"\r\n  }\r\n}",
+      "ResponseHeaders": {
+        "Content-Length": [
+          "175"
+        ],
+        "Content-Type": [
+          "application/json; charset=utf-8"
+        ],
+        "Expires": [
+          "-1"
+        ],
+        "Pragma": [
+          "no-cache"
+        ],
+        "x-ms-ratelimit-remaining-subscription-writes": [
+          "1198"
+        ],
+        "x-ms-request-id": [
+          "c29f0504-221b-4f80-966a-a1e8c08f52a3"
+        ],
+        "x-ms-correlation-request-id": [
+          "c29f0504-221b-4f80-966a-a1e8c08f52a3"
+        ],
+        "x-ms-routing-request-id": [
+          "WESTUS:20160124T020107Z:c29f0504-221b-4f80-966a-a1e8c08f52a3"
+        ],
+        "Strict-Transport-Security": [
+          "max-age=31536000; includeSubDomains"
+        ],
+        "Cache-Control": [
+          "no-cache"
+        ],
+        "Date": [
+          "Sun, 24 Jan 2016 02:01:07 GMT"
+        ]
+      },
+      "StatusCode": 201
+    },
+    {
+      "RequestUri": "/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/resourcegroups/csmrg6168/deployments/csmd7438?api-version=2015-11-01",
+      "EncodedRequestUri": "L3N1YnNjcmlwdGlvbnMvNDVjMGFkNDYtYWUzZi00OTNlLTkxY2UtOTI5N2UwOTUzZmMxL3Jlc291cmNlZ3JvdXBzL2NzbXJnNjE2OC9kZXBsb3ltZW50cy9jc21kNzQzOD9hcGktdmVyc2lvbj0yMDE1LTExLTAx",
+      "RequestMethod": "PUT",
+      "RequestBody": "{\r\n  \"properties\": {\r\n    \"templateLink\": {\r\n      \"uri\": \"https://testtemplates.blob.core.windows.net/templates/dummytemplate.js\"\r\n    },\r\n    \"parameters\": {\r\n      \"string\": {\r\n        \"value\": \"myvalue\"\r\n      },\r\n      \"securestring\": {\r\n        \"value\": \"myvalue\"\r\n      },\r\n      \"int\": {\r\n        \"value\": 42\r\n      },\r\n      \"bool\": {\r\n        \"value\": true\r\n      }\r\n    },\r\n    \"mode\": \"Incremental\"\r\n  }\r\n}",
+      "RequestHeaders": {
+        "Content-Type": [
+          "application/json; charset=utf-8"
+        ],
+        "Content-Length": [
+          "418"
+        ],
+        "User-Agent": [
+          "Microsoft.Azure.Management.Resources.ResourceManagementClient/2.0.0.0"
+        ]
+      },
+      "ResponseBody": "{\r\n  \"id\": \"/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/resourceGroups/csmrg6168/providers/Microsoft.Resources/deployments/csmd7438\",\r\n  \"name\": \"csmd7438\",\r\n  \"properties\": {\r\n    \"templateLink\": {\r\n      \"uri\": \"https://testtemplates.blob.core.windows.net/templates/dummytemplate.js\",\r\n      \"contentVersion\": \"1.0.0.0\"\r\n    },\r\n    \"parameters\": {\r\n      \"string\": {\r\n        \"type\": \"String\",\r\n        \"value\": \"myvalue\"\r\n      },\r\n      \"securestring\": {\r\n        \"type\": \"SecureString\"\r\n      },\r\n      \"int\": {\r\n        \"type\": \"Int\",\r\n        \"value\": 42\r\n      },\r\n      \"bool\": {\r\n        \"type\": \"Bool\",\r\n        \"value\": true\r\n      }\r\n    },\r\n    \"mode\": \"Incremental\",\r\n    \"provisioningState\": \"Accepted\",\r\n    \"timestamp\": \"2016-01-24T02:01:11.3410118Z\",\r\n    \"duration\": \"PT1.8310761S\",\r\n    \"correlationId\": \"75e07128-200b-4c48-b2ac-9bb1ef93bd46\",\r\n    \"providers\": [\r\n      {\r\n        \"namespace\": \"ResourceProviderTestHost\",\r\n        \"resourceTypes\": [\r\n          {\r\n            \"resourceType\": \"TestResourceType\",\r\n            \"locations\": [\r\n              null,\r\n              \"devfabric\"\r\n            ]\r\n          },\r\n          {\r\n            \"resourceType\": \"TestResourceType/TestResourceTypeNestedOne\",\r\n            \"locations\": [\r\n              null\r\n            ]\r\n          }\r\n        ]\r\n      }\r\n    ],\r\n    \"dependencies\": [\r\n      {\r\n        \"dependsOn\": [\r\n          {\r\n            \"id\": \"/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/resourceGroups/csmrg6168/providers/ResourceProviderTestHost/TestResourceType/resource1\",\r\n            \"resourceType\": \"ResourceProviderTestHost/TestResourceType\",\r\n            \"resourceName\": \"resource1\"\r\n          }\r\n        ],\r\n        \"id\": \"/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/resourceGroups/csmrg6168/providers/ResourceProviderTestHost/TestResourceType/resource1/TestResourceTypeNestedOne/nestedresource1\",\r\n        \"resourceType\": \"ResourceProviderTestHost/TestResourceType/TestResourceTypeNestedOne\",\r\n        \"resourceName\": \"resource1/nestedresource1\"\r\n      },\r\n      {\r\n        \"dependsOn\": [\r\n          {\r\n            \"id\": \"/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/resourceGroups/csmrg6168/providers/ResourceProviderTestHost/TestResourceType/resource1\",\r\n            \"resourceType\": \"ResourceProviderTestHost/TestResourceType\",\r\n            \"resourceName\": \"resource1\"\r\n          }\r\n        ],\r\n        \"id\": \"/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/resourceGroups/csmrg6168/providers/ResourceProviderTestHost/TestResourceType/resource2\",\r\n        \"resourceType\": \"ResourceProviderTestHost/TestResourceType\",\r\n        \"resourceName\": \"resource2\"\r\n      }\r\n    ]\r\n  }\r\n}",
+      "ResponseHeaders": {
+        "Content-Length": [
+          "1921"
+        ],
+        "Content-Type": [
+          "application/json; charset=utf-8"
+        ],
+        "Expires": [
+          "-1"
+        ],
+        "Pragma": [
+          "no-cache"
+        ],
+        "Azure-AsyncOperation": [
+          "https://management.azure.com/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/resourcegroups/csmrg6168/providers/Microsoft.Resources/deployments/csmd7438/operationStatuses/08587480060159677751?api-version=2015-11-01"
+        ],
+        "x-ms-ratelimit-remaining-subscription-writes": [
+          "1197"
+        ],
+        "x-ms-request-id": [
+          "75e07128-200b-4c48-b2ac-9bb1ef93bd46"
+        ],
+        "x-ms-correlation-request-id": [
+          "75e07128-200b-4c48-b2ac-9bb1ef93bd46"
+        ],
+        "x-ms-routing-request-id": [
+          "WESTUS:20160124T020111Z:75e07128-200b-4c48-b2ac-9bb1ef93bd46"
+        ],
+        "Strict-Transport-Security": [
+          "max-age=31536000; includeSubDomains"
+        ],
+        "Cache-Control": [
+          "no-cache"
+        ],
+        "Date": [
+          "Sun, 24 Jan 2016 02:01:11 GMT"
+        ]
+      },
+      "StatusCode": 201
+    },
+    {
+      "RequestUri": "/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/resourcegroups/csmrg6168/deployments/csmd7438/operations?api-version=2015-11-01",
+      "EncodedRequestUri": "L3N1YnNjcmlwdGlvbnMvNDVjMGFkNDYtYWUzZi00OTNlLTkxY2UtOTI5N2UwOTUzZmMxL3Jlc291cmNlZ3JvdXBzL2NzbXJnNjE2OC9kZXBsb3ltZW50cy9jc21kNzQzOC9vcGVyYXRpb25zP2FwaS12ZXJzaW9uPTIwMTUtMTEtMDE=",
+      "RequestMethod": "GET",
+      "RequestBody": "",
+      "RequestHeaders": {
+        "User-Agent": [
+          "Microsoft.Azure.Management.Resources.ResourceManagementClient/2.0.0.0"
+        ]
+      },
+      "ResponseBody": "{\r\n  \"value\": [\r\n    {\r\n      \"id\": \"/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/resourceGroups/csmrg6168/providers/Microsoft.Resources/deployments/csmd7438/operations/EF8A372599E84100\",\r\n      \"operationId\": \"EF8A372599E84100\",\r\n      \"properties\": {\r\n        \"provisioningOperation\": \"Create\",\r\n        \"provisioningState\": \"Failed\",\r\n        \"timestamp\": \"2016-01-24T02:01:17.756046Z\",\r\n        \"duration\": \"PT1.850352S\",\r\n        \"trackingId\": \"890ad427-3fbf-4966-b52d-1946e55862dc\",\r\n        \"statusCode\": \"NotFound\",\r\n        \"statusMessage\": {\r\n          \"error\": {\r\n            \"code\": \"InvalidResourceNamespace\",\r\n            \"message\": \"The resource namespace 'ResourceProviderTestHost' is invalid.\"\r\n          }\r\n        },\r\n        \"targetResource\": {\r\n          \"id\": \"/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/resourceGroups/csmrg6168/providers/ResourceProviderTestHost/TestResourceType/resource1\",\r\n          \"resourceType\": \"ResourceProviderTestHost/TestResourceType\",\r\n          \"resourceName\": \"resource1\"\r\n        }\r\n      }\r\n    },\r\n    {\r\n      \"id\": \"/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/resourceGroups/csmrg6168/providers/Microsoft.Resources/deployments/csmd7438/operations/08587480060159677751\",\r\n      \"operationId\": \"08587480060159677751\",\r\n      \"properties\": {\r\n        \"provisioningOperation\": \"EvaluateDeploymentOutput\",\r\n        \"provisioningState\": \"Failed\",\r\n        \"timestamp\": \"2016-01-24T02:01:21.8382303Z\",\r\n        \"duration\": \"PT2.4151963S\",\r\n        \"trackingId\": \"4a373ae9-a19d-49ae-833d-2b29a0247017\",\r\n        \"statusCode\": \"Conflict\",\r\n        \"statusMessage\": \"Template output parameter evaluation skipped: at least one resource deployment operation failed. Please list deployment operations for details.\"\r\n      }\r\n    }\r\n  ]\r\n}",
+      "ResponseHeaders": {
+        "Content-Length": [
+          "1424"
+        ],
+        "Content-Type": [
+          "application/json; charset=utf-8"
+        ],
+        "Expires": [
+          "-1"
+        ],
+        "Pragma": [
+          "no-cache"
+        ],
+        "x-ms-ratelimit-remaining-subscription-reads": [
+          "14933"
+        ],
+        "x-ms-request-id": [
+          "26edd84a-0b0a-49b4-95ff-fc8e5eae3df6"
+        ],
+        "x-ms-correlation-request-id": [
+          "26edd84a-0b0a-49b4-95ff-fc8e5eae3df6"
+        ],
+        "x-ms-routing-request-id": [
+          "WESTUS:20160124T020142Z:26edd84a-0b0a-49b4-95ff-fc8e5eae3df6"
+        ],
+        "Strict-Transport-Security": [
+          "max-age=31536000; includeSubDomains"
+        ],
+        "Cache-Control": [
+          "no-cache"
+        ],
+        "Date": [
+          "Sun, 24 Jan 2016 02:01:42 GMT"
+        ]
+      },
+      "StatusCode": 200
+    }
+  ],
+  "Names": {
+    "CreateDummyDeploymentProducesOperations": [
+      "csmrg6168",
+      "csmd7438",
+      "csmr9169"
+    ]
+  },
+  "Variables": {
+    "SubscriptionId": "45c0ad46-ae3f-493e-91ce-9297e0953fc1"
+  }
+}
