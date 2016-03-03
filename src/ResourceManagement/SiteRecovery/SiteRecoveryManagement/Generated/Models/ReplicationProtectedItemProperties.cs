@@ -66,6 +66,18 @@ namespace Microsoft.Azure.Management.SiteRecovery.Models
             set { this._currentScenario = value; }
         }
         
+        private string _failoverRecoveryPointId;
+        
+        /// <summary>
+        /// Optional. Gets or sets the recovery point Id used by failover
+        /// operation.
+        /// </summary>
+        public string FailoverRecoveryPointId
+        {
+            get { return this._failoverRecoveryPointId; }
+            set { this._failoverRecoveryPointId = value; }
+        }
+        
         private string _friendlyName;
         
         /// <summary>
@@ -177,6 +189,17 @@ namespace Microsoft.Azure.Management.SiteRecovery.Models
             set { this._protectionState = value; }
         }
         
+        private string _protectionStateDescription;
+        
+        /// <summary>
+        /// Optional. Gets or sets the protection state description.
+        /// </summary>
+        public string ProtectionStateDescription
+        {
+            get { return this._protectionStateDescription; }
+            set { this._protectionStateDescription = value; }
+        }
+        
         private ReplicationProviderSpecificSettings _providerSpecificDetails;
         
         /// <summary>
@@ -197,6 +220,17 @@ namespace Microsoft.Azure.Management.SiteRecovery.Models
         {
             get { return this._recoveryFabricFriendlyName; }
             set { this._recoveryFabricFriendlyName = value; }
+        }
+        
+        private string _recoveryFabricId;
+        
+        /// <summary>
+        /// Optional. Gets or sets the Arm Id of recovery fabric.
+        /// </summary>
+        public string RecoveryFabricId
+        {
+            get { return this._recoveryFabricId; }
+            set { this._recoveryFabricId = value; }
         }
         
         private string _recoveryProtectionContainerFriendlyName;
@@ -241,6 +275,17 @@ namespace Microsoft.Azure.Management.SiteRecovery.Models
         {
             get { return this._replicationHealthErrors; }
             set { this._replicationHealthErrors = value; }
+        }
+        
+        private string _testFailoverState;
+        
+        /// <summary>
+        /// Optional. Gets or sets the Test failover state.
+        /// </summary>
+        public string TestFailoverState
+        {
+            get { return this._testFailoverState; }
+            set { this._testFailoverState = value; }
         }
         
         private string _testFailoverStateDescription;

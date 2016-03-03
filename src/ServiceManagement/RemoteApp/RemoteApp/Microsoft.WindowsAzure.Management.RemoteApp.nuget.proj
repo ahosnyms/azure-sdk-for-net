@@ -3,10 +3,14 @@
   <ItemGroup>
     <SdkNuGetPackage Include="Microsoft.WindowsAzure.Management.RemoteApp">
 <<<<<<< HEAD
+<<<<<<< HEAD
       <PackageVersion>2.0.3</PackageVersion>
 =======
       <PackageVersion>2.0.0</PackageVersion>
 >>>>>>> origin/AutoRest
+=======
+      <PackageVersion>2.0.5</PackageVersion>
+>>>>>>> Azure/master
       <Folder>$(MSBuildThisFileDirectory)</Folder>
       <Publish>true</Publish>
     </SdkNuGetPackage>

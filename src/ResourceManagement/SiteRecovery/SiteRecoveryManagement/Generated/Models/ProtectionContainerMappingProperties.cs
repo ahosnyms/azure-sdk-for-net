@@ -54,6 +54,17 @@ namespace Microsoft.Azure.Management.SiteRecovery.Models
             set { this._healthErrorDetails = value; }
         }
         
+        private string _policyFriendlyName;
+        
+        /// <summary>
+        /// Optional. Policy Friendly Name.
+        /// </summary>
+        public string PolicyFriendlyName
+        {
+            get { return this._policyFriendlyName; }
+            set { this._policyFriendlyName = value; }
+        }
+        
         private string _policyId;
         
         /// <summary>
@@ -76,6 +87,28 @@ namespace Microsoft.Azure.Management.SiteRecovery.Models
             set { this._providerSpecificDetails = value; }
         }
         
+        private string _sourceFabricFriendlyName;
+        
+        /// <summary>
+        /// Optional. Friendly name of source fabric.
+        /// </summary>
+        public string SourceFabricFriendlyName
+        {
+            get { return this._sourceFabricFriendlyName; }
+            set { this._sourceFabricFriendlyName = value; }
+        }
+        
+        private string _sourceProtectionContainerFriendlyName;
+        
+        /// <summary>
+        /// Optional. Friendly name of source container.
+        /// </summary>
+        public string SourceProtectionContainerFriendlyName
+        {
+            get { return this._sourceProtectionContainerFriendlyName; }
+            set { this._sourceProtectionContainerFriendlyName = value; }
+        }
+        
         private string _state;
         
         /// <summary>
@@ -85,6 +118,17 @@ namespace Microsoft.Azure.Management.SiteRecovery.Models
         {
             get { return this._state; }
             set { this._state = value; }
+        }
+        
+        private string _targetFabricFriendlyName;
+        
+        /// <summary>
+        /// Optional. Friendly name of target fabric.
+        /// </summary>
+        public string TargetFabricFriendlyName
+        {
+            get { return this._targetFabricFriendlyName; }
+            set { this._targetFabricFriendlyName = value; }
         }
         
         private string _targetProtectionContainerFriendlyName;

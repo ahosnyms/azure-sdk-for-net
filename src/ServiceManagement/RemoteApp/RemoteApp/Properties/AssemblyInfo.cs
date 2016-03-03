@@ -46,7 +46,11 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("2.0.0.0*")]
 [assembly: AssemblyVersion("2.0.0.0")]
 <<<<<<< HEAD
+<<<<<<< HEAD
 [assembly: AssemblyFileVersion("2.0.3.0")]
 =======
 [assembly: AssemblyFileVersion("2.0.0.0")]
 >>>>>>> origin/AutoRest
+=======
+[assembly: AssemblyFileVersion("2.0.5.0")]
+>>>>>>> Azure/master

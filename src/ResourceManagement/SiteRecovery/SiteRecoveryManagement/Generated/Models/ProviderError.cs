@@ -62,31 +62,33 @@ namespace Microsoft.Azure.Management.SiteRecovery.Models
             set { this._errorMessage = value; }
         }
         
+        private string _possibleCauses;
+        
+        /// <summary>
+        /// Required. Possible causes for the error.
+        /// </summary>
+        public string PossibleCauses
+        {
+            get { return this._possibleCauses; }
+            set { this._possibleCauses = value; }
+        }
+        
+        private string _recommendedAction;
+        
+        /// <summary>
+        /// Required. Recommended action to resolve the error.
+        /// </summary>
+        public string RecommendedAction
+        {
+            get { return this._recommendedAction; }
+            set { this._recommendedAction = value; }
+        }
+        
         /// <summary>
         /// Initializes a new instance of the ProviderError class.
         /// </summary>
         public ProviderError()
         {
-        }
-        
-        /// <summary>
-        /// Initializes a new instance of the ProviderError class with required
-        /// arguments.
-        /// </summary>
-        public ProviderError(int errorCode, string errorMessage, string errorId)
-            : this()
-        {
-            if (errorMessage == null)
-            {
-                throw new ArgumentNullException("errorMessage");
-            }
-            if (errorId == null)
-            {
-                throw new ArgumentNullException("errorId");
-            }
-            this.ErrorCode = errorCode;
-            this.ErrorMessage = errorMessage;
-            this.ErrorId = errorId;
         }
     }
 }

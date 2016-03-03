@@ -395,6 +395,16 @@ namespace Microsoft.WindowsAzure.Management.Compute.Testing
                     {
                         Assert.True(!isPublisher && e != null && e.Error.Code.Equals(errorCodeStr));
                     }
+
+                    // List Publisher Extensions
+                    try
+                    {
+                        compute.HostedServices.ListPublisherExtensions();
+                    }
+                    catch (CloudException e)
+                    {
+                        Assert.True(!isPublisher && e != null && e.Error.Code.Equals(errorCodeStr));
+                    }
                 }
                 finally
                 {

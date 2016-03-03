@@ -22,11 +22,15 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("0.9.0.0")]
 <<<<<<< HEAD
+<<<<<<< HEAD
 [assembly: AssemblyFileVersion("0.43.0.0")]
 =======
 [assembly: AssemblyFileVersion("0.29.0.0")]
 
 >>>>>>> origin/AutoRest
+=======
+[assembly: AssemblyFileVersion("0.45.0.0")]
+>>>>>>> Azure/master
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
 [assembly: AssemblyProduct("Azure .NET SDK")]

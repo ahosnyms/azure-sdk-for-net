@@ -6,10 +6,14 @@
     -->
     <SdkNuGetPackage Include="Microsoft.Azure.Management.Redis">
 <<<<<<< HEAD
+<<<<<<< HEAD
       <PackageVersion>1.2.0-preview</PackageVersion>
 =======
       <PackageVersion>1.0.0-preview</PackageVersion>
 >>>>>>> origin/AutoRest
+=======
+      <PackageVersion>1.2.1-preview</PackageVersion>
+>>>>>>> Azure/master
       <Folder>$(MSBuildThisFileDirectory)</Folder>
     </SdkNuGetPackage>
   </ItemGroup>
