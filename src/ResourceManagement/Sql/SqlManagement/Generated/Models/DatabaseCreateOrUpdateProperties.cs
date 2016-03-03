@@ -102,6 +102,32 @@ namespace Microsoft.Azure.Management.Sql.Models
             set { this._requestedServiceObjectiveName = value; }
         }
         
+<<<<<<< HEAD
+=======
+        private System.DateTime? _restorePointInTime;
+        
+        /// <summary>
+        /// Optional. Gets or sets the point in time for the restore request
+        /// </summary>
+        public System.DateTime? RestorePointInTime
+        {
+            get { return this._restorePointInTime; }
+            set { this._restorePointInTime = value; }
+        }
+        
+        private string _sourceDatabaseId;
+        
+        /// <summary>
+        /// Optional. Gets or sets the resource id of the database to use as
+        /// the source for the copy being created.
+        /// </summary>
+        public string SourceDatabaseId
+        {
+            get { return this._sourceDatabaseId; }
+            set { this._sourceDatabaseId = value; }
+        }
+        
+>>>>>>> Azure/master
         /// <summary>
         /// Initializes a new instance of the DatabaseCreateOrUpdateProperties
         /// class.

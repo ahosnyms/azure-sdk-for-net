@@ -96,6 +96,7 @@ namespace Microsoft.Azure.Common.Authentication.Models
                         { AzureEnvironment.Endpoint.SqlDatabaseDnsSuffix, AzureEnvironmentConstants.AzureSqlDatabaseDnsSuffix },
                         { AzureEnvironment.Endpoint.Graph, AzureEnvironmentConstants.AzureGraphEndpoint },
                         { AzureEnvironment.Endpoint.TrafficManagerDnsSuffix, AzureEnvironmentConstants.AzureTrafficManagerDnsSuffix },
+<<<<<<< HEAD
                         { AzureEnvironment.Endpoint.AzureKeyVaultDnsSuffix, AzureEnvironmentConstants.AzureKeyVaultDnsSuffix},
 <<<<<<< HEAD
                         { AzureEnvironment.Endpoint.AzureKeyVaultServiceEndpointResourceId, AzureEnvironmentConstants.AzureKeyVaultServiceEndpointResourceId}
@@ -104,6 +105,10 @@ namespace Microsoft.Azure.Common.Authentication.Models
                         { AzureEnvironment.Endpoint.AzureDataLakeAnalyticsCatalogAndJobEndpointSuffix, AzureEnvironmentConstants.AzureDataLakeAnalyticsCatalogAndJobEndpointSuffix},
                         { AzureEnvironment.Endpoint.AzureDataLakeStoreFileSystemEndpointSuffix, AzureEnvironmentConstants.AzureDataLakeStoreFileSystemEndpointSuffix}
 >>>>>>> origin/AutoRest
+=======
+                        { AzureEnvironment.Endpoint.AzureKeyVaultDnsSuffix, AzureEnvironmentConstants.AzureKeyVaultDnsSuffix },
+                        { AzureEnvironment.Endpoint.AzureKeyVaultServiceEndpointResourceId, AzureEnvironmentConstants.AzureKeyVaultServiceEndpointResourceId }
+>>>>>>> Azure/master
                     }
                 }
             },
@@ -125,6 +130,7 @@ namespace Microsoft.Azure.Common.Authentication.Models
                         { AzureEnvironment.Endpoint.SqlDatabaseDnsSuffix, AzureEnvironmentConstants.ChinaSqlDatabaseDnsSuffix },
                         { AzureEnvironment.Endpoint.Graph, AzureEnvironmentConstants.ChinaGraphEndpoint },
                         { AzureEnvironment.Endpoint.TrafficManagerDnsSuffix, AzureEnvironmentConstants.ChinaTrafficManagerDnsSuffix },
+<<<<<<< HEAD
                         { AzureEnvironment.Endpoint.AzureKeyVaultDnsSuffix, null},
                         { AzureEnvironment.Endpoint.AzureKeyVaultServiceEndpointResourceId, null}
 <<<<<<< HEAD
@@ -156,6 +162,10 @@ namespace Microsoft.Azure.Common.Authentication.Models
                         { AzureEnvironment.Endpoint.AzureDataLakeAnalyticsCatalogAndJobEndpointSuffix, null},
                         { AzureEnvironment.Endpoint.AzureDataLakeStoreFileSystemEndpointSuffix, null}
 >>>>>>> origin/AutoRest
+=======
+                        { AzureEnvironment.Endpoint.AzureKeyVaultDnsSuffix, AzureEnvironmentConstants.ChinaAzureKeyVaultDnsSuffix },
+                        { AzureEnvironment.Endpoint.AzureKeyVaultServiceEndpointResourceId, AzureEnvironmentConstants.ChinaAzureKeyVaultServiceEndpointResourceId }
+>>>>>>> Azure/master
                     }
                 }
             }
@@ -402,6 +412,7 @@ namespace Microsoft.Azure.Common.Authentication.Models
 
         public const string AzureKeyVaultDnsSuffix = "vault.azure.net";
 
+<<<<<<< HEAD
         public const string USGovernmentKeyVaultDnsSuffix = "vault.usgovcloudapi.net";
 
         public const string AzureKeyVaultServiceEndpointResourceId = "https://vault.azure.net";
@@ -414,5 +425,12 @@ namespace Microsoft.Azure.Common.Authentication.Models
 
         public const string AzureDataLakeStoreFileSystemEndpointSuffix = "azuredatalakestore.net";
 >>>>>>> origin/AutoRest
+=======
+        public const string ChinaAzureKeyVaultDnsSuffix = "vault.azure.cn";
+
+        public const string AzureKeyVaultServiceEndpointResourceId = "https://vault.azure.net";
+
+        public const string ChinaAzureKeyVaultServiceEndpointResourceId = "https://vault.azure.cn";
+>>>>>>> Azure/master
     }
 }

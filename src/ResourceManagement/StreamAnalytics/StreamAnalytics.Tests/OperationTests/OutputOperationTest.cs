@@ -116,9 +116,9 @@ namespace StreamAnalytics.Tests.OperationTests
                     Assert.Equal(1, jobGetResponse.Job.Properties.Outputs.Count);
 
                     // Test output connectivity
-                    DataSourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
+                    ResourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
                     Assert.Equal(OperationStatus.Succeeded, response.Status);
-                    Assert.Equal(DataSourceTestStatus.TestSucceeded, response.DataSourceTestStatus);
+                    Assert.Equal(ResourceTestStatus.TestSucceeded, response.ResourceTestStatus);
 
                     // Update the output
                     string newTableName = TestUtilities.GenerateName("NewTableName");
@@ -267,9 +267,9 @@ namespace StreamAnalytics.Tests.OperationTests
                     Assert.Equal(outputCreateOrUpdateResponse.Output.Properties.Etag, outputGetResponse.Output.Properties.Etag);
 
                     // Test output connectivity
-                    DataSourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
+                    ResourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
                     Assert.Equal(OperationStatus.Succeeded, response.Status);
-                    Assert.Equal(DataSourceTestStatus.TestSucceeded, response.DataSourceTestStatus);
+                    Assert.Equal(ResourceTestStatus.TestSucceeded, response.ResourceTestStatus);
 
                     // Update the output
                     blobOutputDataSource.Properties.PathPattern = "test.csv";
@@ -385,9 +385,9 @@ namespace StreamAnalytics.Tests.OperationTests
                     Assert.Equal(tableName, azureTableOutputDataSourceInResponse2.Properties.Table);
 
                     // Test output connectivity
-                    DataSourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
+                    ResourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
                     Assert.Equal(OperationStatus.Succeeded, response.Status);
-                    Assert.Equal(DataSourceTestStatus.TestSucceeded, response.DataSourceTestStatus);
+                    Assert.Equal(ResourceTestStatus.TestSucceeded, response.ResourceTestStatus);
 
                     // Update the output
                     string newTableName = TestUtilities.GenerateName("NewTableName");
@@ -514,9 +514,9 @@ namespace StreamAnalytics.Tests.OperationTests
                     Assert.Equal(partitionKey, eventHubOutputDataSourceInResponse2.Properties.PartitionKey);
 
                     // Test output connectivity
-                    DataSourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
+                    ResourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
                     Assert.Equal(OperationStatus.Succeeded, response.Status);
-                    Assert.Equal(DataSourceTestStatus.TestSucceeded, response.DataSourceTestStatus);
+                    Assert.Equal(ResourceTestStatus.TestSucceeded, response.ResourceTestStatus);
 
                     // Update the output
                     jsonSerialization = new JsonSerialization()
@@ -650,9 +650,9 @@ namespace StreamAnalytics.Tests.OperationTests
                     Assert.Equal(queueName, serviceBusQueueOutputDataSourceInResponse2.Properties.QueueName);
 
                     // Test output connectivity
-                    DataSourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
+                    ResourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
                     Assert.Equal(OperationStatus.Succeeded, response.Status);
-                    Assert.Equal(DataSourceTestStatus.TestSucceeded, response.DataSourceTestStatus);
+                    Assert.Equal(ResourceTestStatus.TestSucceeded, response.ResourceTestStatus);
 
                     // Update the output
                     string newQueueName = TestUtilities.GenerateName("NewQueueName");
@@ -772,9 +772,9 @@ namespace StreamAnalytics.Tests.OperationTests
                     Assert.Equal(topicName, serviceBusTopicOutputDataSourceInResponse2.Properties.TopicName);
 
                     // Test output connectivity
-                    DataSourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
+                    ResourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
                     Assert.Equal(OperationStatus.Succeeded, response.Status);
-                    Assert.Equal(DataSourceTestStatus.TestSucceeded, response.DataSourceTestStatus);
+                    Assert.Equal(ResourceTestStatus.TestSucceeded, response.ResourceTestStatus);
 
                     // Update the output
                     string newTopicName = TestUtilities.GenerateName("NewTopicName");
@@ -886,9 +886,9 @@ namespace StreamAnalytics.Tests.OperationTests
                     Assert.Equal(database, documentDbOutputDataSourceInResponse2.Properties.Database);
 
                     // Test output connectivity
-                    DataSourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
+                    ResourceTestConnectionResponse response = client.Outputs.TestConnection(resourceGroupName, resourceName, outputName);
                     Assert.Equal(OperationStatus.Succeeded, response.Status);
-                    Assert.Equal(DataSourceTestStatus.TestSucceeded, response.DataSourceTestStatus);
+                    Assert.Equal(ResourceTestStatus.TestSucceeded, response.ResourceTestStatus);
 
                     // Update the output
                     string newDatabase = TestUtilities.GenerateName("NewDatabase");

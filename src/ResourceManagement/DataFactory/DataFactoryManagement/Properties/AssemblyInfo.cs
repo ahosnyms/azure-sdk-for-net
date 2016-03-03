@@ -22,11 +22,15 @@ using System.Runtime.InteropServices;
 
 <<<<<<< HEAD
 [assembly: AssemblyVersion("4.0.0.0")]
+<<<<<<< HEAD
 [assembly: AssemblyFileVersion("4.2.0.0")]
 =======
 [assembly: AssemblyVersion("0.9.0.0")]
 [assembly: AssemblyFileVersion("0.15.12.0")]
 >>>>>>> origin/AutoRest
+=======
+[assembly: AssemblyFileVersion("4.5.0.0")]
+>>>>>>> Azure/master
 
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]

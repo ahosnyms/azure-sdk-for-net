@@ -36,6 +36,9 @@
     <None Include="RemoteAccessPlugin.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="SessionRecords\Microsoft.WindowsAzure.Management.Compute.Testing.ComputeOperationsTests\CanCreateVirtualMachine.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="SessionRecords\Microsoft.WindowsAzure.Management.Compute.Testing.ComputeOperationsTests\CanCreateVMWithCustomData.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -87,6 +90,9 @@
     <None Include="SessionRecords\Microsoft.WindowsAzure.Management.Compute.Testing.IntegrationTests\DeploymentHasExtensionConfiguration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="SessionRecords\Microsoft.WindowsAzure.Management.Compute.Testing.IntegrationTests\DeploymentUpgradeWithUninstallExtension.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="SessionRecords\Microsoft.WindowsAzure.Management.Compute.Testing.IntegrationTests\FixtureSetup.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -106,6 +112,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="SessionRecords\Microsoft.WindowsAzure.Management.Compute.Testing.VirtualMachineReproTests\CanCreateVMAndGetDeploymentWithMaxDate.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="SessionRecords\Microsoft.WindowsAzure.Management.Compute.Testing.VirtualMachineReproTests\CanCreateVMWithDebugSettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="SessionRecords\Microsoft.WindowsAzure.Management.Compute.Testing.VirtualMachineReproTests\CanCreateVMWithVMImage.json">

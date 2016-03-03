@@ -21,10 +21,14 @@ using System.Resources;
 
 [assembly: AssemblyVersion("12.0.0.0")]
 <<<<<<< HEAD
+<<<<<<< HEAD
 [assembly: AssemblyFileVersion("12.4.0.0")]
 =======
 [assembly: AssemblyFileVersion("12.0.0.0")]
 >>>>>>> origin/AutoRest
+=======
+[assembly: AssemblyFileVersion("12.6.0.0")]
+>>>>>>> Azure/master
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
 [assembly: AssemblyProduct("Azure .NET SDK")]

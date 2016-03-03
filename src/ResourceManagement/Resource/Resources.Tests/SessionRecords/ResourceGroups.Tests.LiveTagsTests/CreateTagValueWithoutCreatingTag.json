@@ -1,0 +1,64 @@
+{
+  "Entries": [
+    {
+      "RequestUri": "/subscriptions/45c0ad46-ae3f-493e-91ce-9297e0953fc1/tagNames/csmtg529/tagValues/csmtgv8066?api-version=2015-11-01",
+      "EncodedRequestUri": "L3N1YnNjcmlwdGlvbnMvNDVjMGFkNDYtYWUzZi00OTNlLTkxY2UtOTI5N2UwOTUzZmMxL3RhZ05hbWVzL2NzbXRnNTI5L3RhZ1ZhbHVlcy9jc210Z3Y4MDY2P2FwaS12ZXJzaW9uPTIwMTUtMTEtMDE=",
+      "RequestMethod": "PUT",
+      "RequestBody": "",
+      "RequestHeaders": {
+        "User-Agent": [
+          "Microsoft.Azure.Management.Resources.ResourceManagementClient/2.0.0.0"
+        ]
+      },
+      "ResponseBody": "{\r\n  \"error\": {\r\n    \"code\": \"SubscriptionTagNameNotFound\",\r\n    \"message\": \"Subscription tag name 'csmtg529' could not be found.\"\r\n  }\r\n}",
+      "ResponseHeaders": {
+        "Content-Length": [
+          "113"
+        ],
+        "Content-Type": [
+          "application/json; charset=utf-8"
+        ],
+        "Expires": [
+          "-1"
+        ],
+        "Pragma": [
+          "no-cache"
+        ],
+        "x-ms-failure-cause": [
+          "gateway"
+        ],
+        "x-ms-ratelimit-remaining-subscription-writes": [
+          "1198"
+        ],
+        "x-ms-request-id": [
+          "cfbd8656-f69c-421f-aa65-92e568eec0ad"
+        ],
+        "x-ms-correlation-request-id": [
+          "cfbd8656-f69c-421f-aa65-92e568eec0ad"
+        ],
+        "x-ms-routing-request-id": [
+          "CENTRALUS:20160124T001004Z:cfbd8656-f69c-421f-aa65-92e568eec0ad"
+        ],
+        "Strict-Transport-Security": [
+          "max-age=31536000; includeSubDomains"
+        ],
+        "Cache-Control": [
+          "no-cache"
+        ],
+        "Date": [
+          "Sun, 24 Jan 2016 00:10:03 GMT"
+        ]
+      },
+      "StatusCode": 404
+    }
+  ],
+  "Names": {
+    "CreateTagValueWithoutCreatingTag": [
+      "csmtg529",
+      "csmtgv8066"
+    ]
+  },
+  "Variables": {
+    "SubscriptionId": "45c0ad46-ae3f-493e-91ce-9297e0953fc1"
+  }
+}

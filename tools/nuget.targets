@@ -5,11 +5,26 @@
   </PropertyGroup>
   
   <Import Project="$(LibrarySourceFolder)\$(Scope)\**\*$(PackageName).nuget.proj"
+<<<<<<< HEAD
           Condition=" '$(Scope)' != 'all' " />
 
   <!--TODO: remove when we convert them to be dnx based-->
   <Import Project="$(LibrarySourceFolder)\ResourceManagement\Logic\LogicManagement\Microsoft.Azure.Management.Logic.nuget.proj" Condition=" '$(Scope)' == 'all' "/>
   <Import Project="$(LibrarySourceFolder)\ResourceManagement\Scheduler\SchedulerManagement\Microsoft.Azure.Management.Scheduler.nuget.proj" Condition=" '$(Scope)' == 'all' "/>
+=======
+          Condition=" '$(Scope)' != 'all' "/>
+
+  <Import Project="$(LibrarySourceFolder)\ResourceManagement\**\*.nuget.proj"
+          Condition=" '$(Scope)' == 'all' "/>
+  <Import Project="$(LibrarySourceFolder)\ServiceManagement\**\*.nuget.proj"
+          Condition=" '$(Scope)' == 'all' "/>
+  <Import Project="$(LibrarySourceFolder)\Common\**\*.nuget.proj"
+          Condition=" '$(Scope)' == 'all' "/>
+  <Import Project="$(LibrarySourceFolder)\Authentication\**\*.nuget.proj"
+          Condition=" '$(Scope)' == 'all' "/>
+  <Import Project="$(LibrarySourceFolder)\Graph.RBAC\**\*.nuget.proj"
+          Condition=" '$(Scope)' == 'all' "/>
+>>>>>>> Azure/master
   
   <PropertyGroup>
     <NuGetVerbosity>normal</NuGetVerbosity>
