@@ -139,3 +139,4 @@ csx/
 *.GhostDoc.xml
 pingme.txt
 >>>>>>> origin/AutoRest
+src/ResourceManagement/HDInsight/HDInsight.sln
