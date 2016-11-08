@@ -103,7 +103,7 @@ namespace Microsoft.Azure.Management.HDInsight
                     },
                     ClusterVersion = clusterCreateParameters.Version,
                     OperatingSystemType = clusterCreateParameters.OSType,
-                    ClusterTier = clusterCreateParameters.ClusterTier 
+                    ClusterTier = clusterCreateParameters.ClusterTier
                 }
             };
 
@@ -511,9 +511,24 @@ namespace Microsoft.Azure.Management.HDInsight
                     VmSize = zookeeperNodeSize
                 }
             };
-
             roles.Add(zookeepernode);
 
+            if (!string.IsNullOrEmpty(clusterCreateParameters.EdgeNodeSize) ||
+                   clusterCreateParameters.ClusterType.Equals("RServer", StringComparison.OrdinalIgnoreCase))
+            {
+                var EdgeNodeSize = GetEdgeNodeSize(clusterCreateParameters);
+                var EdgeNode = new Role
+                {
+                    Name = "edgenode",
+                    TargetInstanceCount = 1,
+                    HardwareProfile = new HardwareProfile
+                    {
+                        VmSize = EdgeNodeSize
+                    },
+                    OsProfile = osProfile
+                };
+                roles.Add(EdgeNode);
+            }
             return roles;
         }
 
@@ -557,5 +572,20 @@ namespace Microsoft.Azure.Management.HDInsight
             }
             return workerNodeSize;
         }
+
+        private static string GetEdgeNodeSize(ClusterCreateParameters clusterCreateParameters)
+        {
+            string EdgeNodeSize;
+            if (!String.IsNullOrEmpty(clusterCreateParameters.EdgeNodeSize))
+            {
+                EdgeNodeSize = clusterCreateParameters.EdgeNodeSize;
+            }
+            else
+            {
+                EdgeNodeSize = "Standard_D4";
+            }
+            return EdgeNodeSize;
+        }
+
     }
 }

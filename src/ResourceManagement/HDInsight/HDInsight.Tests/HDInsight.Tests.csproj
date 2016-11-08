@@ -44,6 +44,15 @@
     <None Include="SessionRecords\HDInsight.Tests.CreateClusterTests\TestCreateLinuxClusterWithStandardTier.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="SessionRecords\HDInsight.Tests.CreateClusterTests\TestCreateRServerWithEdgeNodeCluster.json" >
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="SessionRecords\HDInsight.Tests.CreateClusterTests\TestCreateRServerWithoutEdgeNodeCluster.json" >
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="SessionRecords\HDInsight.Tests.CreateClusterTests\TestCreateRServerWithRStudioCluster.json" >
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="SessionRecords\HDInsight.Tests.CreateClusterTests\TestCreateWindowsClusterWithPremiumTier.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
