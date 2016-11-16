@@ -22,24 +22,22 @@ namespace HDInsight.Tests.Helpers
 {
     public static class GetClusterSpecHelpers
     {
-
-        private const string DefaultContainer = "ahosny";
-        private const string StorageAccountName = "ahosnystorage.blob.core.windows.net";
-        private const string StorageAccountKey = "UaJiQSzWEL3ueTFG561ne2cTwcXVUJ4EmO6ngLgcT+Q11k08pn/6faHZzEgAy0IblMpHBzyXu8uXTZU5ph0+DA==";
-
-        private const string SshKey = "AAAAB3NzaC1yc2EAAAADAQABAAABAQDQdxir92ao4neLuSJH9eOqYF+8GaOhhfmqGKBd4dEuqyrd6ppXmihWZHY/HzMSfkRqQuYJsaJFRFo3P0ExasQoiBbnNOfsxOVrtjoW9NxG5JXeQrFatuYkhLnpLwjL+hNtZ9UWJPMJE2+xSO6Nb7QaOgY1ADfvK2eISAbbuMm1PM/zCQVg3Io2bSlD+DW4rLZZ389VHfzUSd6HNz4oS7czWLpOI/v0faMFMWTcimcN73vJSB5etTf7/JPqwNLq49ZCj0FddjjfeFeCK7z1eYQyfdJ/+wLInSsddfcJ6rXlQourQZfI0BvIn4x+XYpqMNtK6UnQylzwZ5NCu6oxx/c9";
-        private const string SshUser = "hdiuser";
-        private const string SshPassword = "HdInsight123!";
-        private const string HttpUser = "hadoopuser";
-        private const string HttpPassword = "Password1!";
-        private const string RdpUser = "hdirp";
-        private const string RdpPassword = "Passw0rd!321";
+        private const string DefaultContainer = "";
+        private const string StorageAccountName = "";
+        private const string StorageAccountKey = "";
+        private const string SshKey = "";
+        private const string SshUser = "";
+        private const string SshPassword = "";
+        private const string HttpUser = "";
+        private const string HttpPassword = "";
+        private const string RdpUser = "";
+        private const string RdpPassword = "";
         private const string VirtualNetworkId = "";
         private const string SubnetName = "";
         private const string DomainUserName = "";
         private const string DomainUserPassword = "";
         private const string OrganizationalUnitDN = "";
-        private static readonly List<string> ClusterUsersGroupDNs = new List<string> {""};
+        private static readonly List<string> ClusterUsersGroupDNs = new List<string> { "" };
         private static readonly List<string> LdapsUrls = new List<string> { "" };
         private static readonly string[] DomainNameParts = new string[2] { "", "" };
 

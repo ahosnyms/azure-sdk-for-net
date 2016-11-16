@@ -484,7 +484,8 @@ namespace Microsoft.Azure.Management.HDInsight
             if (clusterCreateParameters.OSType == OSType.Windows)
             {
                 if (clusterCreateParameters.ClusterType.Equals("Hadoop", StringComparison.OrdinalIgnoreCase) ||
-                    clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase))
+                    clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase)  ||
+                    clusterCreateParameters.ClusterType.Equals("RServer", StringComparison.OrdinalIgnoreCase))
                 {
                     return roles;
                 }
@@ -493,7 +494,8 @@ namespace Microsoft.Azure.Management.HDInsight
             if (clusterCreateParameters.OSType == OSType.Linux)
             {
                 if (clusterCreateParameters.ClusterType.Equals("Hadoop", StringComparison.OrdinalIgnoreCase) ||
-                    clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase))
+                    clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase)  ||
+                    clusterCreateParameters.ClusterType.Equals("RServer", StringComparison.OrdinalIgnoreCase))
                 {
                     clusterCreateParameters.ZookeeperNodeSize = "Small";
                 }
@@ -545,7 +547,8 @@ namespace Microsoft.Azure.Management.HDInsight
                 {
                     headNodeSize = "Standard_D3";
                 }
-                else if (clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase))
+                else if (clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase)||
+                         clusterCreateParameters.ClusterType.Equals("RServer", StringComparison.OrdinalIgnoreCase))
                 {
                     headNodeSize = "Standard_D12";
                 }
@@ -566,7 +569,8 @@ namespace Microsoft.Azure.Management.HDInsight
             }
             else
             {
-                workerNodeSize = clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase)
+                workerNodeSize = clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase) ||
+                                 clusterCreateParameters.ClusterType.Equals("RServer", StringComparison.OrdinalIgnoreCase)   
                     ? "Standard_D12"
                     : "Standard_D3";
             }

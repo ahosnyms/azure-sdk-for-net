@@ -354,6 +354,39 @@ namespace HDInsight.Tests
         }
 
         [Fact]
+        public void TestCreateRServerV3dot5Cluster()
+        {
+            var handler = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+
+            using (var context = UndoContext.Current)
+            {
+                context.Start();
+
+                var client = HDInsightManagementTestUtilities.GetHDInsightManagementClient(handler);
+                var resourceManagementClient = HDInsightManagementTestUtilities.GetResourceManagementClient(handler);
+                var resourceGroup = HDInsightManagementTestUtilities.CreateResourceGroup(resourceManagementClient);
+
+                var cluster = GetClusterSpecHelpers.GetCustomCreateParametersRServerIaas("");
+                cluster.Version = "3.5";
+                cluster.ComponentVersion.Add("Spark", "2.0");
+
+                const string dnsname = "hdisdk-LinuxRServerClusterVersion35Test";
+
+                var createresponse = client.Clusters.Create(resourceGroup, dnsname, cluster);
+                Assert.Equal(dnsname, createresponse.Cluster.Name);
+
+                client.Clusters.Get(resourceGroup, dnsname);
+                Assert.NotNull(createresponse.Cluster.Properties.ClusterDefinition.ComponentVersion);
+
+                HDInsightManagementTestUtilities.WaitForClusterToMoveToRunning(resourceGroup, dnsname, client);
+                var result = client.Clusters.Delete(resourceGroup, dnsname);
+                Assert.Equal(result.StatusCode, HttpStatusCode.OK);
+                Assert.Equal(result.State, AsyncOperationState.Succeeded);
+            }
+        }
+
+
+        [Fact]
         public void TestCreateLinuxClusterWithStandardTier()
         {
             var handler = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
