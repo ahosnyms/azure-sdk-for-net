@@ -579,16 +579,16 @@ namespace Microsoft.Azure.Management.HDInsight
 
         private static string GetEdgeNodeSize(ClusterCreateParameters clusterCreateParameters)
         {
-            string EdgeNodeSize;
+            string edgeNodeSize;
             if (!String.IsNullOrEmpty(clusterCreateParameters.EdgeNodeSize))
             {
-                EdgeNodeSize = clusterCreateParameters.EdgeNodeSize;
+                edgeNodeSize = clusterCreateParameters.EdgeNodeSize;
             }
             else
             {
-                EdgeNodeSize = "Standard_D4";
+                edgeNodeSize = "Standard_D4";
             }
-            return EdgeNodeSize;
+            return edgeNodeSize;
         }
 
     }
