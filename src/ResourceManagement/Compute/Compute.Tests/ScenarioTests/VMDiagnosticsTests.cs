@@ -13,11 +13,21 @@
 // limitations under the License.
 //
 
+<<<<<<< HEAD
 using Microsoft.Azure;
 using Microsoft.Azure.Management.Compute;
 using Microsoft.Azure.Management.Compute.Models;
 using Microsoft.Azure.Management.Resources;
 using Microsoft.Azure.Test;
+=======
+using Microsoft.Azure.Management.Compute;
+using Microsoft.Azure.Management.Compute.Models;
+using Microsoft.Azure.Management.Resources;
+using Microsoft.Rest.Azure;
+using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+using System;
+using System.Collections.Generic;
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 using System.Net;
 using Xunit;
 
@@ -40,10 +50,16 @@ namespace Compute.Tests
         [Trait("Name", "TestVMBootDiagnostics")]
         public void TestVMBootDiagnostics()
         {
+<<<<<<< HEAD
             using (var context = UndoContext.Current)
             {
                 context.Start();
                 EnsureClientsInitialized();
+=======
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
+            {
+                EnsureClientsInitialized(context);
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 
                 ImageReference imageRef = GetPlatformVMImage(useWindowsImage: true);
                 // Create resource group
@@ -62,6 +78,7 @@ namespace Compute.Tests
                             vm.DiagnosticsProfile = GetDiagnosticsProfile(storageAccountOutput.Name);
                         });
 
+<<<<<<< HEAD
                     var getVMWithInstanceViewResponse = m_CrpClient.VirtualMachines.GetWithInstanceView(rgName, inputVM.Name);
                     Assert.True(getVMWithInstanceViewResponse.StatusCode == HttpStatusCode.OK);
                     Assert.True(getVMWithInstanceViewResponse.VirtualMachine != null, "VM in Get");
@@ -75,6 +92,16 @@ namespace Compute.Tests
                 {
                     var deleteResourceGroupResponse = m_ResourcesClient.ResourceGroups.Delete(rgName);
                     Assert.True(deleteResourceGroupResponse.StatusCode == HttpStatusCode.OK);
+=======
+                    var getVMWithInstanceViewResponse = m_CrpClient.VirtualMachines.Get(rgName, inputVM.Name, InstanceViewTypes.InstanceView);
+                    ValidateVMInstanceView(inputVM, getVMWithInstanceViewResponse);
+                    
+                    m_CrpClient.VirtualMachines.Delete(rgName, inputVM.Name);
+                }
+                finally
+                {
+                    m_ResourcesClient.ResourceGroups.Delete(rgName);
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
                 }
             }
         }

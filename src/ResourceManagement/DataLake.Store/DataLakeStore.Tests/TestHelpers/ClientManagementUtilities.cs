@@ -14,7 +14,12 @@
 //
 using Microsoft.Azure.Management.DataLake.Store;
 using Microsoft.Azure.Management.Resources;
+<<<<<<< HEAD
 using Microsoft.Azure.Test;
+=======
+using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+using System;
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 
 namespace DataLakeStore.Tests
 {
@@ -25,9 +30,15 @@ namespace DataLakeStore.Tests
         /// </summary>
         /// <param name="testBase">the test class</param>
         /// <returns>A redis cache management client, created from the current context (environment variables)</returns>
+<<<<<<< HEAD
         public static IDataLakeStoreManagementClient GetDataLakeStoreManagementClient(this TestBase testBase)
         {
             return TestBase.GetServiceClient<DataLakeStoreManagementClient>(new CSMTestEnvironmentFactory());
+=======
+        public static DataLakeStoreAccountManagementClient GetDataLakeStoreAccountManagementClient(this TestBase testBase, MockContext context)
+        {
+            return context.GetServiceClient<DataLakeStoreAccountManagementClient>();
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
         }
 
         /// <summary>
@@ -35,9 +46,31 @@ namespace DataLakeStore.Tests
         /// </summary>
         /// <param name="testBase">the test class</param>
         /// <returns>A resource management client, created from the current context (environment variables)</returns>
+<<<<<<< HEAD
         public static ResourceManagementClient GetResourceManagementClient(this TestBase testBase)
         {
             return TestBase.GetServiceClient<ResourceManagementClient>(new CSMTestEnvironmentFactory());
+=======
+        public static ResourceManagementClient GetResourceManagementClient(this TestBase testBase, MockContext context)
+        {
+            return context.GetServiceClient<ResourceManagementClient>();
+        }
+
+        /// <summary>
+        /// Default constructor for management clients, using the TestSupport Infrastructure
+        /// </summary>
+        /// <param name="testBase">the test class</param>
+        /// <returns>A redis cache management client, created from the current context (environment variables)</returns>
+        public static DataLakeStoreFileSystemManagementClient GetDataLakeStoreFileSystemManagementClient(this TestBase testBase, MockContext context)
+        {
+            var client = context.GetServiceClient<DataLakeStoreFileSystemManagementClient>(true);
+            
+            // Set this to the default for the current environment
+            client.AdlsFileSystemDnsSuffix = TestEnvironmentFactory.GetTestEnvironment().Endpoints.DataLakeStoreServiceUri.OriginalString.Replace("https://", "");
+            // TODO: figure out how to test the custom public constructors in the future. Until then, manually set the timeout for the client to five minutes.
+            client.HttpClient.Timeout = TimeSpan.FromMinutes(5);
+            return client;
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
         }
     }
 }

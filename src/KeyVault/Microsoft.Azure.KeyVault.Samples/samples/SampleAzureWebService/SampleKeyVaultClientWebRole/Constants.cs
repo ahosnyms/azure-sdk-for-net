@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿// 
 // Copyright © Microsoft Corporation, All Rights Reserved
 //
@@ -14,6 +15,13 @@
 //
 // See the Apache License, Version 2.0 for the specific language
 // governing permissions and limitations under the License.
+=======
+﻿//
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for
+// license information.
+//
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 
 namespace SampleKeyVaultClientWebRole
 {

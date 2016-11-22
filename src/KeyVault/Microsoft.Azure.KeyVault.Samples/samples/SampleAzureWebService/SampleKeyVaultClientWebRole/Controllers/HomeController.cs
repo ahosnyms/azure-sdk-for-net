@@ -1,19 +1,8 @@
-﻿// 
-// Copyright © Microsoft Corporation, All Rights Reserved
+﻿//
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for
+// license information.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
 
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
@@ -80,6 +69,7 @@ namespace SampleKeyVaultClientWebRole.Controllers
             ModelTrace.Add("\tSecret cache duration:                             " + await ConfigurationManager.GetSettingAsync(Constants.KeyVaultSecretCacheDefaultTimeSpan).ConfigureAwait(false));
             ModelTrace.Add("\tKey Vault client ID:                               " + await ConfigurationManager.GetSettingAsync(Constants.KeyVaultAuthClientIdSetting).ConfigureAwait(false));
             ModelTrace.Add("\tKey Vault authentication certificate:              " + await ConfigurationManager.GetSettingAsync(Constants.KeyVaultAuthCertThumbprintSetting).ConfigureAwait(false) + "\n\n");
+<<<<<<< HEAD
 
             if (   string.IsNullOrWhiteSpace(await ConfigurationManager.GetSettingAsync(Constants.StorageAccountNameSetting).ConfigureAwait(false)) 
                 || string.IsNullOrWhiteSpace(await ConfigurationManager.GetSettingAsync(Constants.StorageAccountKeySecretUrlSetting).ConfigureAwait(false))
@@ -104,6 +94,32 @@ namespace SampleKeyVaultClientWebRole.Controllers
                 var storageAccountKey = await ConfigurationManager.GetSettingAsync(
                     Constants.StorageAccountKeySecretUrlSetting).ConfigureAwait(false);
 
+=======
+
+            if (   string.IsNullOrWhiteSpace(await ConfigurationManager.GetSettingAsync(Constants.StorageAccountNameSetting).ConfigureAwait(false)) 
+                || string.IsNullOrWhiteSpace(await ConfigurationManager.GetSettingAsync(Constants.StorageAccountKeySecretUrlSetting).ConfigureAwait(false))
+                || string.IsNullOrWhiteSpace(await ConfigurationManager.GetSettingAsync(Constants.KeyVaultAuthClientIdSetting).ConfigureAwait(false))
+                || string.IsNullOrWhiteSpace(await ConfigurationManager.GetSettingAsync(Constants.KeyVaultAuthCertThumbprintSetting).ConfigureAwait(false))
+                || string.IsNullOrWhiteSpace(await ConfigurationManager.GetSettingAsync(Constants.KeyVaultSecretCacheDefaultTimeSpan).ConfigureAwait(false)))
+            {
+                throw new Exception("Service configuration settings cannot be loaded or is not properly set.");
+            }
+        }
+
+        /// <summary>
+        /// Gets the storage account key from key vault secret URL
+        /// </summary>
+        /// <returns></returns>
+        private async Task<string> GetStorageAccountKeyAsync()
+        {
+            ModelTrace.Add("Processing: Calling Key Vault Service to get storage account key");
+            try
+            {
+                // Get secret from configuration manager 
+                var storageAccountKey = await ConfigurationManager.GetSettingAsync(
+                    Constants.StorageAccountKeySecretUrlSetting).ConfigureAwait(false);
+
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
                 ModelTrace.Add("\tSuccess!\n");
                 return storageAccountKey;
             }

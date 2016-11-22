@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Azure.Management.Network;
 using Microsoft.Azure.Management.Resources;
-using Microsoft.Azure.Test;
 using ResourceGroups.Tests;
+using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
 
 namespace Networks.Tests.Helpers
 {
@@ -15,10 +15,11 @@ namespace Networks.Tests.Helpers
         /// </summary>
         /// <param name="handler"></param>
         /// <returns>A resource management client, created from the current context (environment variables)</returns>
-        public static NetworkResourceProviderClient GetNetworkResourceProviderClient(RecordedDelegatingHandler handler)
+        public static NetworkManagementClient GetNetworkManagementClientWithHandler(MockContext context, RecordedDelegatingHandler handler)
         {
             handler.IsPassThrough = true;
-            return TestBase.GetServiceClient<NetworkResourceProviderClient>(new CSMTestEnvironmentFactory()).WithHandler(handler);
+            var client = context.GetServiceClient<NetworkManagementClient>(handlers: handler);
+            return client;
         }
 
         /// <summary>
@@ -27,16 +28,42 @@ namespace Networks.Tests.Helpers
         /// <param name="client">The resource management client</param>
         /// <param name="resourceType">The type of resource to create</param>
         /// <returns>A location where this resource type is supported for the current subscription</returns>
-        public static string GetResourceLocation(ResourceManagementClient client, string resourceType)
+        public static string GetResourceLocation(ResourceManagementClient client, string resourceType, Network.Tests.Helpers.FeaturesInfo.Type feature = Network.Tests.Helpers.FeaturesInfo.Type.Default)
         {
-            var supportedLocations = new HashSet<string>(new[] { "East US", "West US", "Central US", "West Europe" }, StringComparer.OrdinalIgnoreCase);
-            
+            HashSet<string> supportedLocations = null;
+
+            switch (feature)
+            {
+                case Network.Tests.Helpers.FeaturesInfo.Type.Default:
+                    {
+                        supportedLocations = Network.Tests.Helpers.FeaturesInfo.defaultLocations;
+                        break;
+                    }
+
+                case Network.Tests.Helpers.FeaturesInfo.Type.All:
+                    {
+                        supportedLocations = Network.Tests.Helpers.FeaturesInfo.allFeaturesSupportedLocations;
+                        break;
+                    }
+
+                case Network.Tests.Helpers.FeaturesInfo.Type.Ipv6:
+                    {
+                        supportedLocations = Network.Tests.Helpers.FeaturesInfo.ipv6SupportedLocations;
+                        break;
+                    }
+
+                case Network.Tests.Helpers.FeaturesInfo.Type.MultiCA:
+                    {
+                        supportedLocations = Network.Tests.Helpers.FeaturesInfo.defaultLocations;
+                        break;
+                    }
+            }
             string[] parts = resourceType.Split('/');
             string providerName = parts[0];
             var provider = client.Providers.Get(providerName);
-            foreach (var resource in provider.Provider.ResourceTypes)
+            foreach (var resource in provider.ResourceTypes)
             {
-                if (string.Equals(resource.Name, parts[1], StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(resource.ResourceType, parts[1], StringComparison.OrdinalIgnoreCase))
                 {
                     return resource.Locations.FirstOrDefault(supportedLocations.Contains);
                 }

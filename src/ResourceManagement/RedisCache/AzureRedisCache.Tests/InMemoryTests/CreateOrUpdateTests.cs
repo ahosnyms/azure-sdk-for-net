@@ -1,7 +1,11 @@
-﻿using FakeItEasy;
-using Hyak.Common;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for
+// license information.
+
 using Microsoft.Azure.Management.Redis;
 using Microsoft.Azure.Management.Redis.Models;
+using Microsoft.Rest;
+using Microsoft.Rest.Azure;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace AzureRedisCache.Tests
+namespace AzureRedisCache.Tests.InMemoryTests
 {
     public class CreateOrUpdateTests
     {
@@ -28,7 +32,7 @@ namespace AzureRedisCache.Tests
 	            ""type"" : ""Microsoft.Cache/Redis"",
 	            ""tags"" : {},
 	            ""properties"" : {
-		            ""provisioningState"" : ""creating"",
+		            ""provisioningState"" : ""Succeeded"",
 		            ""sku"": {
                             ""name"": ""Basic"",
                             ""family"": ""C"",
@@ -47,40 +51,32 @@ namespace AzureRedisCache.Tests
             ");
             string requestIdHeader = "0d33aff8-8a4e-4565-b893-a10e52260de0";
             RedisManagementClient client = Utility.GetRedisManagementClient(responseString, requestIdHeader, HttpStatusCode.Created);
-            RedisCreateOrUpdateResponse response = client.Redis.CreateOrUpdate(resourceGroupName: "resource-group", name: "cachename",
-                                                                            parameters: new RedisCreateOrUpdateParameters
+            var response = client.Redis.Create(resourceGroupName: "resource-group", name: "cachename",
+                                                                            parameters: new RedisCreateParameters
                                                                             {
                                                                                 Location = "North Europe",
-                                                                                Properties = new RedisProperties
+                                                                                Sku = new Sku()
                                                                                 {
-                                                                                    RedisVersion = "2.8",
-                                                                                    Sku = new Sku(){
-                                                                                        Name = SkuName.Basic,
-                                                                                        Family = SkuFamily.C,
-                                                                                        Capacity = 1
-                                                                                    }
+                                                                                    Name = SkuName.Basic,
+                                                                                    Family = SkuFamily.C,
+                                                                                    Capacity = 1
                                                                                 }
                                                                             });
 
-            Assert.Equal(requestIdHeader, response.RequestId);
-            Assert.Equal("/subscriptions/a559b6fd-3a84-40bb-a450-b0db5ed37dfe/resourceGroups/HydraTest07152014/providers/Microsoft.Cache/Redis/hydraradiscache", response.Resource.Id);
-            Assert.Equal("North Europe", response.Resource.Location);
-            Assert.Equal("hydraradiscache", response.Resource.Name);
-            Assert.Equal("Microsoft.Cache/Redis", response.Resource.Type);
+            Assert.Equal("/subscriptions/a559b6fd-3a84-40bb-a450-b0db5ed37dfe/resourceGroups/HydraTest07152014/providers/Microsoft.Cache/Redis/hydraradiscache", response.Id);
+            Assert.Equal("North Europe", response.Location);
+            Assert.Equal("hydraradiscache", response.Name);
+            Assert.Equal("Microsoft.Cache/Redis", response.Type);
 
-            Assert.Equal("creating", response.Resource.Properties.ProvisioningState);
-            Assert.Equal(SkuName.Basic, response.Resource.Properties.Sku.Name);
-            Assert.Equal(SkuFamily.C, response.Resource.Properties.Sku.Family);
-            Assert.Equal(1, response.Resource.Properties.Sku.Capacity);
-            Assert.Equal("2.8", response.Resource.Properties.RedisVersion);
+            Assert.Equal("Succeeded", response.ProvisioningState);
+            Assert.Equal(SkuName.Basic, response.Sku.Name);
+            Assert.Equal(SkuFamily.C, response.Sku.Family);
+            Assert.Equal(1, response.Sku.Capacity);
+            Assert.Equal("2.8", response.RedisVersion);
 
-            Assert.NotNull(response.Resource.Properties.AccessKeys);
-            Assert.Equal("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=", response.Resource.Properties.AccessKeys.PrimaryKey);
-            Assert.Equal("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb=", response.Resource.Properties.AccessKeys.SecondaryKey);
-
-            Assert.Equal("hydraradiscache.cache.icbbvt.windows-int.net", response.Resource.Properties.HostName);
-            Assert.Equal(6379, response.Resource.Properties.Port);
-            Assert.Equal(6380, response.Resource.Properties.SslPort);
+            Assert.Equal("hydraradiscache.cache.icbbvt.windows-int.net", response.HostName);
+            Assert.Equal(6379, response.Port);
+            Assert.Equal(6380, response.SslPort);
         }
 
         [Fact]
@@ -88,46 +84,36 @@ namespace AzureRedisCache.Tests
         {
             string responseString = (@"{}");
             RedisManagementClient client = Utility.GetRedisManagementClient(responseString, null, HttpStatusCode.OK);
-            RedisCreateOrUpdateResponse response = client.Redis.CreateOrUpdate(resourceGroupName: "resource-group", name: "cachename",
-                                                                            parameters: new RedisCreateOrUpdateParameters
+            var response = client.Redis.Create(resourceGroupName: "resource-group", name: "cachename",
+                                                                            parameters: new RedisCreateParameters
                                                                             {
                                                                                 Location = "North Europe",
-                                                                                Properties = new RedisProperties
+                                                                                Sku = new Sku()
                                                                                 {
-                                                                                    RedisVersion = "2.8",
-                                                                                    Sku = new Sku()
-                                                                                    {
-                                                                                        Name = SkuName.Basic,
-                                                                                        Family = SkuFamily.C,
-                                                                                        Capacity = 1
-                                                                                    }
+                                                                                    Name = SkuName.Basic,
+                                                                                    Family = SkuFamily.C,
+                                                                                    Capacity = 1
                                                                                 }
                                                                             });
-            Assert.Null(response.RequestId);
-            Assert.Null(response.Resource.Id);
-            Assert.Null(response.Resource.Location);
-            Assert.Null(response.Resource.Name);
-            Assert.Null(response.Resource.Type);
-            Assert.Null(response.Resource.Properties); 
+            Assert.Null(response.Id);
+            Assert.Null(response.Location);
+            Assert.Null(response.Name);
+            Assert.Null(response.Type); 
         }
 
         [Fact]
         public void CreateOrUpdate_404()
         {
             RedisManagementClient client = Utility.GetRedisManagementClient(null, null, HttpStatusCode.NotFound);
-            Assert.Throws<CloudException>(() => client.Redis.CreateOrUpdate(resourceGroupName: "resource-group", name: "cachename",
-                                                                            parameters: new RedisCreateOrUpdateParameters
+            Assert.Throws<CloudException>(() => client.Redis.Create(resourceGroupName: "resource-group", name: "cachename",
+                                                                            parameters: new RedisCreateParameters
                                                                             {
                                                                                 Location = "North Europe",
-                                                                                Properties = new RedisProperties
+                                                                                Sku = new Sku()
                                                                                 {
-                                                                                    RedisVersion = "2.8",
-                                                                                    Sku = new Sku()
-                                                                                    {
-                                                                                        Name = SkuName.Basic,
-                                                                                        Family = SkuFamily.C,
-                                                                                        Capacity = 1
-                                                                                    }
+                                                                                    Name = SkuName.Basic,
+                                                                                    Family = SkuFamily.C,
+                                                                                    Capacity = 1
                                                                                 }
                                                                             }));
 
@@ -138,60 +124,49 @@ namespace AzureRedisCache.Tests
         {
             RedisManagementClient client = Utility.GetRedisManagementClient(null, null, HttpStatusCode.NotFound);
 
-            Exception e = Assert.Throws<ArgumentNullException>(() => client.Redis.CreateOrUpdate(resourceGroupName: null, name: "cachename",
-                                                                            parameters: new RedisCreateOrUpdateParameters
+            Exception e = Assert.Throws<ValidationException>(() => client.Redis.Create(resourceGroupName: null, name: "cachename",
+                                                                            parameters: new RedisCreateParameters
                                                                             {
                                                                                 Location = "North Europe",
-                                                                                Properties = new RedisProperties
+                                                                                Sku = new Sku()
                                                                                 {
-                                                                                    RedisVersion = "2.8",
-                                                                                    Sku = new Sku()
-                                                                                    {
-                                                                                        Name = SkuName.Basic,
-                                                                                        Family = SkuFamily.C,
-                                                                                        Capacity = 1
-                                                                                    }
+                                                                                    Name = SkuName.Basic,
+                                                                                    Family = SkuFamily.C,
+                                                                                    Capacity = 1
                                                                                 }
                                                                             }));
             Assert.Contains("resourceGroupName", e.Message);
-            e = Assert.Throws<ArgumentNullException>(() => client.Redis.CreateOrUpdate(resourceGroupName: "resource-group", name: null,
-                                                                            parameters: new RedisCreateOrUpdateParameters
+            e = Assert.Throws<ValidationException>(() => client.Redis.Create(resourceGroupName: "resource-group", name: null,
+                                                                            parameters: new RedisCreateParameters
                                                                             {
                                                                                 Location = "North Europe",
-                                                                                Properties = new RedisProperties
+                                                                                Sku = new Sku()
                                                                                 {
-                                                                                    RedisVersion = "2.8",
-                                                                                    Sku = new Sku()
-                                                                                    {
-                                                                                        Name = SkuName.Basic,
-                                                                                        Family = SkuFamily.C,
-                                                                                        Capacity = 1
-                                                                                    }
+                                                                                    Name = SkuName.Basic,
+                                                                                    Family = SkuFamily.C,
+                                                                                    Capacity = 1
                                                                                 }
                                                                             }));
             Assert.Contains("name", e.Message);
-            e = Assert.Throws<ArgumentNullException>(() => client.Redis.CreateOrUpdate(resourceGroupName: "resource-group", name: "cachename", parameters: null));
+            e = Assert.Throws<ValidationException>(() => client.Redis.Create(resourceGroupName: "resource-group", name: "cachename", parameters: null));
             Assert.Contains("parameters", e.Message);
-            e = Assert.Throws<ArgumentNullException>(() => client.Redis.CreateOrUpdate(resourceGroupName: "resource-group", name: "cachename",
-                                                                            parameters: new RedisCreateOrUpdateParameters
+            e = Assert.Throws<ValidationException>(() => client.Redis.Create(resourceGroupName: "resource-group", name: "cachename",
+                                                                            parameters: new RedisCreateParameters
                                                                             {
                                                                                 Location = null,
-                                                                                Properties = new RedisProperties
+                                                                                Sku = new Sku()
                                                                                 {
-                                                                                    RedisVersion = "2.8",
-                                                                                    Sku = new Sku()
-                                                                                    {
-                                                                                        Name = SkuName.Basic,
-                                                                                        Family = SkuFamily.C,
-                                                                                        Capacity = 1
-                                                                                    }
+                                                                                    Name = SkuName.Basic,
+                                                                                    Family = SkuFamily.C,
+                                                                                    Capacity = 1
                                                                                 }
                                                                             }));
-            Assert.Contains("parameters.Location", e.Message);
-            e = Assert.Throws<ArgumentNullException>(() => client.Redis.CreateOrUpdate(resourceGroupName: "resource-group", name: "cachename",
-                                                                            parameters: new RedisCreateOrUpdateParameters
+            Assert.Contains("Location", e.Message);
+            e = Assert.Throws<ValidationException>(() => client.Redis.Create(resourceGroupName: "resource-group", name: "cachename",
+                                                                            parameters: new RedisCreateParameters
                                                                             {
                                                                                 Location = "North Europe",
+<<<<<<< HEAD
                                                                                 Properties = null
                                                                             }));
             Assert.Contains("parameters.Properties", e.Message);
@@ -203,41 +178,35 @@ namespace AzureRedisCache.Tests
                                                                                 {
                                                                                     RedisVersion = "2.8",
                                                                                     Sku = null
-                                                                                }
+=======
+                                                                                Sku = null
                                                                             }));
-            Assert.Contains("parameters.Properties.Sku", e.Message);
-            e = Assert.Throws<ArgumentNullException>(() => client.Redis.CreateOrUpdate(resourceGroupName: "resource-group", name: "cachename",
-                                                                            parameters: new RedisCreateOrUpdateParameters
+            Assert.Contains("Sku", e.Message);
+            e = Assert.Throws<ValidationException>(() => client.Redis.Create(resourceGroupName: "resource-group", name: "cachename",
+                                                                            parameters: new RedisCreateParameters
                                                                             {
                                                                                 Location = "North Europe",
-                                                                                Properties = new RedisProperties
+                                                                                Sku = new Sku()
                                                                                 {
-                                                                                    RedisVersion = "2.8",
-                                                                                    Sku = new Sku()
-                                                                                    {
-                                                                                        Name = null,
-                                                                                        Family = SkuFamily.C,
-                                                                                        Capacity = 1
-                                                                                    }
+                                                                                    Name = null,
+                                                                                    Family = SkuFamily.C,
+                                                                                    Capacity = 1
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
                                                                                 }
                                                                             }));
-            Assert.Contains("parameters.Properties.Sku.Name", e.Message);
-            e = Assert.Throws<ArgumentNullException>(() => client.Redis.CreateOrUpdate(resourceGroupName: "resource-group", name: "cachename",
-                                                                            parameters: new RedisCreateOrUpdateParameters
+            Assert.Contains("Name", e.Message);
+            e = Assert.Throws<ValidationException>(() => client.Redis.Create(resourceGroupName: "resource-group", name: "cachename",
+                                                                            parameters: new RedisCreateParameters
                                                                             {
                                                                                 Location = "North Europe",
-                                                                                Properties = new RedisProperties
+                                                                                Sku = new Sku()
                                                                                 {
-                                                                                    RedisVersion = "2.8",
-                                                                                    Sku = new Sku()
-                                                                                    {
-                                                                                        Name = SkuName.Basic,
-                                                                                        Family = null,
-                                                                                        Capacity = 1
-                                                                                    }
+                                                                                    Name = SkuName.Basic,
+                                                                                    Family = null,
+                                                                                    Capacity = 1
                                                                                 }
                                                                             }));
-            Assert.Contains("parameters.Properties.Sku.Family", e.Message);
+            Assert.Contains("Family", e.Message);
         }
 
         [Fact]
@@ -251,7 +220,7 @@ namespace AzureRedisCache.Tests
 	            ""type"" : ""Microsoft.Cache/Redis"",
 	            ""tags"" : {""update"": ""done""},
 	            ""properties"" : {
-		            ""provisioningState"" : ""creating"",
+		            ""provisioningState"" : ""Succeeded"",
 		            ""sku"": {
                             ""name"": ""Basic"",
                             ""family"": ""C"",
@@ -273,45 +242,36 @@ namespace AzureRedisCache.Tests
             string requestIdHeader = "0d33aff8-8a4e-4565-b893-a10e52260de0";
 
             RedisManagementClient client = Utility.GetRedisManagementClient(responseString, requestIdHeader, HttpStatusCode.Created);
-            RedisCreateOrUpdateResponse response = client.Redis.CreateOrUpdate(resourceGroupName: "resource-group", name: "cachename",
-                                                                            parameters: new RedisCreateOrUpdateParameters
+            var response = client.Redis.Create(resourceGroupName: "resource-group", name: "cachename",
+                                                                            parameters: new RedisCreateParameters
                                                                             {
                                                                                 Location = "North Europe",
-                                                                                Properties = new RedisProperties
+                                                                                Sku = new Sku()
                                                                                 {
-                                                                                    RedisVersion = "2.8",
-                                                                                    Sku = new Sku()
-                                                                                    {
-                                                                                        Name = SkuName.Basic,
-                                                                                        Family = SkuFamily.C,
-                                                                                        Capacity = 1
-                                                                                    },
-                                                                                    RedisConfiguration = new Dictionary<string, string>() { 
-                                                                                        {"maxmemory-policy","allkeys-lru"}
-                                                                                    }
+                                                                                    Name = SkuName.Basic,
+                                                                                    Family = SkuFamily.C,
+                                                                                    Capacity = 1
+                                                                                },
+                                                                                RedisConfiguration = new Dictionary<string, string>() {
+                                                                                    {"maxmemory-policy","allkeys-lru"}
                                                                                 }
                                                                             });
 
-            Assert.Equal(requestIdHeader, response.RequestId);
-            Assert.Equal("/subscriptions/a559b6fd-3a84-40bb-a450-b0db5ed37dfe/resourceGroups/HydraTest07152014/providers/Microsoft.Cache/Redis/hydraradiscache", response.Resource.Id);
-            Assert.Equal("North Europe", response.Resource.Location);
-            Assert.Equal("hydraradiscache", response.Resource.Name);
-            Assert.Equal("Microsoft.Cache/Redis", response.Resource.Type);
+            Assert.Equal("/subscriptions/a559b6fd-3a84-40bb-a450-b0db5ed37dfe/resourceGroups/HydraTest07152014/providers/Microsoft.Cache/Redis/hydraradiscache", response.Id);
+            Assert.Equal("North Europe", response.Location);
+            Assert.Equal("hydraradiscache", response.Name);
+            Assert.Equal("Microsoft.Cache/Redis", response.Type);
 
-            Assert.Equal("creating", response.Resource.Properties.ProvisioningState);
-            Assert.Equal(SkuName.Basic, response.Resource.Properties.Sku.Name);
-            Assert.Equal(SkuFamily.C, response.Resource.Properties.Sku.Family);
-            Assert.Equal(1, response.Resource.Properties.Sku.Capacity);
-            Assert.Equal("2.8", response.Resource.Properties.RedisVersion);
-            Assert.Equal("allkeys-lru", response.Resource.Properties.RedisConfiguration["maxmemory-policy"]);
+            Assert.Equal("Succeeded", response.ProvisioningState);
+            Assert.Equal(SkuName.Basic, response.Sku.Name);
+            Assert.Equal(SkuFamily.C, response.Sku.Family);
+            Assert.Equal(1, response.Sku.Capacity);
+            Assert.Equal("2.8", response.RedisVersion);
+            Assert.Equal("allkeys-lru", response.RedisConfiguration["maxmemory-policy"]);
 
-            Assert.NotNull(response.Resource.Properties.AccessKeys);
-            Assert.Equal("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=", response.Resource.Properties.AccessKeys.PrimaryKey);
-            Assert.Equal("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb=", response.Resource.Properties.AccessKeys.SecondaryKey);
-
-            Assert.Equal("hydraradiscache.cache.icbbvt.windows-int.net", response.Resource.Properties.HostName);
-            Assert.Equal(6379, response.Resource.Properties.Port);
-            Assert.Equal(6380, response.Resource.Properties.SslPort);
+            Assert.Equal("hydraradiscache.cache.icbbvt.windows-int.net", response.HostName);
+            Assert.Equal(6379, response.Port);
+            Assert.Equal(6380, response.SslPort);
         }
     }
 }

@@ -1,19 +1,8 @@
 ﻿//
-// Copyright © Microsoft Corporation, All Rights Reserved
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for
+// license information.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// THIS CODE IS PROVIDED *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS
-// OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
-// ANY IMPLIED WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A
-// PARTICULAR PURPOSE, MERCHANTABILITY OR NON-INFRINGEMENT.
-//
-// See the Apache License, Version 2.0 for the specific language
-// governing permissions and limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -21,8 +10,8 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.KeyVault.WebKey;
+using Microsoft.Azure.KeyVault.Models;
 
 namespace Sample.Microsoft.HelloKeyVault
 {
@@ -71,6 +60,12 @@ namespace Sample.Microsoft.HelloKeyVault
                 keyOperations.Add( KeyOperationType.GET_SECRET );
                 keyOperations.Add( KeyOperationType.LIST_SECRETS );
                 keyOperations.Add( KeyOperationType.DELETE_SECRET );
+                keyOperations.Add( KeyOperationType.CREATE_CERTIFICATE );
+                keyOperations.Add( KeyOperationType.IMPORT_CERTIFICATE );
+                keyOperations.Add( KeyOperationType.EXPORT_CERTIFICATE );
+                keyOperations.Add( KeyOperationType.LIST_CERTIFICATEVERSIONS );
+                keyOperations.Add( KeyOperationType.LIST_CERTIFICATES );
+                keyOperations.Add( KeyOperationType.DELETE_CERTIFICATE );
             }
             return keyOperations;
         }
@@ -276,6 +271,57 @@ namespace Sample.Microsoft.HelloKeyVault
             return name;
         }
 
+
+        /// <summary>
+        /// Get certificate name from argument list
+        /// </summary>
+        /// <param name="mandatory"> whether the cli parameter is mandatory or not </param>
+        /// <returns> the name of the certificate </returns>
+        public string GetCertificateName(bool mandatory = false, bool allowDefault = true)
+        {
+            var tag = "-certificatename";
+            string name = GetArgumentValue(tag);
+
+            if (name == string.Empty)
+            {
+                if (mandatory == true)
+                {
+                    throw new Exception(tag + " argument is missing");
+                }
+                if (allowDefault)
+                {
+                    name = Guid.NewGuid().ToString();
+                    Console.Out.WriteLine(tag + " is not provided. Using default value: " + name);
+                }
+            }
+            return name;
+        }
+
+        /// <summary>
+        /// Get certificate name from argument list
+        /// </summary>
+        /// <param name="mandatory"> whether the cli parameter is mandatory or not </param>
+        /// <returns> the name of the certificate </returns>
+        public string GetCertificateCreateName(bool mandatory = false, bool allowDefault = true)
+        {
+            var tag = "-certificatecreatename";
+            string name = GetArgumentValue(tag);
+
+            if (name == string.Empty)
+            {
+                if (mandatory == true)
+                {
+                    throw new Exception(tag + " argument is missing");
+                }
+                if (allowDefault)
+                {
+                    name = Guid.NewGuid().ToString();
+                    Console.Out.WriteLine(tag + " is not provided. Using default value: " + name);
+                }
+            }
+            return name;
+        }
+
         /// <summary>
         /// Get secret value from argument list
         /// </summary>
@@ -290,6 +336,40 @@ namespace Sample.Microsoft.HelloKeyVault
                 Console.Out.WriteLine( tag + " is not provided. Using new guid: " + value );
             }
             return value;
+        }
+
+        /// <summary>
+        /// Get pfx file path from argument list
+        /// </summary>
+        /// <returns> pfx path </returns>
+        public string GetPfxPath()
+        {
+            var tag = "-pfxFilePath";
+            var path = GetArgumentValue( tag );            
+            if ( path == string.Empty )
+            {
+                Console.Out.WriteLine(tag + " is not provided. Using default value!");
+                path = "sampleCert.pfx";
+            }
+
+            return path;
+        }
+
+        /// <summary>
+        /// Get pfx password from argument list
+        /// </summary>
+        /// <returns> pfx password </returns>
+        public string GetPfxPassword()
+        {
+            var tag = "-pfxFilePassword";
+            var password = GetArgumentValue( tag );
+            if (password == string.Empty)
+            {
+                Console.Out.WriteLine(tag + " is not provided. Using default value!");
+                password = "123";
+            }
+
+            return password;
         }
 
         /// <summary>
@@ -365,7 +445,6 @@ namespace Sample.Microsoft.HelloKeyVault
         /// <summary>
         /// Gets key bundle from args or uses a default key bundle
         /// </summary>
-        /// <param name="args"> the input arguments of the console program </param>
         /// <returns> key bundle </returns>
         public KeyBundle GetKeyBundle()
         {
@@ -379,8 +458,8 @@ namespace Sample.Microsoft.HelloKeyVault
                 Attributes = new KeyAttributes()
                 {
                     Enabled = true,
-                    Expires = UnixEpoch.FromUnixTime(int.MaxValue),
-                    NotBefore = UnixEpoch.FromUnixTime(0),
+                    Expires = DateTime.UtcNow.AddDays(2),
+                    NotBefore = DateTime.UtcNow.AddDays(-1)
                 }
             };
 
@@ -415,8 +494,8 @@ namespace Sample.Microsoft.HelloKeyVault
                 Attributes = new KeyAttributes()
                 {
                     Enabled = true,
-                    Expires = UnixEpoch.FromUnixTime(int.MaxValue),
-                    NotBefore = UnixEpoch.FromUnixTime(0),
+                    Expires = DateTime.UtcNow.AddDays(2),
+                    NotBefore = DateTime.UtcNow.AddDays(-1)
                 }
             };
 
@@ -487,7 +566,7 @@ namespace Sample.Microsoft.HelloKeyVault
             string result = string.Empty;
             for ( int i = 0; i < args.Count(); i++ )
             {
-                if ( string.Compare( args[i], argTag, true ) == 0 )
+                if ( String.Compare(args[i], argTag, StringComparison.OrdinalIgnoreCase) == 0 )
                 {
                     if ( i + 1 < args.Count() )
                     {

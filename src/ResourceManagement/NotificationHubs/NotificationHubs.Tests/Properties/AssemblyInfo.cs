@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿// 
 // Copyright (c) Microsoft and contributors.  All rights reserved.
 // 
@@ -13,10 +14,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // 
+=======
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+<<<<<<< HEAD
+=======
+using Xunit;
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -26,7 +35,11 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("NotificationHubs.Tests")]
+<<<<<<< HEAD
 [assembly: AssemblyCopyright("Copyright ©  2015")]
+=======
+[assembly: AssemblyCopyright("Copyright ©  2014")]
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -36,7 +49,11 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
+<<<<<<< HEAD
 [assembly: Guid("663aa481-92aa-41e6-9ac7-11d232beaf54")]
+=======
+[assembly: Guid("90fe65cb-d848-4ed8-97f5-7c967102ceaf")]
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 
 // Version information for an assembly consists of the following four values:
 //
@@ -50,3 +67,7 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301

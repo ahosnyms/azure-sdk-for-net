@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿//  
+=======
+﻿﻿//  
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 // Copyright (c) Microsoft.  All rights reserved.
 // 
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +19,7 @@
 
 namespace NotificationHubs.Tests.ScenarioTests
 {
+<<<<<<< HEAD
     using global::NotificationHubs.Tests;
     using Microsoft.Azure.Management.NotificationHubs;
     using Microsoft.Azure.Management.NotificationHubs.Models;
@@ -27,10 +32,22 @@ namespace NotificationHubs.Tests.ScenarioTests
     public partial class ScenarioTests : TestBase
     {
         private ManagementClient _managmentClient;
+=======
+    using Microsoft.Azure.Management.NotificationHubs;
+    using Microsoft.Azure.Management.Resources;
+    using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+    using TestHelper;
+    using System.Net;
+    using System;
+
+    public partial class ScenarioTests 
+    {
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
         private ResourceManagementClient _resourceManagementClient;
         private NotificationHubsManagementClient _notificationHubsManagementClient;
         private RecordedDelegatingHandler handler = new RecordedDelegatingHandler();
 
+<<<<<<< HEAD
         public string Location { get; set; }
         public string ResourceGroupName { get; set; }
         public string NamespaceName { get; set; }
@@ -44,17 +61,42 @@ namespace NotificationHubs.Tests.ScenarioTests
                     _managmentClient = NotificationHubsManagementHelper.GetManagementClient(handler);
                 }
                 return _managmentClient;
+=======
+        protected bool m_initialized = false;
+        protected object m_lock = new object();
+        public string Location { get; set; }
+        public string ResourceGroupName { get; set; }
+        public string NamespaceName { get; set; }
+               
+
+        protected void InitializeClients(MockContext context)
+        {
+            if (!m_initialized)
+            {
+                lock (m_lock)
+                {
+                    if (!m_initialized)
+                    {
+                        _resourceManagementClient = NotificationHubsManagementHelper.GetResourceManagementClient(context, new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK });
+                        _notificationHubsManagementClient = NotificationHubsManagementHelper.GetNotificationHubsManagementClient(context, new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK });
+                    }
+                }
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
             }
         }
 
         public ResourceManagementClient ResourceManagementClient
         {
             get
+<<<<<<< HEAD
             {
                 if (_resourceManagementClient == null)
                 {
                     _resourceManagementClient = NotificationHubsManagementHelper.GetResourceManagementClient(handler);
                 }
+=======
+            {                
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
                 return _resourceManagementClient;
             }
         }
@@ -62,11 +104,15 @@ namespace NotificationHubs.Tests.ScenarioTests
         public NotificationHubsManagementClient NotificationHubsManagementClient
         {
             get
+<<<<<<< HEAD
             {
                 if (_notificationHubsManagementClient == null)
                 {
                     _notificationHubsManagementClient = NotificationHubsManagementHelper.GetNotificationHubsManagementClient(handler);
                 }
+=======
+            {               
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
                 return _notificationHubsManagementClient;
             }
         }
@@ -84,6 +130,21 @@ namespace NotificationHubs.Tests.ScenarioTests
 
             NamespaceName = TestUtilities.GenerateName(NotificationHubsManagementHelper.NamespacePrefix);
             this.NotificationHubsManagementClient.TryCreateNamespace(ResourceGroupName, NamespaceName, Location);
+<<<<<<< HEAD
         }        
+=======
+        }
+
+        public bool ActivateNamespace(string resourceGroup, string namespaceName)
+        {
+            while (true)
+            {
+                var getNamespaceResponse = NotificationHubsManagementClient.Namespaces.Get(resourceGroup, namespaceName);
+
+                if (getNamespaceResponse.ProvisioningState.Equals("Succeeded", StringComparison.CurrentCultureIgnoreCase))
+                    return true;
+            }
+        }
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
     }
 }

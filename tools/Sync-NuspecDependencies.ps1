@@ -38,6 +38,7 @@ function SyncNuspecFile([string]$FolderPath, [bool]$IsSync)
         $majorVersion = $tokens[0]
         $assemblyFileVersion = "$packageVersion.0" 
 
+<<<<<<< HEAD
         if ($IsSync)
         {
             Write-Debug "Updating AssemblyFileVersion and AssemblyVersion"
@@ -71,6 +72,26 @@ function SyncNuspecFile([string]$FolderPath, [bool]$IsSync)
                             $retry++
                             Start-Sleep -s 2
                         }
+=======
+        $newContent = $assemblyContent | Out-String
+
+        if ($currentContent.CompareTo($newContent)  -ne 0) {
+            # due to file access confliction with other process such as VS, retry several times 
+            $retry = 1
+            while($true){
+                Try {
+                    Set-Content -Path $FolderPath\Properties\AssemblyInfo.cs -Value $assemblyContent
+                    break
+                }
+                Catch {
+                    $ErrorMessage = $_.Exception.Message
+                    if ($retry -eq 20) {
+                        Throw $ErrorMessage         
+                    } else {
+                        Write-Debug "Failed to update assemblyinfo.cs due to error: $ErrorMessage. Will retry."
+                        $retry++
+                        Start-Sleep -s 2
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
                     }
                 }
             } else {
