@@ -345,15 +345,6 @@ namespace HDInsight.Tests.Helpers
             return clusterparams;
         }
 
-        public static ClusterCreateParameters GetCustomCreateParametersRServerIaas(string edgeNode)
-        {
-            var clusterparams = GetCustomCreateParametersIaas();
-            clusterparams.Version = "3.4";
-            clusterparams.ClusterType = "RServer";
-            clusterparams.EdgeNodeSize = edgeNode;
-            return clusterparams;
-        }
-
         public static ClusterCreateParametersExtended AddConfigurations(ClusterCreateParametersExtended cluster, string configurationKey, Dictionary<string, string> configs)
         {
             string configurations = cluster.Properties.ClusterDefinition.Configurations;

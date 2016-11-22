@@ -370,7 +370,7 @@ namespace Microsoft.Azure.Management.HDInsight
             var azureStorageAccountInfo = clusterCreateParameters.DefaultStorageInfo as AzureStorageInfo;
             var azureDataLakeStorageInfo = clusterCreateParameters.DefaultStorageInfo as AzureDataLakeStoreInfo;
 
-            if(azureStorageAccountInfo != null)
+            if (azureStorageAccountInfo != null)
             {
                 if (string.IsNullOrWhiteSpace(azureStorageAccountInfo.StorageContainer))
                 {
@@ -522,7 +522,7 @@ namespace Microsoft.Azure.Management.HDInsight
             if (clusterCreateParameters.OSType == OSType.Windows)
             {
                 if (clusterCreateParameters.ClusterType.Equals("Hadoop", StringComparison.OrdinalIgnoreCase) ||
-                    clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase)  ||
+                    clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase) ||
                     clusterCreateParameters.ClusterType.Equals("RServer", StringComparison.OrdinalIgnoreCase))
                 {
                     return roles;
@@ -532,7 +532,7 @@ namespace Microsoft.Azure.Management.HDInsight
             if (clusterCreateParameters.OSType == OSType.Linux)
             {
                 if (clusterCreateParameters.ClusterType.Equals("Hadoop", StringComparison.OrdinalIgnoreCase) ||
-                    clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase)  ||
+                    clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase) ||
                     clusterCreateParameters.ClusterType.Equals("RServer", StringComparison.OrdinalIgnoreCase))
                 {
                     clusterCreateParameters.ZookeeperNodeSize = "Small";
@@ -587,23 +587,21 @@ namespace Microsoft.Azure.Management.HDInsight
             }
             else
             {
-<<<<<<< HEAD
+
                 if (clusterCreateParameters.ClusterType.Equals("Hadoop", StringComparison.OrdinalIgnoreCase))
                 {
                     headNodeSize = "Standard_D3";
                 }
-                else if (clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase)||
+                else if (clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase) ||
                          clusterCreateParameters.ClusterType.Equals("RServer", StringComparison.OrdinalIgnoreCase))
                 {
                     headNodeSize = "Standard_D12";
                 }
                 else
-=======
-                if (! HeadNodeDefaultSizes.TryGetValue(clusterCreateParameters.ClusterType, out headNodeSize))
->>>>>>> master
-                {
-                    headNodeSize = "Large";
-                }
+                    if (!HeadNodeDefaultSizes.TryGetValue(clusterCreateParameters.ClusterType, out headNodeSize))
+                    {
+                        headNodeSize = "Large";
+                    }
             }
 
             return headNodeSize;
@@ -623,17 +621,15 @@ namespace Microsoft.Azure.Management.HDInsight
             }
             else
             {
-<<<<<<< HEAD
+
                 workerNodeSize = clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase) ||
-                                 clusterCreateParameters.ClusterType.Equals("RServer", StringComparison.OrdinalIgnoreCase)   
+                                 clusterCreateParameters.ClusterType.Equals("RServer", StringComparison.OrdinalIgnoreCase)
                     ? "Standard_D12"
                     : "Standard_D3";
-=======
                 if (!WorkerNodeDefaultSizes.TryGetValue(clusterCreateParameters.ClusterType, out workerNodeSize))
                 {
                     workerNodeSize = "Standard_D3";
                 }
->>>>>>> master
             }
 
             return workerNodeSize;
