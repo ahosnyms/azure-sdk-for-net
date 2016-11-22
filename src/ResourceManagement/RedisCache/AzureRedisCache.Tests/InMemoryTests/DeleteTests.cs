@@ -1,5 +1,7 @@
-﻿using FakeItEasy;
-using Hyak.Common;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for
+// license information.
+
 using Microsoft.Azure.Management.Redis;
 using Microsoft.Azure.Management.Redis.Models;
 using System;
@@ -13,8 +15,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Microsoft.Azure;
+using Microsoft.Rest.Azure;
+using Microsoft.Rest;
 
-namespace AzureRedisCache.Tests
+namespace AzureRedisCache.Tests.InMemoryTests
 {
     public class DeleteTests
     {
@@ -23,9 +27,7 @@ namespace AzureRedisCache.Tests
         {
             string requestIdHeader = "0d33aff8-8a4e-4565-b893-a10e52260de0";
             RedisManagementClient client = Utility.GetRedisManagementClient(null, requestIdHeader, HttpStatusCode.OK);
-            AzureOperationResponse response = client.Redis.Delete(resourceGroupName: "resource-group", name: "cachename");
-            Assert.Equal(requestIdHeader, response.RequestId);
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            client.Redis.Delete(resourceGroupName: "resource-group", name: "cachename");
         }
 
         [Fact]
@@ -39,9 +41,9 @@ namespace AzureRedisCache.Tests
         public void Delete_ParametersChecking()
         {
             RedisManagementClient client = Utility.GetRedisManagementClient(null, null, HttpStatusCode.NotFound);
-            Exception e = Assert.Throws<ArgumentNullException>(() => client.Redis.Delete(resourceGroupName: null, name: "cachename"));
+            Exception e = Assert.Throws<ValidationException>(() => client.Redis.Delete(resourceGroupName: null, name: "cachename"));
             Assert.Contains("resourceGroupName", e.Message);
-            e = Assert.Throws<ArgumentNullException>(() => client.Redis.Delete(resourceGroupName: "resource-group", name: null));
+            e = Assert.Throws<ValidationException>(() => client.Redis.Delete(resourceGroupName: "resource-group", name: null));
             Assert.Contains("name", e.Message);
         }
     }

@@ -1,6 +1,11 @@
-﻿using Hyak.Common;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for
+// license information.
+
 using Microsoft.Azure.Management.Redis;
 using Microsoft.Azure.Management.Redis.Models;
+using Microsoft.Rest;
+using Microsoft.Rest.Azure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,24 +14,31 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace AzureRedisCache.Tests
+namespace AzureRedisCache.Tests.InMemoryTests
 {
     public class ListKeysTests
     {
         [Fact]
         public void ListKeys_Basic()
         {
+<<<<<<< HEAD
             string responseString = (@"
             {
+=======
+            string responseString = (@"{
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 	            ""primaryKey"": ""aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa="",
 	            ""secondaryKey"": ""bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb=""
             }
             ");
             string requestIdHeader = "0d33aff8-8a4e-4565-b893-a10e52260de0";
             RedisManagementClient client = Utility.GetRedisManagementClient(responseString, requestIdHeader, HttpStatusCode.OK);
-            RedisListKeysResponse response = client.Redis.ListKeys(resourceGroupName: "resource-group", name: "cachename");
+            var response = client.Redis.ListKeys(resourceGroupName: "resource-group", name: "cachename");
 
+<<<<<<< HEAD
             Assert.Equal(requestIdHeader, response.RequestId);
+=======
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
             Assert.Equal("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa=", response.PrimaryKey);
             Assert.Equal("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb=", response.SecondaryKey);
         }
@@ -35,9 +47,9 @@ namespace AzureRedisCache.Tests
         public void ListKeys_ParametersChecking()
         {
             RedisManagementClient client = Utility.GetRedisManagementClient(null, null, HttpStatusCode.NotFound);
-            Exception e = Assert.Throws<ArgumentNullException>(() => client.Redis.ListKeys(resourceGroupName: null, name: "cachename"));
+            Exception e = Assert.Throws<ValidationException>(() => client.Redis.ListKeys(resourceGroupName: null, name: "cachename"));
             Assert.Contains("resourceGroupName", e.Message);
-            e = Assert.Throws<ArgumentNullException>(() => client.Redis.ListKeys(resourceGroupName: "resource-group", name: null));
+            e = Assert.Throws<ValidationException>(() => client.Redis.ListKeys(resourceGroupName: "resource-group", name: null));
             Assert.Contains("name", e.Message);
         }
 
@@ -53,7 +65,7 @@ namespace AzureRedisCache.Tests
         {
             string responseString = (@"Exception: Any exception from CSM");
             RedisManagementClient client = Utility.GetRedisManagementClient(responseString, null, HttpStatusCode.OK);
-            Assert.Throws<Newtonsoft.Json.JsonReaderException>(() => client.Redis.ListKeys(resourceGroupName: "resource-group", name: "cachename"));
+            Assert.Throws<SerializationException>(() => client.Redis.ListKeys(resourceGroupName: "resource-group", name: "cachename"));
         }
 
         [Fact]
@@ -61,7 +73,7 @@ namespace AzureRedisCache.Tests
         {
             string responseString = (@"{}");
             RedisManagementClient client = Utility.GetRedisManagementClient(responseString, null, HttpStatusCode.OK);
-            RedisListKeysResponse response = client.Redis.ListKeys(resourceGroupName: "resource-group", name: "cachename");
+            var response = client.Redis.ListKeys(resourceGroupName: "resource-group", name: "cachename");
             Assert.Null(response.PrimaryKey);
             Assert.Null(response.SecondaryKey);
         }

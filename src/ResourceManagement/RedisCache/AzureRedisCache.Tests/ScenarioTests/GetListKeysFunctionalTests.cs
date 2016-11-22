@@ -1,7 +1,24 @@
-﻿using Microsoft.Azure;
+﻿// ----------------------------------------------------------------------------------
+//
+// Copyright Microsoft Corporation
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------------------------------------------------------------
+
+using AzureRedisCache.Tests.ScenarioTests;
+using Microsoft.Azure;
 using Microsoft.Azure.Management.Redis;
 using Microsoft.Azure.Management.Redis.Models;
 using Microsoft.Azure.Test;
+using Microsoft.Rest.Azure;
+using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +29,11 @@ using Xunit;
 
 namespace AzureRedisCache.Tests
 {
-    public class GetListKeysFunctionalTests : TestBase, IUseFixture<TestsFixtureWithCacheCreate>
+    public class GetListKeysFunctionalTests : TestBase, IClassFixture<TestsFixtureWithCacheCreate>
     {
         private TestsFixtureWithCacheCreate fixture;
 
-        public void SetFixture(TestsFixtureWithCacheCreate data)
+        public GetListKeysFunctionalTests(TestsFixtureWithCacheCreate data)
         {
             fixture = data;
         }
@@ -24,6 +41,7 @@ namespace AzureRedisCache.Tests
         [Fact]
         public void GetTest()
         {
+<<<<<<< HEAD
             TestUtilities.StartTest();
             var _client = RedisCacheManagementTestUtilities.GetRedisManagementClient(this);
             RedisGetResponse response = _client.Redis.Get(resourceGroupName: fixture.ResourceGroupName, name: fixture.RedisCacheName);
@@ -40,23 +58,40 @@ namespace AzureRedisCache.Tests
             Assert.Equal(6379, response.Resource.Properties.Port);
             Assert.Equal(6380, response.Resource.Properties.SslPort);
             TestUtilities.EndTest();
+=======
+            using (var context = MockContext.Start(this.GetType().FullName))
+            {
+                var _client = RedisCacheManagementTestUtilities.GetRedisManagementClient(this, context);
+                RedisResource response = _client.Redis.Get(resourceGroupName: fixture.ResourceGroupName, name: fixture.RedisCacheName);
+                Assert.Contains(fixture.RedisCacheName, response.Id);
+                Assert.Equal(fixture.RedisCacheName, response.Name);
+
+                Assert.True("succeeded".Equals(response.ProvisioningState, StringComparison.OrdinalIgnoreCase));
+                Assert.Equal(SkuName.Basic, response.Sku.Name);
+                Assert.Equal(SkuFamily.C, response.Sku.Family);
+                Assert.Equal(0, response.Sku.Capacity);
+                
+                Assert.Contains(fixture.RedisCacheName, response.HostName);
+                Assert.Equal(6379, response.Port);
+                Assert.Equal(6380, response.SslPort);
+            }
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
         }
 
         [Fact]
         public void ListTest()
         {
-            TestUtilities.StartTest();
-            var _client = RedisCacheManagementTestUtilities.GetRedisManagementClient(this);
-            RedisListResponse listResponse = _client.Redis.List(resourceGroupName: fixture.ResourceGroupName);
-
-            Assert.NotNull(listResponse.RequestId);
-            Assert.True(listResponse.Value.Count >= 1);
-
-            bool found = false;
-            foreach (RedisResource response in listResponse.Value)
+            using (var context = MockContext.Start(this.GetType().FullName))
             {
-                if (response.Id.Contains(fixture.RedisCacheName))
+                var _client = RedisCacheManagementTestUtilities.GetRedisManagementClient(this, context);
+                IPage<RedisResource> listResponse = _client.Redis.ListByResourceGroup(resourceGroupName: fixture.ResourceGroupName);
+
+                Assert.True(listResponse.Count() >= 1);
+
+                bool found = false;
+                foreach (RedisResource response in listResponse)
                 {
+<<<<<<< HEAD
                     found = true;
                     Assert.Contains(fixture.RedisCacheName, response.Id);
                     Assert.Equal(fixture.RedisCacheName, response.Name);
@@ -69,27 +104,42 @@ namespace AzureRedisCache.Tests
                     Assert.Contains(fixture.RedisCacheName, response.Properties.HostName);
                     Assert.Equal(6379, response.Properties.Port);
                     Assert.Equal(6380, response.Properties.SslPort);
+=======
+                    if (response.Id.Contains(fixture.RedisCacheName))
+                    {
+                        found = true;
+                        Assert.Contains(fixture.RedisCacheName, response.Id);
+                        Assert.Equal(fixture.RedisCacheName, response.Name);
+
+                        Assert.True("succeeded".Equals(response.ProvisioningState, StringComparison.OrdinalIgnoreCase));
+                        Assert.Equal(SkuName.Basic, response.Sku.Name);
+                        Assert.Equal(SkuFamily.C, response.Sku.Family);
+                        Assert.Equal(0, response.Sku.Capacity);
+                        
+                        Assert.Contains(fixture.RedisCacheName, response.HostName);
+                        Assert.Equal(6379, response.Port);
+                        Assert.Equal(6380, response.SslPort);
+                    }
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
                 }
+                Assert.True(found, "Cache created by fixture is not found.");
             }
-            Assert.True(found, "Cache created by fixture is not found.");
-            TestUtilities.EndTest();
         }
 
         [Fact]
         public void ListWithoutResourceGroupTest()
         {
-            TestUtilities.StartTest();
-            var _client = RedisCacheManagementTestUtilities.GetRedisManagementClient(this);
-            RedisListResponse listResponse = _client.Redis.List(null);
-
-            Assert.NotNull(listResponse.RequestId);
-            Assert.True(listResponse.Value.Count >= 1);
-
-            bool found = false;
-            foreach (RedisResource response in listResponse.Value)
+            using (var context = MockContext.Start(this.GetType().FullName))
             {
-                if (response.Id.Contains(fixture.RedisCacheName))
+                var _client = RedisCacheManagementTestUtilities.GetRedisManagementClient(this, context);
+                IPage<RedisResource> listResponse = _client.Redis.List();
+
+                Assert.True(listResponse.Count() >= 1);
+
+                bool found = false;
+                foreach (RedisResource response in listResponse)
                 {
+<<<<<<< HEAD
                     found = true;
                     Assert.Contains(fixture.RedisCacheName, response.Id);
                     Assert.Equal(fixture.RedisCacheName, response.Name);
@@ -102,38 +152,53 @@ namespace AzureRedisCache.Tests
                     Assert.Contains(fixture.RedisCacheName, response.Properties.HostName);
                     Assert.Equal(6379, response.Properties.Port);
                     Assert.Equal(6380, response.Properties.SslPort);
+=======
+                    if (response.Id.Contains(fixture.RedisCacheName))
+                    {
+                        found = true;
+                        Assert.Contains(fixture.RedisCacheName, response.Id);
+                        Assert.Equal(fixture.RedisCacheName, response.Name);
+
+                        Assert.True("succeeded".Equals(response.ProvisioningState, StringComparison.OrdinalIgnoreCase));
+                        Assert.Equal(SkuName.Basic, response.Sku.Name);
+                        Assert.Equal(SkuFamily.C, response.Sku.Family);
+                        Assert.Equal(0, response.Sku.Capacity);
+                        
+                        Assert.Contains(fixture.RedisCacheName, response.HostName);
+                        Assert.Equal(6379, response.Port);
+                        Assert.Equal(6380, response.SslPort);
+                    }
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
                 }
+                Assert.True(found, "Cache created by fixture is not found.");
             }
-            Assert.True(found, "Cache created by fixture is not found.");
-            TestUtilities.EndTest(); 
         }
 
         [Fact]
         public void ListKeysTest()
         {
-            TestUtilities.StartTest();
-            var _client = RedisCacheManagementTestUtilities.GetRedisManagementClient(this);
-            RedisListKeysResponse response = _client.Redis.ListKeys(resourceGroupName: fixture.ResourceGroupName, name: fixture.RedisCacheName);
-            Assert.NotNull(response.PrimaryKey);
-            Assert.NotNull(response.SecondaryKey);
-            TestUtilities.EndTest(); 
+            using (var context = MockContext.Start(this.GetType().FullName))
+            {
+                var _client = RedisCacheManagementTestUtilities.GetRedisManagementClient(this, context);
+                var response = _client.Redis.ListKeys(resourceGroupName: fixture.ResourceGroupName, name: fixture.RedisCacheName);
+                Assert.NotNull(response.PrimaryKey);
+                Assert.NotNull(response.SecondaryKey);
+            }
         }
 
         [Fact]
         public void RegenerateKeyTest()
         {
-            TestUtilities.StartTest();
-            var _client = RedisCacheManagementTestUtilities.GetRedisManagementClient(this);
+            using (var context = MockContext.Start(this.GetType().FullName))
+            {
+                var _client = RedisCacheManagementTestUtilities.GetRedisManagementClient(this, context);
 
-            RedisListKeysResponse beforeRegenerateResponse = _client.Redis.ListKeys(resourceGroupName: fixture.ResourceGroupName, name: fixture.RedisCacheName);
+                var beforeRegenerateResponse = _client.Redis.ListKeys(resourceGroupName: fixture.ResourceGroupName, name: fixture.RedisCacheName);
 
-            AzureOperationResponse response = _client.Redis.RegenerateKey(resourceGroupName: fixture.ResourceGroupName, name: fixture.RedisCacheName, parameters: new RedisRegenerateKeyParameters() { KeyType = RedisKeyType.Primary });
-            Assert.NotNull(response.RequestId);
-
-            RedisListKeysResponse afterRegenerateResponse = _client.Redis.ListKeys(resourceGroupName: fixture.ResourceGroupName, name: fixture.RedisCacheName);
-            Assert.NotEqual(beforeRegenerateResponse.PrimaryKey, afterRegenerateResponse.PrimaryKey);
-            Assert.Equal(beforeRegenerateResponse.SecondaryKey, afterRegenerateResponse.SecondaryKey);
-            TestUtilities.EndTest(); 
+                var afterRegenerateResponse = _client.Redis.RegenerateKey(resourceGroupName: fixture.ResourceGroupName, name: fixture.RedisCacheName, parameters: new RedisRegenerateKeyParameters() { KeyType = RedisKeyType.Primary });
+                Assert.NotEqual(beforeRegenerateResponse.PrimaryKey, afterRegenerateResponse.PrimaryKey);
+                Assert.Equal(beforeRegenerateResponse.SecondaryKey, afterRegenerateResponse.SecondaryKey);
+            }
         }
     }
 }

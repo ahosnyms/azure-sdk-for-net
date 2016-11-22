@@ -13,12 +13,11 @@
 // limitations under the License.
 //
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using Hyak.Common;
 using Microsoft.Azure.Management.Compute.Models;
 using Microsoft.Azure.Management.Resources;
+using Microsoft.Rest.Azure;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Compute.Tests
@@ -43,31 +42,28 @@ namespace Compute.Tests
                 entityName);
         }
 
-        public static void DeleteIfExists(this IResourceGroupOperations rgOps, string rgName)
+        public static void DeleteIfExists(this IResourceGroupsOperations rgOps, string rgName)
         {
             try
             {
-                // Delete RG is not supposed to throw on not found error. It should be 204 response status instead.
-                // CSM people confirmed [6/16/15] that's a regression and will be fixed.
-                var deleteResourceGroupResponse = rgOps.Delete(rgName);
-                Assert.Equal(HttpStatusCode.OK, deleteResourceGroupResponse.StatusCode);
+                rgOps.Delete(rgName);
             }
-            catch (CloudException ex)
+            catch (CloudException)
             {
-                Assert.Equal("ResourceGroupNotFound", ex.Error.Code);
+                // Ignore
             }
-        }            
+        }
 
-        public static void ValidateVirtualMachineSizeListResponse(VirtualMachineSizeListResponse vmSizeListResponse)
+        public static void ValidateVirtualMachineSizeListResponse(IEnumerable<VirtualMachineSize> vmSizeListResponse)
         {
-            List<VirtualMachineSize> expectedVMSizePropertiesList = new List<VirtualMachineSize>()
+            var expectedVMSizePropertiesList = new List<VirtualMachineSize>()
             {
                 new VirtualMachineSize()
                 {
                     Name = "Standard_A0",
                     MemoryInMB = 768,
                     NumberOfCores = 1,
-                    OSDiskSizeInMB = 130048,
+                    OsDiskSizeInMB = 130048,
                     ResourceDiskSizeInMB = 20480,
                     MaxDataDiskCount = 1
                 },
@@ -76,15 +72,15 @@ namespace Compute.Tests
                     Name = "Standard_A1",
                     MemoryInMB = 1792,
                     NumberOfCores = 1,
-                    OSDiskSizeInMB = 130048,
+                    OsDiskSizeInMB = 130048,
                     ResourceDiskSizeInMB = 71680,
                     MaxDataDiskCount = 2
                 }
             };
 
-            List<VirtualMachineSize> vmSizesPropertyList = vmSizeListResponse.VirtualMachineSizes.ToList();
+            IEnumerable<VirtualMachineSize> vmSizesPropertyList = vmSizeListResponse;
             Assert.NotNull(vmSizesPropertyList);
-            Assert.True(vmSizesPropertyList.Count > 1, "ListVMSizes should return more than 1 VM sizes");
+            Assert.True(vmSizesPropertyList.Count() > 1, "ListVMSizes should return more than 1 VM sizes");
 
             VirtualMachineSize expectedVMSizeProperties = expectedVMSizePropertiesList[0];
             VirtualMachineSize vmSizeProperties =

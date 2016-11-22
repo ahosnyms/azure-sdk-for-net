@@ -8,26 +8,35 @@ using Xunit;
 
 namespace Networks.Tests
 {
+    using Microsoft.Azure.Test.HttpRecorder;
+    using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+
     public class CheckDnsAvailabilityTests
     {
+        public CheckDnsAvailabilityTests()
+        {
+            HttpMockServer.RecordsDirectory = "SessionRecords";
+        }
+
         [Fact]
         public void CheckDnsAvailabilityTest()
         {
-            var handler = new RecordedDelegatingHandler {StatusCodeToReturn = HttpStatusCode.OK};
+            var handler1 = new RecordedDelegatingHandler {StatusCodeToReturn = HttpStatusCode.OK};
+            var handler2 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
 
-            using (var context = UndoContext.Current)
-            {
-                context.Start();
-                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(handler);
-                var networkResourceProviderClient = NetworkManagementTestUtilities.GetNetworkResourceProviderClient(handler);
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
+            {                             
+                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(context, handler1);
+                var networkManagementClient = NetworkManagementTestUtilities.GetNetworkManagementClientWithHandler(context, handler2);
 
-                var location = GetNrpServiceEndpoint(NetworkManagementTestUtilities.GetResourceLocation(resourcesClient, "Microsoft.Network/virtualNetworks"));
+                var location = NetworkManagementTestUtilities.GetResourceLocation(resourcesClient, "Microsoft.Network/publicIPAddresses");
+                location = location.Replace(" ", "");
 
                 string domainNameLabel = TestUtilities.GenerateName("domainnamelabel");
 
-                var dnsNameAvailability = networkResourceProviderClient.CheckDnsNameAvailability(location, domainNameLabel);
+                var dnsNameAvailability = networkManagementClient.CheckDnsNameAvailability(location, domainNameLabel);
 
-                Assert.True(dnsNameAvailability.DnsNameAvailability);
+                Assert.True(dnsNameAvailability.Available);
             }
         }
 

@@ -15,10 +15,9 @@
 
 using Microsoft.Azure.Management.Compute;
 using Microsoft.Azure.Management.Compute.Models;
-using Microsoft.Azure.Test;
-using System.Net;
 using Microsoft.Azure.Management.Resources;
-using Microsoft.Azure.Management.Storage.Models;
+using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+using System.Linq;
 using Xunit;
 
 namespace Compute.Tests
@@ -28,18 +27,17 @@ namespace Compute.Tests
         [Fact]
         public void TestListVMInSubscription()
         {
-            using (var context = UndoContext.Current)
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
-                context.Start();
-                EnsureClientsInitialized();
+                EnsureClientsInitialized(context);
 
                 ImageReference imageRef = GetPlatformVMImage(useWindowsImage: true);
 
-                string baseRGName = TestUtilities.GenerateName(TestPrefix);
-                string rg1Name = baseRGName + "_1";
-                string rg2Name = baseRGName + "_2";
-                string asName = TestUtilities.GenerateName("as");
-                string storageAccountName = TestUtilities.GenerateName(TestPrefix);
+                string baseRGName = ComputeManagementTestUtilities.GenerateName(TestPrefix);
+                string rg1Name = baseRGName + "a";
+                string rg2Name = baseRGName + "b";
+                string asName = ComputeManagementTestUtilities.GenerateName("as");
+                string storageAccountName = ComputeManagementTestUtilities.GenerateName(TestPrefix);
                 VirtualMachine inputVM1, inputVM2;
 
                 try
@@ -50,14 +48,13 @@ namespace Compute.Tests
                     var vm1 = CreateVM_NoAsyncTracking(rg1Name, asName, storageAccountOutput, imageRef, out inputVM1);
                     var vm2 = CreateVM_NoAsyncTracking(rg2Name, asName, storageAccountOutput, imageRef, out inputVM2);
 
-                    var listResponse = m_CrpClient.VirtualMachines.ListAll(new ListParameters());
-                    Assert.True(listResponse.StatusCode == HttpStatusCode.OK);
-                    Assert.True(listResponse.VirtualMachines.Count >= 2);
-                    Assert.Null(listResponse.NextLink);
+                    var listResponse = m_CrpClient.VirtualMachines.ListAll();
+                    Assert.True(listResponse.Count() >= 2);
+                    Assert.Null(listResponse.NextPageLink);
 
                     int vmsValidatedCount = 0;
 
-                    foreach (var vm in listResponse.VirtualMachines)
+                    foreach (var vm in listResponse)
                     {
                         if (vm.Name == vm1.Name)
                         {
@@ -79,36 +76,13 @@ namespace Compute.Tests
                     // storage account, which is in rg1.
                     try
                     {
-                        var deleteRg2Response = m_ResourcesClient.ResourceGroups.Delete(rg2Name);
-                        Assert.True(deleteRg2Response.StatusCode == HttpStatusCode.OK);
+                        m_ResourcesClient.ResourceGroups.Delete(rg2Name);
                     }
                     finally
                     {
-                        var deleteRg1Response = m_ResourcesClient.ResourceGroups.Delete(rg1Name);
-                        Assert.True(deleteRg1Response.StatusCode == HttpStatusCode.OK);
+                        m_ResourcesClient.ResourceGroups.Delete(rg1Name);
                     }
                 }
-            }
-        }
-
-        [Fact]
-        public void TestListVMInSubscriptionWithPaging()
-        {
-            using (var context = UndoContext.Current)
-            {
-                context.Start();
-                EnsureClientsInitialized();
-
-                var listResponse = m_CrpClient.VirtualMachines.ListAll(new ListParameters());
-                Assert.True(listResponse.StatusCode == HttpStatusCode.OK);
-
-                while (!string.IsNullOrEmpty(listResponse.NextLink))
-                {
-                    Assert.True(listResponse.VirtualMachines.Count == 50);
-                    listResponse = m_CrpClient.VirtualMachines.ListNext(listResponse.NextLink);
-                }
-
-                Assert.True(listResponse.VirtualMachines.Count <= 50);
             }
         }
     }

@@ -14,18 +14,22 @@ namespace Networks.Tests
     using System;
     using System.Linq;
 
+    using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+
+    using SubResource = Microsoft.Azure.Management.Network.Models.SubResource;
+
     public class LoadBalancerTests
     {
         [Fact]
         public void LoadBalancerApiTest()
         {
-            var handler = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler1 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler2 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
 
-            using (var context = UndoContext.Current)
-            {
-                context.Start();
-                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(handler);
-                var networkResourceProviderClient = NetworkManagementTestUtilities.GetNetworkResourceProviderClient(handler);
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
+            {               
+                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(context, handler1);
+                var networkManagementClient = NetworkManagementTestUtilities.GetNetworkManagementClientWithHandler(context, handler2);
                 var location = NetworkManagementTestUtilities.GetResourceLocation(resourcesClient, "Microsoft.Network/loadBalancers");
 
                 string resourceGroupName = TestUtilities.GenerateName("csmrg");
@@ -45,7 +49,7 @@ namespace Networks.Tests
                     resourceGroupName,
                     lbDomaingNameLabel,
                     location,
-                    networkResourceProviderClient);
+                    networkManagementClient);
 
                 // Create the LoadBalancer
                 var lbName = TestUtilities.GenerateName();
@@ -59,14 +63,13 @@ namespace Networks.Tests
                 // Populate the loadBalancerCreateOrUpdateParameter
                 var loadBalancer = new LoadBalancer()
                 {
-                    Name = lbName,
                     Location = location,
-                    FrontendIpConfigurations = new List<FrontendIpConfiguration>()
+                    FrontendIPConfigurations = new List<FrontendIPConfiguration>()
                     {
-                        new FrontendIpConfiguration()
+                        new FrontendIPConfiguration()
                         {
                             Name = frontendIpConfigName,
-                            PublicIpAddress = new ResourceId()
+                            PublicIPAddress = new PublicIPAddress()
                             {
                                 Id = lbPublicIp.Id
                             }
@@ -84,9 +87,9 @@ namespace Networks.Tests
                         new LoadBalancingRule()
                         {
                             Name = loadBalancingRuleName,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
@@ -94,14 +97,14 @@ namespace Networks.Tests
                             BackendPort = 80,
                             EnableFloatingIP = false,
                             IdleTimeoutInMinutes = 15,
-                            BackendAddressPool = new ResourceId()
+                            BackendAddressPool = new SubResource()
                             {
-                                Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "backendAddressPools", backEndAddressPoolName)
                             },
-                            Probe = new ResourceId()
+                            Probe = new SubResource()
                             {
-                                Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId, 
+                                Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId, 
                                 resourceGroupName, lbName, "probes", probeName)
                             }
                         }
@@ -123,9 +126,9 @@ namespace Networks.Tests
                         new InboundNatRule()
                         {
                             Name = inboundNatRule1Name,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
@@ -137,9 +140,9 @@ namespace Networks.Tests
                         new InboundNatRule()
                         {
                             Name = inboundNatRule2Name,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
@@ -152,12 +155,12 @@ namespace Networks.Tests
                 };
 
                 // Create the loadBalancer
-                var putLoadBalancer = networkResourceProviderClient.LoadBalancers.CreateOrUpdate(resourceGroupName,lbName, loadBalancer);
-                Assert.Equal(HttpStatusCode.OK, putLoadBalancer.StatusCode);
-
-                var getLoadBalancer = networkResourceProviderClient.LoadBalancers.Get(resourceGroupName, lbName);
+                var putLoadBalancer = networkManagementClient.LoadBalancers.CreateOrUpdate(resourceGroupName,lbName, loadBalancer);
+                
+                var getLoadBalancer = networkManagementClient.LoadBalancers.Get(resourceGroupName, lbName);
 
                 // Verify the GET LoadBalancer
+<<<<<<< HEAD
                 Assert.Equal(lbName, getLoadBalancer.LoadBalancer.Name);
                 Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.ProvisioningState);
                 Assert.Equal(frontendIpConfigName, getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].Name);
@@ -183,42 +186,68 @@ namespace Networks.Tests
                 Assert.Equal(3390, getLoadBalancer.LoadBalancer.InboundNatRules[1].FrontendPort);
                 Assert.Equal(15, getLoadBalancer.LoadBalancer.InboundNatRules[1].IdleTimeoutInMinutes);
                 Assert.NotNull(getLoadBalancer.LoadBalancer.ResourceGuid);
+=======
+                Assert.Equal(lbName, getLoadBalancer.Name);
+                Assert.Equal("Succeeded", getLoadBalancer.ProvisioningState);
+                Assert.Equal(frontendIpConfigName, getLoadBalancer.FrontendIPConfigurations[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.FrontendIPConfigurations[0].ProvisioningState);
+                Assert.Equal(lbPublicIp.Id, getLoadBalancer.FrontendIPConfigurations[0].PublicIPAddress.Id);
+                Assert.Null(getLoadBalancer.FrontendIPConfigurations[0].PrivateIPAddress);
+                Assert.Equal(getLoadBalancer.InboundNatRules[0].Id, getLoadBalancer.FrontendIPConfigurations[0].InboundNatRules[0].Id);
+                Assert.Equal(getLoadBalancer.InboundNatRules[1].Id, getLoadBalancer.FrontendIPConfigurations[0].InboundNatRules[1].Id);
+                Assert.Equal(backEndAddressPoolName, getLoadBalancer.BackendAddressPools[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.BackendAddressPools[0].ProvisioningState);
+                Assert.Equal(getLoadBalancer.LoadBalancingRules[0].Id, getLoadBalancer.BackendAddressPools[0].LoadBalancingRules[0].Id);
+                Assert.Equal(loadBalancingRuleName, getLoadBalancer.LoadBalancingRules[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancingRules[0].ProvisioningState);
+                Assert.Equal(15, getLoadBalancer.LoadBalancingRules[0].IdleTimeoutInMinutes);
+                Assert.Equal(probeName, getLoadBalancer.Probes[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.Probes[0].ProvisioningState);
+                Assert.Equal(getLoadBalancer.Probes[0].Id, getLoadBalancer.LoadBalancingRules[0].Probe.Id);
+                Assert.Equal("Succeeded", getLoadBalancer.InboundNatRules[0].ProvisioningState);
+                Assert.Equal(inboundNatRule1Name, getLoadBalancer.InboundNatRules[0].Name);
+                Assert.Equal("Tcp", getLoadBalancer.InboundNatRules[0].Protocol);
+                Assert.Equal(3389, getLoadBalancer.InboundNatRules[0].FrontendPort);
+                Assert.Equal("Succeeded", getLoadBalancer.InboundNatRules[1].ProvisioningState);
+                Assert.Equal(3390, getLoadBalancer.InboundNatRules[1].FrontendPort);
+                Assert.Equal(15, getLoadBalancer.InboundNatRules[1].IdleTimeoutInMinutes);
+                Assert.NotNull(getLoadBalancer.ResourceGuid);
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
                 
                 // Verify List LoadBalancer
-                var listLoadBalancer = networkResourceProviderClient.LoadBalancers.List(resourceGroupName);
-                Assert.Equal(1, listLoadBalancer.LoadBalancers.Count);
-                Assert.Equal(lbName, listLoadBalancer.LoadBalancers[0].Name);
-                Assert.Equal(getLoadBalancer.LoadBalancer.Etag, listLoadBalancer.LoadBalancers[0].Etag);
+                var listLoadBalancer = networkManagementClient.LoadBalancers.List(resourceGroupName);
+                Assert.Equal(1, listLoadBalancer.Count());
+                Assert.Equal(lbName, listLoadBalancer.First().Name);
+                Assert.Equal(getLoadBalancer.Etag, listLoadBalancer.First().Etag);
 
                 // Verify List LoadBalancer subscription
-                var listLoadBalancerSubscription = networkResourceProviderClient.LoadBalancers.ListAll();
-                Assert.Equal(1, listLoadBalancerSubscription.LoadBalancers.Count);
-                Assert.Equal(lbName, listLoadBalancerSubscription.LoadBalancers[0].Name);
-                Assert.Equal(listLoadBalancerSubscription.LoadBalancers[0].Etag, listLoadBalancer.LoadBalancers[0].Etag);
+                var listLoadBalancerSubscription = networkManagementClient.LoadBalancers.ListAll();
+                Assert.NotEqual(1, listLoadBalancerSubscription.Count());
+                Assert.NotNull(listLoadBalancerSubscription.First().Name);
+                Assert.NotNull(listLoadBalancerSubscription.First().Etag);
 
                 // Delete LoadBalancer
-                var deleteLoadBalancer = networkResourceProviderClient.LoadBalancers.Delete(resourceGroupName, lbName);
+                networkManagementClient.LoadBalancers.Delete(resourceGroupName, lbName);
 
                 // Verify Delete
-                listLoadBalancer = networkResourceProviderClient.LoadBalancers.List(resourceGroupName);
-                Assert.Equal(0, listLoadBalancer.LoadBalancers.Count);
+                listLoadBalancer = networkManagementClient.LoadBalancers.List(resourceGroupName);
+                Assert.Equal(0, listLoadBalancer.Count());
 
-                // Delete all PublicIpAddresses
-                var deletePublicIpAddress3Response = networkResourceProviderClient.PublicIpAddresses.Delete(resourceGroupName, lbPublicIpName);
-                Assert.Equal(HttpStatusCode.OK, deletePublicIpAddress3Response.StatusCode);
+                // Delete all PublicIPAddresses
+                networkManagementClient.PublicIPAddresses.Delete(resourceGroupName, lbPublicIpName);
             }
         }
 
         [Fact]
         public void LoadBalancerApiTestWithDynamicIp()
         {
-            var handler = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler1 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler2 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
 
-            using (var context = UndoContext.Current)
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
-                context.Start();
-                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(handler);
-                var networkResourceProviderClient = NetworkManagementTestUtilities.GetNetworkResourceProviderClient(handler);
+                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(context, handler1);
+                var networkManagementClient = NetworkManagementTestUtilities.GetNetworkManagementClientWithHandler(context, handler2);
 
                 var location = ResourcesManagementTestUtilities.GetResourceLocation(resourcesClient, "Microsoft.Network/loadBalancers");
                 
@@ -234,7 +263,7 @@ namespace Networks.Tests
                 string subnetName = TestUtilities.GenerateName();
 
                 var vnet = TestHelper.CreateVirtualNetwork(vnetName, subnetName, resourceGroupName, location,
-                    networkResourceProviderClient);
+                    networkManagementClient);
                 
                 // Create the LoadBalancer
                 var lbName = TestUtilities.GenerateName();
@@ -248,14 +277,13 @@ namespace Networks.Tests
                 // Populate the loadBalancerCreateOrUpdateParameter
                 var loadbalancerparamater = new LoadBalancer()
                 {
-                    Name = lbName,
                     Location = location,
-                    FrontendIpConfigurations = new List<FrontendIpConfiguration>()
+                    FrontendIPConfigurations = new List<FrontendIPConfiguration>()
                     {
-                        new FrontendIpConfiguration()
+                        new FrontendIPConfiguration()
                         {
                             Name = frontendIpConfigName,
-                            PrivateIpAllocationMethod = IpAllocationMethod.Dynamic,
+                            PrivateIPAllocationMethod = IPAllocationMethod.Dynamic,
                             Subnet = vnet.Subnets[0]
                         }
                     },
@@ -271,9 +299,9 @@ namespace Networks.Tests
                         new LoadBalancingRule()
                         {
                             Name = loadBalancingRuleName,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
@@ -281,14 +309,14 @@ namespace Networks.Tests
                             BackendPort = 80,
                             EnableFloatingIP = false,
                             IdleTimeoutInMinutes = 15,
-                            BackendAddressPool = new ResourceId()
+                            BackendAddressPool = new SubResource()
                             {
-                                Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "backendAddressPools", backEndAddressPoolName)
                             },
-                            Probe = new ResourceId()
+                            Probe = new SubResource()
                             {
-                                Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId, 
+                                Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId, 
                                 resourceGroupName, lbName, "probes", probeName)
                             }
                         }
@@ -310,9 +338,9 @@ namespace Networks.Tests
                         new InboundNatRule()
                         {
                             Name = inboundNatRule1Name,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
@@ -324,9 +352,9 @@ namespace Networks.Tests
                         new InboundNatRule()
                         {
                             Name = inboundNatRule2Name,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
@@ -339,70 +367,69 @@ namespace Networks.Tests
                 };
 
                 // Create the loadBalancer
-                var putLoadBalancer = networkResourceProviderClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbName, loadbalancerparamater);
-                Assert.Equal(HttpStatusCode.OK, putLoadBalancer.StatusCode);
-
-                var getLoadBalancer = networkResourceProviderClient.LoadBalancers.Get(resourceGroupName, lbName);
+                var putLoadBalancer = networkManagementClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbName, loadbalancerparamater);
+                
+                var getLoadBalancer = networkManagementClient.LoadBalancers.Get(resourceGroupName, lbName);
 
                 // Verify the GET LoadBalancer
-                Assert.Equal(lbName, getLoadBalancer.LoadBalancer.Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.ProvisioningState);
-                Assert.Equal(frontendIpConfigName, getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].ProvisioningState);
-                Assert.Equal(vnet.Subnets[0].Id, getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].Subnet.Id);
-                Assert.NotNull(getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].PrivateIpAddress);
-                Assert.Equal(getLoadBalancer.LoadBalancer.InboundNatRules[0].Id, getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].InboundNatRules[0].Id);
-                Assert.Equal(getLoadBalancer.LoadBalancer.InboundNatRules[1].Id, getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].InboundNatRules[1].Id);
-                Assert.Equal(backEndAddressPoolName, getLoadBalancer.LoadBalancer.BackendAddressPools[0].Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.BackendAddressPools[0].ProvisioningState);
-                Assert.Equal(getLoadBalancer.LoadBalancer.LoadBalancingRules[0].Id, getLoadBalancer.LoadBalancer.BackendAddressPools[0].LoadBalancingRules[0].Id);
-                Assert.Equal(loadBalancingRuleName, getLoadBalancer.LoadBalancer.LoadBalancingRules[0].Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.LoadBalancingRules[0].ProvisioningState);
-                Assert.Equal(probeName, getLoadBalancer.LoadBalancer.Probes[0].Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.Probes[0].ProvisioningState);
-                Assert.Equal(getLoadBalancer.LoadBalancer.Probes[0].Id, getLoadBalancer.LoadBalancer.LoadBalancingRules[0].Probe.Id);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.InboundNatRules[0].ProvisioningState);
-                Assert.Equal(inboundNatRule1Name, getLoadBalancer.LoadBalancer.InboundNatRules[0].Name);
-                Assert.Equal("Tcp", getLoadBalancer.LoadBalancer.InboundNatRules[0].Protocol);
-                Assert.Equal(3389, getLoadBalancer.LoadBalancer.InboundNatRules[0].FrontendPort);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.InboundNatRules[1].ProvisioningState);
-                Assert.Equal(3390, getLoadBalancer.LoadBalancer.InboundNatRules[1].FrontendPort);
+                Assert.Equal(lbName, getLoadBalancer.Name);
+                Assert.Equal("Succeeded", getLoadBalancer.ProvisioningState);
+                Assert.Equal(frontendIpConfigName, getLoadBalancer.FrontendIPConfigurations[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.FrontendIPConfigurations[0].ProvisioningState);
+                Assert.Equal(vnet.Subnets[0].Id, getLoadBalancer.FrontendIPConfigurations[0].Subnet.Id);
+                Assert.NotNull(getLoadBalancer.FrontendIPConfigurations[0].PrivateIPAddress);
+                Assert.Equal(getLoadBalancer.InboundNatRules[0].Id, getLoadBalancer.FrontendIPConfigurations[0].InboundNatRules[0].Id);
+                Assert.Equal(getLoadBalancer.InboundNatRules[1].Id, getLoadBalancer.FrontendIPConfigurations[0].InboundNatRules[1].Id);
+                Assert.Equal(backEndAddressPoolName, getLoadBalancer.BackendAddressPools[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.BackendAddressPools[0].ProvisioningState);
+                Assert.Equal(getLoadBalancer.LoadBalancingRules[0].Id, getLoadBalancer.BackendAddressPools[0].LoadBalancingRules[0].Id);
+                Assert.Equal(loadBalancingRuleName, getLoadBalancer.LoadBalancingRules[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancingRules[0].ProvisioningState);
+                Assert.Equal(probeName, getLoadBalancer.Probes[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.Probes[0].ProvisioningState);
+                Assert.Equal(getLoadBalancer.Probes[0].Id, getLoadBalancer.LoadBalancingRules[0].Probe.Id);
+                Assert.Equal("Succeeded", getLoadBalancer.InboundNatRules[0].ProvisioningState);
+                Assert.Equal(inboundNatRule1Name, getLoadBalancer.InboundNatRules[0].Name);
+                Assert.Equal("Tcp", getLoadBalancer.InboundNatRules[0].Protocol);
+                Assert.Equal(3389, getLoadBalancer.InboundNatRules[0].FrontendPort);
+                Assert.Equal("Succeeded", getLoadBalancer.InboundNatRules[1].ProvisioningState);
+                Assert.Equal(3390, getLoadBalancer.InboundNatRules[1].FrontendPort);
 
                 // Verify List LoadBalancer
-                var listLoadBalancer = networkResourceProviderClient.LoadBalancers.List(resourceGroupName);
-                Assert.Equal(1, listLoadBalancer.LoadBalancers.Count);
-                Assert.Equal(lbName, listLoadBalancer.LoadBalancers[0].Name);
-                Assert.Equal(getLoadBalancer.LoadBalancer.Etag, listLoadBalancer.LoadBalancers[0].Etag);
+                var listLoadBalancer = networkManagementClient.LoadBalancers.List(resourceGroupName);
+                Assert.Equal(1, listLoadBalancer.Count());
+                Assert.Equal(lbName, listLoadBalancer.First().Name);
+                Assert.Equal(getLoadBalancer.Etag, listLoadBalancer.First().Etag);
 
                 // Verify List LoadBalancer subscription
-                var listLoadBalancerSubscription = networkResourceProviderClient.LoadBalancers.ListAll();
-                Assert.Equal(1, listLoadBalancerSubscription.LoadBalancers.Count);
-                Assert.Equal(lbName, listLoadBalancerSubscription.LoadBalancers[0].Name);
-                Assert.Equal(listLoadBalancerSubscription.LoadBalancers[0].Etag, listLoadBalancer.LoadBalancers[0].Etag);
+                var listLoadBalancerSubscription = networkManagementClient.LoadBalancers.ListAll();
+                Assert.NotEqual(0, listLoadBalancerSubscription.Count());
+                Assert.NotNull(listLoadBalancerSubscription.First().Name);
+                Assert.NotNull(listLoadBalancerSubscription.First().Etag);
 
                 // Delete LoadBalancer
-                var deleteLoadBalancer = networkResourceProviderClient.LoadBalancers.Delete(resourceGroupName, lbName);
+                networkManagementClient.LoadBalancers.Delete(resourceGroupName, lbName);
 
                 // Verify Delete
-                listLoadBalancer = networkResourceProviderClient.LoadBalancers.List(resourceGroupName);
-                Assert.Equal(0, listLoadBalancer.LoadBalancers.Count);
+                listLoadBalancer = networkManagementClient.LoadBalancers.List(resourceGroupName);
+                Assert.Equal(0, listLoadBalancer.Count());
 
                 // Delete VirtualNetwork
-                var deleteVnetResponse = networkResourceProviderClient.VirtualNetworks.Delete(resourceGroupName, vnetName);
-                Assert.Equal(HttpStatusCode.OK, deleteVnetResponse.StatusCode);
+                networkManagementClient.VirtualNetworks.Delete(resourceGroupName, vnetName);
             }
         }
 
         [Fact]
         public void LoadBalancerApiTestWithStaticIp()
         {
-            var handler = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler1 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler2 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
 
-            using (var context = UndoContext.Current)
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
-                context.Start();
-                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(handler);
-                var networkResourceProviderClient = NetworkManagementTestUtilities.GetNetworkResourceProviderClient(handler);
+                
+                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(context, handler1);
+                var networkManagementClient = NetworkManagementTestUtilities.GetNetworkManagementClientWithHandler(context, handler2);
 
                 var location = ResourcesManagementTestUtilities.GetResourceLocation(resourcesClient, "Microsoft.Network/loadBalancers");
 
@@ -418,7 +445,7 @@ namespace Networks.Tests
                 string subnetName = TestUtilities.GenerateName();
 
                 var vnet = TestHelper.CreateVirtualNetwork(vnetName, subnetName, resourceGroupName, location,
-                    networkResourceProviderClient);
+                    networkManagementClient);
 
                 // Create the LoadBalancer
                 var lbName = TestUtilities.GenerateName();
@@ -432,15 +459,14 @@ namespace Networks.Tests
                 // Populate the loadBalancerCreateOrUpdateParameter
                 var loadbalancerparamater = new LoadBalancer()
                 {
-                    Name = lbName,
                     Location = location,
-                    FrontendIpConfigurations = new List<FrontendIpConfiguration>()
+                    FrontendIPConfigurations = new List<FrontendIPConfiguration>()
                     {
-                        new FrontendIpConfiguration()
+                        new FrontendIPConfiguration()
                         {
                             Name = frontendIpConfigName,
-                            PrivateIpAllocationMethod = IpAllocationMethod.Static,
-                            PrivateIpAddress = "10.0.0.38",
+                            PrivateIPAllocationMethod = IPAllocationMethod.Static,
+                            PrivateIPAddress = "10.0.0.38",
                             Subnet = vnet.Subnets[0]
                         }
                     },
@@ -456,23 +482,23 @@ namespace Networks.Tests
                         new LoadBalancingRule()
                         {
                             Name = loadBalancingRuleName,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
                             FrontendPort = 80,
                             BackendPort = 80,
                             EnableFloatingIP = false,
-                            BackendAddressPool = new ResourceId()
+                            BackendAddressPool = new SubResource()
                             {
-                                Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "backendAddressPools", backEndAddressPoolName)
                             },
-                            Probe = new ResourceId()
+                            Probe = new SubResource()
                             {
-                                Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId, 
+                                Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId, 
                                 resourceGroupName, lbName, "probes", probeName)
                             }
                         }
@@ -494,9 +520,9 @@ namespace Networks.Tests
                         new InboundNatRule()
                         {
                             Name = inboundNatRule1Name,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
@@ -507,9 +533,9 @@ namespace Networks.Tests
                         new InboundNatRule()
                         {
                             Name = inboundNatRule2Name,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
@@ -521,74 +547,72 @@ namespace Networks.Tests
                 };
 
                 // Create the loadBalancer
-                var putLoadBalancer = networkResourceProviderClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbName, loadbalancerparamater);
-                Assert.Equal(HttpStatusCode.OK, putLoadBalancer.StatusCode);
+                var putLoadBalancer = networkManagementClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbName, loadbalancerparamater);
 
-                var getLoadBalancer = networkResourceProviderClient.LoadBalancers.Get(resourceGroupName, lbName);
+                var getLoadBalancer = networkManagementClient.LoadBalancers.Get(resourceGroupName, lbName);
 
                 // Verify the GET LoadBalancer
-                Assert.Equal(lbName, getLoadBalancer.LoadBalancer.Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.ProvisioningState);
-                Assert.Equal(frontendIpConfigName, getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].ProvisioningState);
-                Assert.Equal(vnet.Subnets[0].Id, getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].Subnet.Id);
-                Assert.NotNull(getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].PrivateIpAddress);
-                Assert.Equal("10.0.0.38", getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].PrivateIpAddress);
-                Assert.Equal(getLoadBalancer.LoadBalancer.InboundNatRules[0].Id, getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].InboundNatRules[0].Id);
-                Assert.Equal(getLoadBalancer.LoadBalancer.InboundNatRules[1].Id, getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].InboundNatRules[1].Id);
-                Assert.Equal(backEndAddressPoolName, getLoadBalancer.LoadBalancer.BackendAddressPools[0].Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.BackendAddressPools[0].ProvisioningState);
-                Assert.Equal(getLoadBalancer.LoadBalancer.LoadBalancingRules[0].Id, getLoadBalancer.LoadBalancer.BackendAddressPools[0].LoadBalancingRules[0].Id);
-                Assert.Equal(loadBalancingRuleName, getLoadBalancer.LoadBalancer.LoadBalancingRules[0].Name);
-                Assert.Equal(LoadDistribution.Default, getLoadBalancer.LoadBalancer.LoadBalancingRules[0].LoadDistribution);
-                Assert.Equal(4, getLoadBalancer.LoadBalancer.LoadBalancingRules[0].IdleTimeoutInMinutes);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.LoadBalancingRules[0].ProvisioningState);
-                Assert.Equal(probeName, getLoadBalancer.LoadBalancer.Probes[0].Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.Probes[0].ProvisioningState);
-                Assert.Equal(getLoadBalancer.LoadBalancer.Probes[0].Id, getLoadBalancer.LoadBalancer.LoadBalancingRules[0].Probe.Id);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.InboundNatRules[0].ProvisioningState);
-                Assert.Equal(inboundNatRule1Name, getLoadBalancer.LoadBalancer.InboundNatRules[0].Name);
-                Assert.Equal("Tcp", getLoadBalancer.LoadBalancer.InboundNatRules[0].Protocol);
-                Assert.Equal(3389, getLoadBalancer.LoadBalancer.InboundNatRules[0].FrontendPort);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.InboundNatRules[1].ProvisioningState);
-                Assert.Equal(3390, getLoadBalancer.LoadBalancer.InboundNatRules[1].FrontendPort);
-                Assert.Equal(4, getLoadBalancer.LoadBalancer.InboundNatRules[1].IdleTimeoutInMinutes);
+                Assert.Equal(lbName, getLoadBalancer.Name);
+                Assert.Equal("Succeeded", getLoadBalancer.ProvisioningState);
+                Assert.Equal(frontendIpConfigName, getLoadBalancer.FrontendIPConfigurations[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.FrontendIPConfigurations[0].ProvisioningState);
+                Assert.Equal(vnet.Subnets[0].Id, getLoadBalancer.FrontendIPConfigurations[0].Subnet.Id);
+                Assert.NotNull(getLoadBalancer.FrontendIPConfigurations[0].PrivateIPAddress);
+                Assert.Equal("10.0.0.38", getLoadBalancer.FrontendIPConfigurations[0].PrivateIPAddress);
+                Assert.Equal(getLoadBalancer.InboundNatRules[0].Id, getLoadBalancer.FrontendIPConfigurations[0].InboundNatRules[0].Id);
+                Assert.Equal(getLoadBalancer.InboundNatRules[1].Id, getLoadBalancer.FrontendIPConfigurations[0].InboundNatRules[1].Id);
+                Assert.Equal(backEndAddressPoolName, getLoadBalancer.BackendAddressPools[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.BackendAddressPools[0].ProvisioningState);
+                Assert.Equal(getLoadBalancer.LoadBalancingRules[0].Id, getLoadBalancer.BackendAddressPools[0].LoadBalancingRules[0].Id);
+                Assert.Equal(loadBalancingRuleName, getLoadBalancer.LoadBalancingRules[0].Name);
+                Assert.Equal(LoadDistribution.Default, getLoadBalancer.LoadBalancingRules[0].LoadDistribution);
+                Assert.Equal(4, getLoadBalancer.LoadBalancingRules[0].IdleTimeoutInMinutes);
+                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancingRules[0].ProvisioningState);
+                Assert.Equal(probeName, getLoadBalancer.Probes[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.Probes[0].ProvisioningState);
+                Assert.Equal(getLoadBalancer.Probes[0].Id, getLoadBalancer.LoadBalancingRules[0].Probe.Id);
+                Assert.Equal("Succeeded", getLoadBalancer.InboundNatRules[0].ProvisioningState);
+                Assert.Equal(inboundNatRule1Name, getLoadBalancer.InboundNatRules[0].Name);
+                Assert.Equal("Tcp", getLoadBalancer.InboundNatRules[0].Protocol);
+                Assert.Equal(3389, getLoadBalancer.InboundNatRules[0].FrontendPort);
+                Assert.Equal("Succeeded", getLoadBalancer.InboundNatRules[1].ProvisioningState);
+                Assert.Equal(3390, getLoadBalancer.InboundNatRules[1].FrontendPort);
+                Assert.Equal(4, getLoadBalancer.InboundNatRules[1].IdleTimeoutInMinutes);
 
                 // Verify List LoadBalancer
-                var listLoadBalancer = networkResourceProviderClient.LoadBalancers.List(resourceGroupName);
-                Assert.Equal(1, listLoadBalancer.LoadBalancers.Count);
-                Assert.Equal(lbName, listLoadBalancer.LoadBalancers[0].Name);
-                Assert.Equal(getLoadBalancer.LoadBalancer.Etag, listLoadBalancer.LoadBalancers[0].Etag);
+                var listLoadBalancer = networkManagementClient.LoadBalancers.List(resourceGroupName);
+                Assert.Equal(1, listLoadBalancer.Count());
+                Assert.Equal(lbName, listLoadBalancer.First().Name);
+                Assert.Equal(getLoadBalancer.Etag, listLoadBalancer.First().Etag);
 
                 // Verify List LoadBalancer subscription
-                var listLoadBalancerSubscription = networkResourceProviderClient.LoadBalancers.ListAll();
-                Assert.Equal(1, listLoadBalancerSubscription.LoadBalancers.Count);
-                Assert.Equal(lbName, listLoadBalancerSubscription.LoadBalancers[0].Name);
-                Assert.Equal(listLoadBalancerSubscription.LoadBalancers[0].Etag, listLoadBalancer.LoadBalancers[0].Etag);
+                var listLoadBalancerSubscription = networkManagementClient.LoadBalancers.ListAll();
+                Assert.NotEqual(0, listLoadBalancerSubscription.Count());
+                Assert.NotNull(listLoadBalancerSubscription.First().Name);
+                Assert.NotNull(listLoadBalancerSubscription.First().Etag);
 
                 // Delete LoadBalancer
-                var deleteLoadBalancer = networkResourceProviderClient.LoadBalancers.Delete(resourceGroupName, lbName);
+                networkManagementClient.LoadBalancers.Delete(resourceGroupName, lbName);
 
                 // Verify Delete
-                listLoadBalancer = networkResourceProviderClient.LoadBalancers.List(resourceGroupName);
-                Assert.Equal(0, listLoadBalancer.LoadBalancers.Count);
+                listLoadBalancer = networkManagementClient.LoadBalancers.List(resourceGroupName);
+                Assert.Equal(0, listLoadBalancer.Count());
 
                 // Delete VirtualNetwork
-                var deleteVnetResponse = networkResourceProviderClient.VirtualNetworks.Delete(resourceGroupName, vnetName);
-                Assert.Equal(HttpStatusCode.OK, deleteVnetResponse.StatusCode);
+                networkManagementClient.VirtualNetworks.Delete(resourceGroupName, vnetName);
             }
         }
 
         [Fact]
         public void LoadBalancerApiTestWithDistributionPolicy()
         {
-            var handler = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler1 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler2 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
 
-            using (var context = UndoContext.Current)
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
-                context.Start();
-                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(handler);
-                var networkResourceProviderClient = NetworkManagementTestUtilities.GetNetworkResourceProviderClient(handler);
+                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(context, handler1);
+                var networkManagementClient = NetworkManagementTestUtilities.GetNetworkManagementClientWithHandler(context, handler2);
 
                 var location = ResourcesManagementTestUtilities.GetResourceLocation(resourcesClient, "Microsoft.Network/loadBalancers");
 
@@ -604,7 +628,7 @@ namespace Networks.Tests
                 string subnetName = TestUtilities.GenerateName();
 
                 var vnet = TestHelper.CreateVirtualNetwork(vnetName, subnetName, resourceGroupName, location,
-                    networkResourceProviderClient);
+                    networkManagementClient);
 
                 // Create the LoadBalancer
                 var lbName = TestUtilities.GenerateName();
@@ -618,15 +642,14 @@ namespace Networks.Tests
                 // Populate the loadBalancerCreateOrUpdateParameter
                 var loadbalancerparamater = new LoadBalancer()
                 {
-                    Name = lbName,
                     Location = location,
-                    FrontendIpConfigurations = new List<FrontendIpConfiguration>()
+                    FrontendIPConfigurations = new List<FrontendIPConfiguration>()
                     {
-                        new FrontendIpConfiguration()
+                        new FrontendIPConfiguration()
                         {
                             Name = frontendIpConfigName,
-                            PrivateIpAllocationMethod = IpAllocationMethod.Static,
-                            PrivateIpAddress = "10.0.0.38",
+                            PrivateIPAllocationMethod = IPAllocationMethod.Static,
+                            PrivateIPAddress = "10.0.0.38",
                             Subnet = vnet.Subnets[0]
                         }
                     },
@@ -642,23 +665,23 @@ namespace Networks.Tests
                         new LoadBalancingRule()
                         {
                             Name = loadBalancingRuleName,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
                             FrontendPort = 80,
                             BackendPort = 80,
                             EnableFloatingIP = false,
-                            BackendAddressPool = new ResourceId()
+                            BackendAddressPool = new SubResource()
                             {
-                                Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "backendAddressPools", backEndAddressPoolName)
                             },
-                            Probe = new ResourceId()
+                            Probe = new SubResource()
                             {
-                                Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId, 
+                                Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId, 
                                 resourceGroupName, lbName, "probes", probeName)
                             }
                         }
@@ -681,9 +704,9 @@ namespace Networks.Tests
                         new InboundNatRule()
                         {
                             Name = inboundNatRule1Name,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
@@ -694,9 +717,9 @@ namespace Networks.Tests
                         new InboundNatRule()
                         {
                             Name = inboundNatRule2Name,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
@@ -708,83 +731,80 @@ namespace Networks.Tests
                 };
 
                 // Create the loadBalancer
-                var putLoadBalancer = networkResourceProviderClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbName, loadbalancerparamater);
-                Assert.Equal(HttpStatusCode.OK, putLoadBalancer.StatusCode);
-
-                var getLoadBalancer = networkResourceProviderClient.LoadBalancers.Get(resourceGroupName, lbName);
+                networkManagementClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbName, loadbalancerparamater);
+                
+                var getLoadBalancer = networkManagementClient.LoadBalancers.Get(resourceGroupName, lbName);
 
                 // Verify the GET LoadBalancer
-                Assert.Equal(lbName, getLoadBalancer.LoadBalancer.Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.ProvisioningState);
-                Assert.Equal(frontendIpConfigName, getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].ProvisioningState);
-                Assert.Equal(vnet.Subnets[0].Id, getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].Subnet.Id);
-                Assert.NotNull(getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].PrivateIpAddress);
-                Assert.Equal("10.0.0.38", getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].PrivateIpAddress);
-                Assert.Equal(getLoadBalancer.LoadBalancer.InboundNatRules[0].Id, getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].InboundNatRules[0].Id);
-                Assert.Equal(getLoadBalancer.LoadBalancer.InboundNatRules[1].Id, getLoadBalancer.LoadBalancer.FrontendIpConfigurations[0].InboundNatRules[1].Id);
-                Assert.Equal(backEndAddressPoolName, getLoadBalancer.LoadBalancer.BackendAddressPools[0].Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.BackendAddressPools[0].ProvisioningState);
-                Assert.Equal(getLoadBalancer.LoadBalancer.LoadBalancingRules[0].Id, getLoadBalancer.LoadBalancer.BackendAddressPools[0].LoadBalancingRules[0].Id);
-                Assert.Equal(loadBalancingRuleName, getLoadBalancer.LoadBalancer.LoadBalancingRules[0].Name);
-                Assert.Equal(LoadDistribution.Default, getLoadBalancer.LoadBalancer.LoadBalancingRules[0].LoadDistribution);
-                Assert.Equal(4, getLoadBalancer.LoadBalancer.LoadBalancingRules[0].IdleTimeoutInMinutes);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.LoadBalancingRules[0].ProvisioningState);
-                Assert.Equal(probeName, getLoadBalancer.LoadBalancer.Probes[0].Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.Probes[0].ProvisioningState);
-                Assert.Equal(getLoadBalancer.LoadBalancer.Probes[0].Id, getLoadBalancer.LoadBalancer.LoadBalancingRules[0].Probe.Id);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.InboundNatRules[0].ProvisioningState);
-                Assert.Equal(inboundNatRule1Name, getLoadBalancer.LoadBalancer.InboundNatRules[0].Name);
-                Assert.Equal("Tcp", getLoadBalancer.LoadBalancer.InboundNatRules[0].Protocol);
-                Assert.Equal(3389, getLoadBalancer.LoadBalancer.InboundNatRules[0].FrontendPort);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.InboundNatRules[1].ProvisioningState);
-                Assert.Equal(3390, getLoadBalancer.LoadBalancer.InboundNatRules[1].FrontendPort);
-                Assert.Equal(4, getLoadBalancer.LoadBalancer.InboundNatRules[1].IdleTimeoutInMinutes);
+                Assert.Equal(lbName, getLoadBalancer.Name);
+                Assert.Equal("Succeeded", getLoadBalancer.ProvisioningState);
+                Assert.Equal(frontendIpConfigName, getLoadBalancer.FrontendIPConfigurations[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.FrontendIPConfigurations[0].ProvisioningState);
+                Assert.Equal(vnet.Subnets[0].Id, getLoadBalancer.FrontendIPConfigurations[0].Subnet.Id);
+                Assert.NotNull(getLoadBalancer.FrontendIPConfigurations[0].PrivateIPAddress);
+                Assert.Equal("10.0.0.38", getLoadBalancer.FrontendIPConfigurations[0].PrivateIPAddress);
+                Assert.Equal(getLoadBalancer.InboundNatRules[0].Id, getLoadBalancer.FrontendIPConfigurations[0].InboundNatRules[0].Id);
+                Assert.Equal(getLoadBalancer.InboundNatRules[1].Id, getLoadBalancer.FrontendIPConfigurations[0].InboundNatRules[1].Id);
+                Assert.Equal(backEndAddressPoolName, getLoadBalancer.BackendAddressPools[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.BackendAddressPools[0].ProvisioningState);
+                Assert.Equal(getLoadBalancer.LoadBalancingRules[0].Id, getLoadBalancer.BackendAddressPools[0].LoadBalancingRules[0].Id);
+                Assert.Equal(loadBalancingRuleName, getLoadBalancer.LoadBalancingRules[0].Name);
+                Assert.Equal(LoadDistribution.Default, getLoadBalancer.LoadBalancingRules[0].LoadDistribution);
+                Assert.Equal(4, getLoadBalancer.LoadBalancingRules[0].IdleTimeoutInMinutes);
+                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancingRules[0].ProvisioningState);
+                Assert.Equal(probeName, getLoadBalancer.Probes[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.Probes[0].ProvisioningState);
+                Assert.Equal(getLoadBalancer.Probes[0].Id, getLoadBalancer.LoadBalancingRules[0].Probe.Id);
+                Assert.Equal("Succeeded", getLoadBalancer.InboundNatRules[0].ProvisioningState);
+                Assert.Equal(inboundNatRule1Name, getLoadBalancer.InboundNatRules[0].Name);
+                Assert.Equal("Tcp", getLoadBalancer.InboundNatRules[0].Protocol);
+                Assert.Equal(3389, getLoadBalancer.InboundNatRules[0].FrontendPort);
+                Assert.Equal("Succeeded", getLoadBalancer.InboundNatRules[1].ProvisioningState);
+                Assert.Equal(3390, getLoadBalancer.InboundNatRules[1].FrontendPort);
+                Assert.Equal(4, getLoadBalancer.InboundNatRules[1].IdleTimeoutInMinutes);
 
                 // Verify List LoadBalancer
-                var listLoadBalancer = networkResourceProviderClient.LoadBalancers.List(resourceGroupName);
-                Assert.Equal(1, listLoadBalancer.LoadBalancers.Count);
-                Assert.Equal(lbName, listLoadBalancer.LoadBalancers[0].Name);
-                Assert.Equal(getLoadBalancer.LoadBalancer.Etag, listLoadBalancer.LoadBalancers[0].Etag);
+                var listLoadBalancer = networkManagementClient.LoadBalancers.List(resourceGroupName);
+                Assert.Equal(1, listLoadBalancer.Count());
+                Assert.Equal(lbName, listLoadBalancer.First().Name);
+                Assert.Equal(getLoadBalancer.Etag, listLoadBalancer.First().Etag);
 
                 // Do another put after changing the distribution policy
                 loadbalancerparamater.LoadBalancingRules[0].LoadDistribution = LoadDistribution.SourceIP;
-                putLoadBalancer = networkResourceProviderClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbName, loadbalancerparamater);
-                getLoadBalancer = networkResourceProviderClient.LoadBalancers.Get(resourceGroupName, lbName);
-                Assert.Equal(HttpStatusCode.OK, putLoadBalancer.StatusCode);
-
-                Assert.Equal(LoadDistribution.SourceIP, getLoadBalancer.LoadBalancer.LoadBalancingRules[0].LoadDistribution);
+                networkManagementClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbName, loadbalancerparamater);
+                getLoadBalancer = networkManagementClient.LoadBalancers.Get(resourceGroupName, lbName);
+                
+                Assert.Equal(LoadDistribution.SourceIP, getLoadBalancer.LoadBalancingRules[0].LoadDistribution);
 
                 loadbalancerparamater.LoadBalancingRules[0].LoadDistribution = LoadDistribution.SourceIPProtocol;
-                putLoadBalancer = networkResourceProviderClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbName, loadbalancerparamater);
-                getLoadBalancer = networkResourceProviderClient.LoadBalancers.Get(resourceGroupName, lbName);
-                Assert.Equal(HttpStatusCode.OK, putLoadBalancer.StatusCode);
-
-                Assert.Equal(LoadDistribution.SourceIPProtocol, getLoadBalancer.LoadBalancer.LoadBalancingRules[0].LoadDistribution);
+                networkManagementClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbName, loadbalancerparamater);
+                getLoadBalancer = networkManagementClient.LoadBalancers.Get(resourceGroupName, lbName);
+                
+                Assert.Equal(LoadDistribution.SourceIPProtocol, getLoadBalancer.LoadBalancingRules[0].LoadDistribution);
 
                 // Delete LoadBalancer
-                var deleteLoadBalancer = networkResourceProviderClient.LoadBalancers.Delete(resourceGroupName, lbName);
+                networkManagementClient.LoadBalancers.Delete(resourceGroupName, lbName);
 
                 // Verify Delete
-                listLoadBalancer = networkResourceProviderClient.LoadBalancers.List(resourceGroupName);
-                Assert.Equal(0, listLoadBalancer.LoadBalancers.Count);
+                listLoadBalancer = networkManagementClient.LoadBalancers.List(resourceGroupName);
+                Assert.Equal(0, listLoadBalancer.Count());
 
                 // Delete VirtualNetwork
-                var deleteVnetResponse = networkResourceProviderClient.VirtualNetworks.Delete(resourceGroupName, vnetName);
-                Assert.Equal(HttpStatusCode.OK, deleteVnetResponse.StatusCode);
+                networkManagementClient.VirtualNetworks.Delete(resourceGroupName, vnetName);
             }
         }
 
         [Fact]
         public void CreateEmptyLoadBalancer()
         {
-            var handler = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler1 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler2 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
 
-            using (var context = UndoContext.Current)
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
-                context.Start();
-                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(handler);
-                var networkResourceProviderClient = NetworkManagementTestUtilities.GetNetworkResourceProviderClient(handler);
+                
+                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(context, handler1);
+                var networkManagementClient = NetworkManagementTestUtilities.GetNetworkManagementClientWithHandler(context, handler2);
 
                 var location = ResourcesManagementTestUtilities.GetResourceLocation(resourcesClient, "Microsoft.Network/loadBalancers");
 
@@ -802,44 +822,43 @@ namespace Networks.Tests
                 // Populate the loadBalancerCreateOrUpdateParameter
                 var loadbalancerparamater = new LoadBalancer()
                 {
-                    Name = lbname,
                     Location = location,
                 };
 
                 // Create the loadBalancer
-                var putLoadBalancer = networkResourceProviderClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbname, loadbalancerparamater);
-                Assert.Equal(HttpStatusCode.OK, putLoadBalancer.StatusCode);
-
-                var getLoadBalancer = networkResourceProviderClient.LoadBalancers.Get(resourceGroupName, lbname);
+                var putLoadBalancer = networkManagementClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbname, loadbalancerparamater);
+                
+                var getLoadBalancer = networkManagementClient.LoadBalancers.Get(resourceGroupName, lbname);
 
                 // Verify the GET LoadBalancer
-                Assert.Equal(lbname, getLoadBalancer.LoadBalancer.Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.ProvisioningState);
-                Assert.False(getLoadBalancer.LoadBalancer.FrontendIpConfigurations.Any());
-                Assert.False(getLoadBalancer.LoadBalancer.BackendAddressPools.Any());
-                Assert.False(getLoadBalancer.LoadBalancer.LoadBalancingRules.Any());
-                Assert.False(getLoadBalancer.LoadBalancer.Probes.Any());
-                Assert.False(getLoadBalancer.LoadBalancer.InboundNatRules.Any());
+                Assert.Equal(lbname, getLoadBalancer.Name);
+                Assert.Equal("Succeeded", getLoadBalancer.ProvisioningState);
+                Assert.False(getLoadBalancer.FrontendIPConfigurations.Any());
+                Assert.False(getLoadBalancer.BackendAddressPools.Any());
+                Assert.False(getLoadBalancer.LoadBalancingRules.Any());
+                Assert.False(getLoadBalancer.Probes.Any());
+                Assert.False(getLoadBalancer.InboundNatRules.Any());
 
                 // Delete LoadBalancer
-                var deleteLoadBalancer = networkResourceProviderClient.LoadBalancers.Delete(resourceGroupName, lbname);
+                networkManagementClient.LoadBalancers.Delete(resourceGroupName, lbname);
 
                 // Verify Delete
-                var listLoadBalancer = networkResourceProviderClient.LoadBalancers.List(resourceGroupName);
-                Assert.Equal(0, listLoadBalancer.LoadBalancers.Count);
+                var listLoadBalancer = networkManagementClient.LoadBalancers.List(resourceGroupName);
+                Assert.Equal(0, listLoadBalancer.Count());
             }
         }
 
         [Fact]
         public void UpdateLoadBalancerRule()
         {
-            var handler = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler1 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler2 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
 
-            using (var context = UndoContext.Current)
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
-                context.Start();
-                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(handler);
-                var networkResourceProviderClient = NetworkManagementTestUtilities.GetNetworkResourceProviderClient(handler);
+                
+                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(context, handler1);
+                var networkManagementClient = NetworkManagementTestUtilities.GetNetworkManagementClientWithHandler(context, handler2);
 
                 var location = ResourcesManagementTestUtilities.GetResourceLocation(resourcesClient, "Microsoft.Network/loadBalancers");
 
@@ -860,7 +879,7 @@ namespace Networks.Tests
                     subnetName,
                     resourceGroupName,
                     location,
-                    networkResourceProviderClient);
+                    networkManagementClient);
 
                 // Create the LoadBalancer with an lb rule and no probe
                 var lbname = TestUtilities.GenerateName();
@@ -872,15 +891,14 @@ namespace Networks.Tests
                 // Populate the loadBalancerCreateOrUpdateParameter
                 var loadbalancerparamater = new LoadBalancer()
                 {
-                    Name = lbname,
                     Location = location,
-                    FrontendIpConfigurations = new List<FrontendIpConfiguration>()
+                    FrontendIPConfigurations = new List<FrontendIPConfiguration>()
                     {
-                        new FrontendIpConfiguration()
+                        new FrontendIPConfiguration()
                         {
                             Name = frontendIpConfigName,
-                            PrivateIpAllocationMethod = IpAllocationMethod.Static,
-                            PrivateIpAddress = "10.0.0.38",
+                            PrivateIPAllocationMethod = IPAllocationMethod.Static,
+                            PrivateIPAddress = "10.0.0.38",
                             Subnet = vnet.Subnets[0]
                         }
                     },
@@ -896,18 +914,18 @@ namespace Networks.Tests
                         new LoadBalancingRule()
                         {
                             Name = loadBalancingRuleName,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbname, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
                             FrontendPort = 80,
                             BackendPort = 80,
                             EnableFloatingIP = false,
-                            BackendAddressPool = new ResourceId()
+                            BackendAddressPool = new SubResource()
                             {
-                                Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbname, "backendAddressPools", backEndAddressPoolName)
                             }
                         }
@@ -915,22 +933,21 @@ namespace Networks.Tests
                 };
 
                 // Create the loadBalancer
-                var putLoadBalancer = networkResourceProviderClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbname, loadbalancerparamater);
-                Assert.Equal(HttpStatusCode.OK, putLoadBalancer.StatusCode);
-
-                var getLoadBalancer = networkResourceProviderClient.LoadBalancers.Get(resourceGroupName, lbname);
+                networkManagementClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbname, loadbalancerparamater);
+                
+                var getLoadBalancer = networkManagementClient.LoadBalancers.Get(resourceGroupName, lbname);
 
                 // Verify the GET LoadBalancer
-                Assert.Equal(lbname, getLoadBalancer.LoadBalancer.Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.ProvisioningState);
-                Assert.Equal(1, getLoadBalancer.LoadBalancer.FrontendIpConfigurations.Count);
-                Assert.Equal(1, getLoadBalancer.LoadBalancer.BackendAddressPools.Count);
-                Assert.Equal(1, getLoadBalancer.LoadBalancer.LoadBalancingRules.Count);
-                Assert.False(getLoadBalancer.LoadBalancer.Probes.Any());
-                Assert.False(getLoadBalancer.LoadBalancer.InboundNatRules.Any());
+                Assert.Equal(lbname, getLoadBalancer.Name);
+                Assert.Equal("Succeeded", getLoadBalancer.ProvisioningState);
+                Assert.Equal(1, getLoadBalancer.FrontendIPConfigurations.Count);
+                Assert.Equal(1, getLoadBalancer.BackendAddressPools.Count);
+                Assert.Equal(1, getLoadBalancer.LoadBalancingRules.Count);
+                Assert.False(getLoadBalancer.Probes.Any());
+                Assert.False(getLoadBalancer.InboundNatRules.Any());
 
                 // Add a Probe to the lb rule
-                getLoadBalancer.LoadBalancer.Probes = new List<Probe>()
+                getLoadBalancer.Probes = new List<Probe>()
                                                           {
                                                               new Probe()
                                                                   {
@@ -944,11 +961,11 @@ namespace Networks.Tests
                                                                   }
                                                           };
 
-                getLoadBalancer.LoadBalancer.LoadBalancingRules[0].Probe = new ResourceId()
+                getLoadBalancer.LoadBalancingRules[0].Probe = new SubResource()
                                                                                {
                                                                                    Id =
-                                                                                       GetChildLbResourceId(
-                                                                                           networkResourceProviderClient.Credentials.SubscriptionId,
+                                                                                       TestHelper.GetChildLbResourceId(
+                                                                                           networkManagementClient.SubscriptionId,
                                                                                            resourceGroupName,
                                                                                            lbname,
                                                                                            "probes",
@@ -956,44 +973,42 @@ namespace Networks.Tests
                                                                                };
 
                 // update load balancer
-                putLoadBalancer = networkResourceProviderClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbname, getLoadBalancer.LoadBalancer);
-                Assert.Equal(HttpStatusCode.OK, putLoadBalancer.StatusCode);
-
-                getLoadBalancer = networkResourceProviderClient.LoadBalancers.Get(resourceGroupName, lbname);
+                var putLoadBalancer = networkManagementClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbname, getLoadBalancer);
+                
+                getLoadBalancer = networkManagementClient.LoadBalancers.Get(resourceGroupName, lbname);
 
                 // Verify the GET LoadBalancer
-                Assert.Equal(lbname, getLoadBalancer.LoadBalancer.Name);
-                Assert.Equal("Succeeded", getLoadBalancer.LoadBalancer.ProvisioningState);
-                Assert.Equal(1, getLoadBalancer.LoadBalancer.FrontendIpConfigurations.Count);
-                Assert.Equal(1, getLoadBalancer.LoadBalancer.BackendAddressPools.Count);
-                Assert.Equal(1, getLoadBalancer.LoadBalancer.LoadBalancingRules.Count);
-                Assert.Equal(1, getLoadBalancer.LoadBalancer.Probes.Count);
-                Assert.Equal(getLoadBalancer.LoadBalancer.Probes[0].Id, getLoadBalancer.LoadBalancer.LoadBalancingRules[0].Probe.Id);
-                Assert.False(getLoadBalancer.LoadBalancer.InboundNatRules.Any());
+                Assert.Equal(lbname, getLoadBalancer.Name);
+                Assert.Equal("Succeeded", getLoadBalancer.ProvisioningState);
+                Assert.Equal(1, getLoadBalancer.FrontendIPConfigurations.Count);
+                Assert.Equal(1, getLoadBalancer.BackendAddressPools.Count);
+                Assert.Equal(1, getLoadBalancer.LoadBalancingRules.Count);
+                Assert.Equal(1, getLoadBalancer.Probes.Count);
+                Assert.Equal(getLoadBalancer.Probes[0].Id, getLoadBalancer.LoadBalancingRules[0].Probe.Id);
+                Assert.False(getLoadBalancer.InboundNatRules.Any());
 
                 // Delete LoadBalancer
-                var deleteLoadBalancer = networkResourceProviderClient.LoadBalancers.Delete(resourceGroupName, lbname);
+                networkManagementClient.LoadBalancers.Delete(resourceGroupName, lbname);
 
                 // Verify Delete
-                var listLoadBalancer = networkResourceProviderClient.LoadBalancers.List(resourceGroupName);
-                Assert.Equal(0, listLoadBalancer.LoadBalancers.Count);
+                var listLoadBalancer = networkManagementClient.LoadBalancers.List(resourceGroupName);
+                Assert.Equal(0, listLoadBalancer.Count());
 
                 // Delete VirtualNetwork
-                var deleteVnetResponse = networkResourceProviderClient.VirtualNetworks.Delete(resourceGroupName, vnetName);
-                Assert.Equal(HttpStatusCode.OK, deleteVnetResponse.StatusCode);
+                networkManagementClient.VirtualNetworks.Delete(resourceGroupName, vnetName);
             }
         }
         
         [Fact]
         public void LoadBalancerApiNicAssociationTest()
         {
-            var handler = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler1 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler2 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
 
-            using (var context = UndoContext.Current)
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
-                context.Start();
-                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(handler);
-                var networkResourceProviderClient = NetworkManagementTestUtilities.GetNetworkResourceProviderClient(handler);
+                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(context, handler1);
+                var networkManagementClient = NetworkManagementTestUtilities.GetNetworkManagementClientWithHandler(context, handler2);
 
                 var location = NetworkManagementTestUtilities.GetResourceLocation(resourcesClient, "Microsoft.Network/loadBalancers");
 
@@ -1014,14 +1029,14 @@ namespace Networks.Tests
                     resourceGroupName,
                     lbDomaingNameLabel,
                     location,
-                    networkResourceProviderClient);
+                    networkManagementClient);
 
                 // Create Vnet
                 string vnetName = TestUtilities.GenerateName();
                 string subnetName = TestUtilities.GenerateName();
 
                 var vnet = TestHelper.CreateVirtualNetwork(vnetName, subnetName, resourceGroupName, location,
-                    networkResourceProviderClient);
+                    networkManagementClient);
 
                 // Create Nics
                 string nic1name = TestUtilities.GenerateName();
@@ -1035,7 +1050,7 @@ namespace Networks.Tests
                     vnet.Subnets[0].Id,
                     location,
                     "ipconfig",
-                    networkResourceProviderClient);
+                    networkManagementClient);
 
                 var nic2 = TestHelper.CreateNetworkInterface(
                     nic2name,
@@ -1044,7 +1059,7 @@ namespace Networks.Tests
                     vnet.Subnets[0].Id,
                     location,
                     "ipconfig",
-                    networkResourceProviderClient);
+                    networkManagementClient);
 
                 var nic3 = TestHelper.CreateNetworkInterface(
                     nic3name,
@@ -1053,7 +1068,7 @@ namespace Networks.Tests
                     vnet.Subnets[0].Id,
                     location,
                     "ipconfig",
-                    networkResourceProviderClient);
+                    networkManagementClient);
 
                 // Create the LoadBalancer
                 var lbName = TestUtilities.GenerateName();
@@ -1067,14 +1082,13 @@ namespace Networks.Tests
                 // Populate the loadBalancerCreateOrUpdateParameter
                 var loadBalancer = new LoadBalancer()
                 {
-                    Name = lbName,
                     Location = location,
-                    FrontendIpConfigurations = new List<FrontendIpConfiguration>()
+                    FrontendIPConfigurations = new List<FrontendIPConfiguration>()
                     {
-                        new FrontendIpConfiguration()
+                        new FrontendIPConfiguration()
                         {
                             Name = frontendIpConfigName,
-                            PublicIpAddress = new ResourceId()
+                            PublicIPAddress = new PublicIPAddress()
                             {
                                 Id = lbPublicIp.Id
                             }
@@ -1092,9 +1106,9 @@ namespace Networks.Tests
                         new LoadBalancingRule()
                         {
                             Name = loadBalancingRuleName,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
@@ -1102,14 +1116,14 @@ namespace Networks.Tests
                             BackendPort = 80,
                             EnableFloatingIP = false,
                             IdleTimeoutInMinutes = 15,
-                            BackendAddressPool = new ResourceId()
+                            BackendAddressPool = new SubResource()
                             {
-                                Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "backendAddressPools", backEndAddressPoolName)
                             },
-                            Probe = new ResourceId()
+                            Probe = new SubResource()
                             {
-                                Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId, 
+                                Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId, 
                                 resourceGroupName, lbName, "probes", probeName)
                             }
                         }
@@ -1131,9 +1145,9 @@ namespace Networks.Tests
                         new InboundNatRule()
                         {
                             Name = inboundNatRule1Name,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
@@ -1145,9 +1159,9 @@ namespace Networks.Tests
                         new InboundNatRule()
                         {
                             Name = inboundNatRule2Name,
-                            FrontendIPConfiguration = new ResourceId()
+                            FrontendIPConfiguration = new SubResource()
                                 {
-                                    Id = GetChildLbResourceId(networkResourceProviderClient.Credentials.SubscriptionId,
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
                                     resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
                                 },
                             Protocol = TransportProtocol.Tcp,
@@ -1160,70 +1174,69 @@ namespace Networks.Tests
                 };
 
                 // Create the loadBalancer
-                var putLoadBalancer = networkResourceProviderClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbName, loadBalancer);
-                Assert.Equal(HttpStatusCode.OK, putLoadBalancer.StatusCode);
-
-                var getLoadBalancer = networkResourceProviderClient.LoadBalancers.Get(resourceGroupName, lbName);
+                var putLoadBalancer = networkManagementClient.LoadBalancers.CreateOrUpdate(resourceGroupName, lbName, loadBalancer);
+                
+                var getLoadBalancer = networkManagementClient.LoadBalancers.Get(resourceGroupName, lbName);
 
                 // Associate the nic with LB
-                nic1.IpConfigurations.First().LoadBalancerBackendAddressPools = new List<ResourceId>
+                nic1.IpConfigurations.First().LoadBalancerBackendAddressPools = new List<BackendAddressPool>
                                                                                     {
-                                                                                        getLoadBalancer.LoadBalancer.BackendAddressPools.First()
+                                                                                        getLoadBalancer.BackendAddressPools.First()
                                                                                     };
 
-                nic1.IpConfigurations.First().LoadBalancerInboundNatRules = new List<ResourceId>
+                nic1.IpConfigurations.First().LoadBalancerInboundNatRules = new List<InboundNatRule>
                                                                                     {
-                                                                                        getLoadBalancer.LoadBalancer.InboundNatRules.First()
+                                                                                        getLoadBalancer.InboundNatRules.First()
                                                                                     };
 
-                nic2.IpConfigurations.First().LoadBalancerBackendAddressPools = new List<ResourceId>
+                nic2.IpConfigurations.First().LoadBalancerBackendAddressPools = new List<BackendAddressPool>
                                                                                     {
-                                                                                        getLoadBalancer.LoadBalancer.BackendAddressPools.First()
+                                                                                        getLoadBalancer.BackendAddressPools.First()
                                                                                     };
 
-                nic3.IpConfigurations.First().LoadBalancerInboundNatRules = new List<ResourceId>
+                nic3.IpConfigurations.First().LoadBalancerInboundNatRules = new List<InboundNatRule>
                                                                                     {
-                                                                                        getLoadBalancer.LoadBalancer.InboundNatRules[1]
+                                                                                        getLoadBalancer.InboundNatRules[1]
                                                                                     };
 
                 // Put Nics
-                networkResourceProviderClient.NetworkInterfaces.CreateOrUpdate(resourceGroupName, nic1name, nic1);
-                networkResourceProviderClient.NetworkInterfaces.CreateOrUpdate(resourceGroupName, nic2name, nic2);
-                networkResourceProviderClient.NetworkInterfaces.CreateOrUpdate(resourceGroupName, nic3name, nic3);
+                networkManagementClient.NetworkInterfaces.CreateOrUpdate(resourceGroupName, nic1name, nic1);
+                networkManagementClient.NetworkInterfaces.CreateOrUpdate(resourceGroupName, nic2name, nic2);
+                networkManagementClient.NetworkInterfaces.CreateOrUpdate(resourceGroupName, nic3name, nic3);
 
                 // Get Nics
-                nic1 = networkResourceProviderClient.NetworkInterfaces.Get(resourceGroupName, nic1name).NetworkInterface;
-                nic2 = networkResourceProviderClient.NetworkInterfaces.Get(resourceGroupName, nic2name).NetworkInterface;
-                nic3 = networkResourceProviderClient.NetworkInterfaces.Get(resourceGroupName, nic3name).NetworkInterface;
+                nic1 = networkManagementClient.NetworkInterfaces.Get(resourceGroupName, nic1name);
+                nic2 = networkManagementClient.NetworkInterfaces.Get(resourceGroupName, nic2name);
+                nic3 = networkManagementClient.NetworkInterfaces.Get(resourceGroupName, nic3name);
 
                 // Verify the associations
-                getLoadBalancer = networkResourceProviderClient.LoadBalancers.Get(resourceGroupName, lbName);
-                Assert.Equal(2, getLoadBalancer.LoadBalancer.BackendAddressPools.First().BackendIpConfigurations.Count);
-                Assert.True(getLoadBalancer.LoadBalancer.BackendAddressPools.First().BackendIpConfigurations.Any(ipconfig => string.Equals(ipconfig.Id, nic1.IpConfigurations[0].Id, StringComparison.OrdinalIgnoreCase)));
-                Assert.True(getLoadBalancer.LoadBalancer.BackendAddressPools.First().BackendIpConfigurations.Any(ipconfig => string.Equals(ipconfig.Id, nic2.IpConfigurations[0].Id, StringComparison.OrdinalIgnoreCase)));
-                Assert.Equal(nic1.IpConfigurations[0].Id, getLoadBalancer.LoadBalancer.InboundNatRules.First().BackendIPConfiguration.Id);
-                Assert.Equal(nic3.IpConfigurations[0].Id, getLoadBalancer.LoadBalancer.InboundNatRules[1].BackendIPConfiguration.Id);
+                getLoadBalancer = networkManagementClient.LoadBalancers.Get(resourceGroupName, lbName);
+                Assert.Equal(2, getLoadBalancer.BackendAddressPools.First().BackendIPConfigurations.Count);
+                Assert.True(getLoadBalancer.BackendAddressPools.First().BackendIPConfigurations.Any(ipconfig => string.Equals(ipconfig.Id, nic1.IpConfigurations[0].Id, StringComparison.OrdinalIgnoreCase)));
+                Assert.True(getLoadBalancer.BackendAddressPools.First().BackendIPConfigurations.Any(ipconfig => string.Equals(ipconfig.Id, nic2.IpConfigurations[0].Id, StringComparison.OrdinalIgnoreCase)));
+                Assert.Equal(nic1.IpConfigurations[0].Id, getLoadBalancer.InboundNatRules.First().BackendIPConfiguration.Id);
+                Assert.Equal(nic3.IpConfigurations[0].Id, getLoadBalancer.InboundNatRules[1].BackendIPConfiguration.Id);
 
                 // Delete LoadBalancer
-                var deleteLoadBalancer = networkResourceProviderClient.LoadBalancers.Delete(resourceGroupName, lbName);
+                networkManagementClient.LoadBalancers.Delete(resourceGroupName, lbName);
 
                 // Verify Delete
-                var listLoadBalancer = networkResourceProviderClient.LoadBalancers.List(resourceGroupName);
-                Assert.Equal(0, listLoadBalancer.LoadBalancers.Count);
+                var listLoadBalancer = networkManagementClient.LoadBalancers.List(resourceGroupName);
+                Assert.Equal(0, listLoadBalancer.Count());
 
                 // Delete all NetworkInterfaces
-                networkResourceProviderClient.NetworkInterfaces.Delete(resourceGroupName, nic1name);
-                networkResourceProviderClient.NetworkInterfaces.Delete(resourceGroupName, nic2name);
-                networkResourceProviderClient.NetworkInterfaces.Delete(resourceGroupName, nic3name);
+                networkManagementClient.NetworkInterfaces.Delete(resourceGroupName, nic1name);
+                networkManagementClient.NetworkInterfaces.Delete(resourceGroupName, nic2name);
+                networkManagementClient.NetworkInterfaces.Delete(resourceGroupName, nic3name);
 
-                // Delete all PublicIpAddresses
-                var deletePublicIpAddress3Response = networkResourceProviderClient.PublicIpAddresses.Delete(resourceGroupName, lbPublicIpName);
-                Assert.Equal(HttpStatusCode.OK, deletePublicIpAddress3Response.StatusCode);
+                // Delete all PublicIPAddresses
+                networkManagementClient.PublicIPAddresses.Delete(resourceGroupName, lbPublicIpName);
             }
         }
 
         [Fact]
         public void LoadBalancerNatPoolTest()
+<<<<<<< HEAD
         {
             var handler = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
 
@@ -1509,15 +1522,268 @@ namespace Networks.Tests
             string lbname,
             string childResourceType,
             string childResourceName)
+=======
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
         {
-            return
-                string.Format(
-                    "/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/loadBalancers/{2}/{3}/{4}",
-                    subscriptionId,
+            var handler1 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler2 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+
+            using (var context = MockContext.Start(this.GetType().FullName))
+            {
+                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(context, handler1);
+                var networkManagementClient = NetworkManagementTestUtilities.GetNetworkManagementClientWithHandler(context, handler2);
+                var location = NetworkManagementTestUtilities.GetResourceLocation(resourcesClient, "Microsoft.Network/loadBalancers");
+
+                string resourceGroupName = TestUtilities.GenerateName("csmrg");
+                resourcesClient.ResourceGroups.CreateOrUpdate(
                     resourceGroupName,
-                    lbname,
-                    childResourceType,
-                    childResourceName);
+                    new ResourceGroup { Location = location });
+
+                // Create lbPublicIP
+                string lbPublicIpName = TestUtilities.GenerateName();
+                string lbDomaingNameLabel = TestUtilities.GenerateName();
+
+                var lbPublicIp = TestHelper.CreateDefaultPublicIpAddress(
+                    lbPublicIpName,
+                    resourceGroupName,
+                    lbDomaingNameLabel,
+                    location,
+                    networkManagementClient);
+
+                // Create the LoadBalancer
+                var lbName = TestUtilities.GenerateName();
+                var frontendIpConfigName = TestUtilities.GenerateName();
+                var inboundNatPool1Name = TestUtilities.GenerateName();
+                var inboundNatPool2Name = TestUtilities.GenerateName();
+
+                 var loadBalancer = new LoadBalancer()
+                {
+                    Location = location,
+                    FrontendIPConfigurations = new List<FrontendIPConfiguration>()
+                    {
+                        new FrontendIPConfiguration()
+                        {
+                            Name = frontendIpConfigName,
+                            PublicIPAddress = new PublicIPAddress ()
+                            {
+                                Id = lbPublicIp.Id
+                            }
+                        }
+                    },
+                    InboundNatPools = new List<InboundNatPool>()
+                    {
+                       new InboundNatPool()
+                        {
+                            Name = inboundNatPool1Name,
+                            BackendPort = 81,
+                            FrontendPortRangeStart = 100,
+                            FrontendPortRangeEnd = 105,
+                            FrontendIPConfiguration = new SubResource()
+                                {
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
+                                    resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
+                                },
+                            Protocol = TransportProtocol.Tcp,
+                        } 
+                    }
+                };
+
+                // Create the loadBalancer
+                networkManagementClient.LoadBalancers.CreateOrUpdate(
+                    resourceGroupName,
+                    lbName,
+                    loadBalancer);
+                
+                var getLoadBalancer = networkManagementClient.LoadBalancers.Get(resourceGroupName, lbName);
+
+                // Verify the GET LoadBalancer
+                Assert.Equal(lbName, getLoadBalancer.Name);
+                Assert.Equal("Succeeded", getLoadBalancer.ProvisioningState);
+                Assert.Equal(frontendIpConfigName, getLoadBalancer.FrontendIPConfigurations[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.FrontendIPConfigurations[0].ProvisioningState);
+
+                // Verify the nat pool
+                Assert.Equal(1, getLoadBalancer.InboundNatPools.Count);
+                Assert.Equal(inboundNatPool1Name, getLoadBalancer.InboundNatPools[0].Name);
+                Assert.Equal(81, getLoadBalancer.InboundNatPools[0].BackendPort);
+                Assert.Equal(100, getLoadBalancer.InboundNatPools[0].FrontendPortRangeStart);
+                Assert.Equal(105, getLoadBalancer.InboundNatPools[0].FrontendPortRangeEnd);
+                Assert.Equal(TransportProtocol.Tcp, getLoadBalancer.InboundNatPools[0].Protocol);
+                Assert.Equal(TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
+                                    resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName), getLoadBalancer.InboundNatPools[0].FrontendIPConfiguration.Id);
+
+                Assert.Equal(getLoadBalancer.InboundNatPools[0].Id, getLoadBalancer.FrontendIPConfigurations[0].InboundNatPools[0].Id);
+
+                // Add a new nat pool
+                var natpool2 = new InboundNatPool()
+                        {
+                            Name = inboundNatPool2Name,
+                            BackendPort = 81,
+                            FrontendPortRangeStart = 107,
+                            FrontendPortRangeEnd = 110,
+                            FrontendIPConfiguration = new SubResource()
+                                {
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
+                                    resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
+                                },
+                            Protocol = TransportProtocol.Tcp,
+                        };
+                getLoadBalancer.InboundNatPools.Add(natpool2);
+
+                networkManagementClient.LoadBalancers.CreateOrUpdate(
+                   resourceGroupName,
+                   lbName,
+                   getLoadBalancer);
+
+                // Verify the nat pool
+                Assert.Equal(2, getLoadBalancer.InboundNatPools.Count);
+
+                // Delete LoadBalancer
+                networkManagementClient.LoadBalancers.Delete(resourceGroupName, lbName);
+
+                // Verify Delete
+                var listLoadBalancer = networkManagementClient.LoadBalancers.List(resourceGroupName);
+                Assert.Equal(0, listLoadBalancer.Count());
+
+                // Delete all PublicIPAddresses
+                networkManagementClient.PublicIPAddresses.Delete(resourceGroupName, lbPublicIpName);
+             }
+        }
+
+        [Fact]
+        public void LoadBalancerOutboundNatRuleTest()
+        {
+            var handler1 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler2 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+
+            using (var context = MockContext.Start(this.GetType().FullName))
+            {
+                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(context, handler1);
+                var networkManagementClient = NetworkManagementTestUtilities.GetNetworkManagementClientWithHandler(context, handler2);
+
+                var location = NetworkManagementTestUtilities.GetResourceLocation(resourcesClient, "Microsoft.Network/loadBalancers");
+
+                string resourceGroupName = TestUtilities.GenerateName("csmrg");
+                resourcesClient.ResourceGroups.CreateOrUpdate(
+                    resourceGroupName,
+                    new ResourceGroup { Location = location });
+
+                // Create lbPublicIP
+                string lbPublicIpName = TestUtilities.GenerateName();
+                string lbDomaingNameLabel = TestUtilities.GenerateName();
+
+                var lbPublicIp = TestHelper.CreateDefaultPublicIpAddress(
+                    lbPublicIpName,
+                    resourceGroupName,
+                    lbDomaingNameLabel,
+                    location,
+                    networkManagementClient);
+
+                // Create the LoadBalancer
+                var lbName = TestUtilities.GenerateName();
+                var frontendIpConfigName = TestUtilities.GenerateName();
+                var outboundNatPool1Name = TestUtilities.GenerateName();
+                var backendaddresspoolName = TestUtilities.GenerateName();
+                var inboundNatRule1Name = TestUtilities.GenerateName();
+
+                var loadBalancer = new LoadBalancer()
+                {
+                    Location = location,
+                    FrontendIPConfigurations = new List<FrontendIPConfiguration>()
+                    {
+                        new FrontendIPConfiguration()
+                        {
+                            Name = frontendIpConfigName,
+                            PublicIPAddress = new PublicIPAddress ()
+                            {
+                                Id = lbPublicIp.Id
+                            }
+                        }
+                    },
+                    BackendAddressPools = new List<BackendAddressPool>()
+                    {
+                        new BackendAddressPool()
+                            {
+                                Name = backendaddresspoolName
+                            }
+                    },
+                    OutboundNatRules = new List<OutboundNatRule>()
+                    {
+                       new OutboundNatRule()
+                        {
+                            Name = outboundNatPool1Name,
+                            AllocatedOutboundPorts = 1000,
+                            BackendAddressPool = new SubResource()
+                                {
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
+                                    resourceGroupName, lbName, "backendAddressPools", backendaddresspoolName)
+                                },
+                            FrontendIPConfigurations = new List<SubResource>()
+                            {
+                                new SubResource()
+                                {
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
+                                    resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
+                                },
+                            }
+                        } 
+                    },
+                    InboundNatRules = new List<InboundNatRule>()
+                    {
+                        new InboundNatRule()
+                        {
+                            Name = inboundNatRule1Name,
+                            FrontendIPConfiguration = new SubResource()
+                                {
+                                    Id = TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
+                                    resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName)
+                                },
+                            Protocol = TransportProtocol.Tcp,
+                            FrontendPort = 3389,
+                            BackendPort = 3389,
+                            IdleTimeoutInMinutes = 15,
+                            EnableFloatingIP = false
+                        },
+                    }
+                };
+
+                // Create the loadBalancer
+                var putLoadBalancer = networkManagementClient.LoadBalancers.CreateOrUpdate(
+                    resourceGroupName,
+                    lbName,
+                    loadBalancer);
+                
+                var getLoadBalancer = networkManagementClient.LoadBalancers.Get(resourceGroupName, lbName);
+
+                // Verify the GET LoadBalancer
+                Assert.Equal(lbName, getLoadBalancer.Name);
+                Assert.Equal("Succeeded", getLoadBalancer.ProvisioningState);
+                Assert.Equal(frontendIpConfigName, getLoadBalancer.FrontendIPConfigurations[0].Name);
+                Assert.Equal("Succeeded", getLoadBalancer.FrontendIPConfigurations[0].ProvisioningState);
+
+                // Verify the nat pool
+                Assert.Equal(1, getLoadBalancer.OutboundNatRules.Count);
+                Assert.Equal(outboundNatPool1Name, getLoadBalancer.OutboundNatRules[0].Name);
+                Assert.Equal(1000, getLoadBalancer.OutboundNatRules[0].AllocatedOutboundPorts);
+                Assert.Equal(TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
+                                    resourceGroupName, lbName, "backendAddressPools", backendaddresspoolName), getLoadBalancer.OutboundNatRules[0].BackendAddressPool.Id);
+                Assert.Equal(1, getLoadBalancer.OutboundNatRules[0].FrontendIPConfigurations.Count);
+                Assert.Equal(TestHelper.GetChildLbResourceId(networkManagementClient.SubscriptionId,
+                                    resourceGroupName, lbName, "frontendIPConfigurations", frontendIpConfigName), getLoadBalancer.OutboundNatRules[0].FrontendIPConfigurations[0].Id);
+
+                Assert.Equal(getLoadBalancer.OutboundNatRules[0].Id, getLoadBalancer.FrontendIPConfigurations[0].OutboundNatRules[0].Id);
+                Assert.Equal(getLoadBalancer.OutboundNatRules[0].Id, getLoadBalancer.BackendAddressPools[0].OutboundNatRule.Id);
+
+                // Delete LoadBalancer
+                networkManagementClient.LoadBalancers.Delete(resourceGroupName, lbName);
+
+                // Verify Delete
+                var listLoadBalancer = networkManagementClient.LoadBalancers.List(resourceGroupName);
+                Assert.Equal(0, listLoadBalancer.Count());
+
+                // Delete all PublicIPAddresses
+                networkManagementClient.PublicIPAddresses.Delete(resourceGroupName, lbPublicIpName);
+            }
         }
     }
 }

@@ -5,7 +5,11 @@
 Microsoft.Azure.Common.Authentication
 -->
     <SdkNuGetPackage Include="Microsoft.Azure.Common.Authentication">
+<<<<<<< HEAD
       <PackageVersion>1.0.28-preview</PackageVersion>
+=======
+      <PackageVersion>1.7.0-preview</PackageVersion>
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
       <Folder>$(MSBuildThisFileDirectory)</Folder>
     </SdkNuGetPackage>
   </ItemGroup>

@@ -9,7 +9,10 @@ $vaultName           = 'MyVaultName'
 $resourceGroupName   = 'MyResourceGroupName'
 $applicationName     = 'MyAppName'
 $storageName         = 'MyStorageName'
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 
 # **********************************************************************************************
 # You MAY set the following values before running this script
@@ -29,12 +32,6 @@ if (($vaultName -eq 'MyVaultName') -or `
 	exit
 }
 
-if (-not (Test-Path $pathToCertFile))
-{
-	Write-Host 'No certificate file found at '$pathToCertFile -foregroundcolor Yellow
-	exit
-}
-
 # **********************************************************************************************
 # Log into Azure
 # **********************************************************************************************
@@ -50,8 +47,15 @@ $certificateName = "$applicationName" + "cert"
 $myCertThumbprint = (New-SelfSignedCertificate -Type Custom -Subject "$certificateName"-KeyUsage DigitalSignature -KeyAlgorithm RSA -KeyLength 2048 -CertStoreLocation "Cert:\CurrentUser\My" -Provider "Microsoft Enhanced Cryptographic Provider v1.0" ).Thumbprint
 $x509 = (Get-ChildItem -Path cert:\CurrentUser\My\$myCertthumbprint)
 $password = Read-Host -Prompt "Please enter the certificate password." -AsSecureString
+<<<<<<< HEAD
 Export-Certificate -cert $cert -FilePath ".\$certificateName.cer"
 Export-PfxCertificate -Cert $cert -FilePath ".\$certificateName.pfx" -Password $password
+=======
+
+# Saving the self-signed cert and pfx (private key) in case it's needed later
+Export-Certificate -cert $x509 -FilePath ".\$certificateName.cer"
+Export-PfxCertificate -Cert $x509 -FilePath ".\$certificateName.pfx" -Password $password
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 
 
 $credValue = [System.Convert]::ToBase64String($x509.GetRawCertData())
@@ -109,9 +113,23 @@ Set-AzureRmKeyVaultAccessPolicy -VaultName $vaultName `
 	-PermissionsToSecrets all
 
 # **********************************************************************************************
+# Create a storage account if needed
+# **********************************************************************************************
+$sa = Get-AzureRmStorageAccount -ResourceGroupName $resourceGroupName -Name $storageName -ErrorAction SilentlyContinue
+if (-not $sa) {
+    Write-Host "Creating a new storage account"
+    New-AzureRmStorageAccount -ResourceGroupName $resourceGroupName -Name $storageName -SkuName Standard_LRS -Location $location
+}
+
+# **********************************************************************************************
 # Store storage account access key as a secret in the vault
 # **********************************************************************************************
+<<<<<<< HEAD
 $storagekey = (Get-AzureRmStorageAccountKey -StorageAccountName $storageName -ResourceGroupName keyvault).Key1
+=======
+
+$storagekey = (Get-AzureRmStorageAccountKey -StorageAccountName $storageName -ResourceGroupName $resourceGroupName)[0].Value
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 if(-not $storageKey)
 {
 	Write-Host 'Storage key could not be retrieved. Make sure the storage account exists.' -foregroundcolor Yellow

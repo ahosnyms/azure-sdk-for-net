@@ -33,11 +33,11 @@ namespace Microsoft.WindowsAzure.Commands.Common.Test.Mocks
             ManagementClients = clients.ToList();
         }
 
-        public TClient CreateClient<TClient>(AzureProfile profile, AzureSubscription subscription, AzureEnvironment.Endpoint endpoint) 
+        public TClient CreateClient<TClient>(AzureSMProfile profile, AzureSubscription subscription, AzureEnvironment.Endpoint endpoint) 
             where TClient : ServiceClient<TClient>
         {
             SubscriptionCloudCredentials creds = new TokenCloudCredentials(subscription.Id.ToString(), "fake_token");
-            Uri endpointUri = (new ProfileClient(profile)).Profile.Environments[subscription.Environment].GetEndpointAsUri(endpoint);
+            Uri endpointUri = profile.Environments[subscription.Environment].GetEndpointAsUri(endpoint);
             return CreateCustomClient<TClient>(creds, endpointUri);
         }
 
@@ -48,7 +48,7 @@ namespace Microsoft.WindowsAzure.Commands.Common.Test.Mocks
             return CreateCustomClient<TClient>(creds, context.Environment.GetEndpointAsUri(endpoint));
         }
 
-        public TClient CreateClient<TClient>(AzureProfile profile, AzureEnvironment.Endpoint endpoint) 
+        public TClient CreateClient<TClient>(AzureSMProfile profile, AzureEnvironment.Endpoint endpoint) 
             where TClient : ServiceClient<TClient>
         {
             return CreateClient<TClient>(profile.Context, endpoint);
@@ -80,17 +80,48 @@ namespace Microsoft.WindowsAzure.Commands.Common.Test.Mocks
             throw new NotImplementedException();
         }
 
+        public void AddHandler<T>(T handler) where T : DelegatingHandler, ICloneable
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveHandler(Type handlerType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public HashSet<System.Net.Http.Headers.ProductInfoHeaderValue> UserAgents
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public TClient CreateArmClient<TClient>(AzureContext context, AzureEnvironment.Endpoint endpoint) where TClient : Rest.ServiceClient<TClient>
+        {
+            var creds = AzureSession.AuthenticationFactory.GetServiceClientCredentials(context);
+            return CreateCustomArmClient<TClient>(creds, context.Environment.GetEndpointAsUri(endpoint));
+        }
+
+        public TClient CreateCustomArmClient<TClient>(params object[] parameters) where TClient : Rest.ServiceClient<TClient>
+        {
+            return ManagementClients.FirstOrDefault(o => o is TClient) as TClient;
+        }
+
 
         public void AddUserAgent(string productName)
         {
-            throw new NotImplementedException();
+            AddUserAgent(productName, "");
         }
 
         public void AddUserAgent(string productName, string productVersion)
         {
-            throw new NotImplementedException();
+            this.UserAgents.Add(new ProductInfoHeaderValue(productName, productVersion));
         }
-
-        public HashSet<ProductInfoHeaderValue> UserAgents { get; set; }
     }
 }

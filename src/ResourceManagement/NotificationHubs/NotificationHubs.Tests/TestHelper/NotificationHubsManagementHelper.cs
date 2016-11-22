@@ -17,18 +17,27 @@ namespace NotificationHubs.Tests.TestHelper
     using System;
     using System.Collections.Generic;
     using System.Linq;
+<<<<<<< HEAD
     using System.Net;
     using Microsoft.Azure;
+=======
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
     using Microsoft.Azure.Management.NotificationHubs;
     using Microsoft.Azure.Management.NotificationHubs.Models;
     using Microsoft.Azure.Management.Resources;
     using Microsoft.Azure.Management.Resources.Models;
+<<<<<<< HEAD
     using Microsoft.Azure.Test;
     using Microsoft.Azure.Test.HttpRecorder;
     using Microsoft.IdentityModel.Clients.ActiveDirectory;
     using Microsoft.WindowsAzure.Management;
     using System.Security.Cryptography;
     using Newtonsoft.Json;
+=======
+    using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+    using Newtonsoft.Json;
+    using System.Security.Cryptography;
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
     using System.Threading.Tasks;
     using Newtonsoft.Json.Serialization;
     using Newtonsoft.Json.Converters;
@@ -36,11 +45,16 @@ namespace NotificationHubs.Tests.TestHelper
     public static class NotificationHubsManagementHelper
     {
         internal const string DefaultLocation = "South Central US";
+<<<<<<< HEAD
         internal const string ResourceGroupPrefix = "NotificationHub-RG";
+=======
+        internal const string ResourceGroupPrefix = "TestRg-NH";
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
         internal const string NamespacePrefix = "HydraNH-Namespace";
         internal const string NotificationHubPrefix = "HydraNH-NotificationHub";
         internal const string AuthorizationRulesPrefix = "HydraNH-Authrules";
         internal const string DefaultNamespaceAuthorizationRule = "RootManageSharedAccessKey";
+<<<<<<< HEAD
         
         public static NotificationHubsManagementClient GetNotificationHubsManagementClient(RecordedDelegatingHandler handler)
         {
@@ -72,6 +86,31 @@ namespace NotificationHubs.Tests.TestHelper
             var newToken = context.AcquireTokenByRefreshToken(result.RefreshToken, testEnvironment.ClientId, "https://management.core.windows.net/");
 
             ((TokenCloudCredentials)notificationHubsManagementClient.Credentials).Token = newToken.AccessToken;
+=======
+
+        public static NotificationHubsManagementClient GetNotificationHubsManagementClient(MockContext context, RecordedDelegatingHandler handler)
+        {
+            if (handler != null)
+            {
+                handler.IsPassThrough = true;
+                NotificationHubsManagementClient nhManagementClient = context.GetServiceClient<NotificationHubsManagementClient>(handlers: handler);
+                return nhManagementClient;
+            }
+
+            return null;
+        }
+
+        public static ResourceManagementClient GetResourceManagementClient(MockContext context, RecordedDelegatingHandler handler)
+        {
+            if (handler != null)
+            {
+                handler.IsPassThrough = true;
+                ResourceManagementClient rManagementClient = context.GetServiceClient<ResourceManagementClient>(handlers: handler);
+                return rManagementClient;
+            }
+
+            return null;
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
         }
 
         private static void ThrowIfTrue(bool condition, string message)
@@ -82,6 +121,7 @@ namespace NotificationHubs.Tests.TestHelper
             }
         }
 
+<<<<<<< HEAD
         public static void TryRegisterSubscriptionForResource(this ResourceManagementClient resourceManagementClient, string providerName = "Microsoft.NotificationHubs")
         {
             var reg = resourceManagementClient.Providers.Register(providerName);
@@ -99,12 +139,18 @@ namespace NotificationHubs.Tests.TestHelper
             ThrowIfTrue(resultAfterRegister.Provider.ResourceTypes[0].Locations == null || resultAfterRegister.Provider.ResourceTypes[0].Locations.Count == 0, "Provider.ResourceTypes[0].Locations is empty.");
         }
 
+=======
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
         public static string TryGetResourceGroup(this ResourceManagementClient resourceManagementClient, string location)
         {
             var resourceGroup =
                 resourceManagementClient.ResourceGroups
+<<<<<<< HEAD
                     .List(new ResourceGroupListParameters()).ResourceGroups
                     .Where(group => string.IsNullOrWhiteSpace(location) || group.Location.Equals(location, StringComparison.OrdinalIgnoreCase))
+=======
+                    .List().Where(group => string.IsNullOrWhiteSpace(location) || group.Location.Equals(location, StringComparison.OrdinalIgnoreCase))
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
                     .FirstOrDefault(group => group.Name.Contains(ResourceGroupPrefix));
 
             return resourceGroup != null
@@ -112,17 +158,22 @@ namespace NotificationHubs.Tests.TestHelper
                 ? resourceGroup.Name
                 : string.Empty;
         }
+<<<<<<< HEAD
 
         public static IEnumerable<ResourceGroupExtended> GetResourceGroups(this ResourceManagementClient resourceManagementClient)
         {
             return resourceManagementClient.ResourceGroups.List(new ResourceGroupListParameters()).ResourceGroups;
         }
 
+=======
+        
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
         public static void TryRegisterResourceGroup(this ResourceManagementClient resourceManagementClient, string location, string resourceGroupName)
         {
             resourceManagementClient.ResourceGroups.CreateOrUpdate(resourceGroupName, new ResourceGroup(location));
         }
 
+<<<<<<< HEAD
         public static string TryGetLocation(this ManagementClient managementClient, string preferedLocationName = null)
         {
             var loc = managementClient.Locations;
@@ -153,6 +204,11 @@ namespace NotificationHubs.Tests.TestHelper
         public static IEnumerable<string> GetLocations(this ManagementClient managementClient)
         {
             return managementClient.Locations.List().Locations.Select(location => location.Name);
+=======
+        public static void TryDeleteResourceGroup(this ResourceManagementClient resourceManagementClient, string resourceGroupName)
+        {
+            resourceManagementClient.ResourceGroups.Delete(resourceGroupName);
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
         }
 
         public static void TryCreateNamespace(
@@ -163,6 +219,7 @@ namespace NotificationHubs.Tests.TestHelper
             string scaleUnit = null)
         {
             var namespaceParameter = new NamespaceCreateOrUpdateParameters()
+<<<<<<< HEAD
                 {
                     Location = location,
                     Properties = new NamespaceProperties
@@ -174,6 +231,16 @@ namespace NotificationHubs.Tests.TestHelper
             if (!string.IsNullOrEmpty(scaleUnit))
             {
                 namespaceParameter.Properties.ScaleUnit = scaleUnit;
+=======
+            {
+                Location = location,
+                NamespaceType = NamespaceType.NotificationHub
+            };
+
+            if (!string.IsNullOrEmpty(scaleUnit))
+            {
+                namespaceParameter.ScaleUnit = scaleUnit;
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
             }
 
             client.Namespaces.CreateOrUpdate(
@@ -182,13 +249,21 @@ namespace NotificationHubs.Tests.TestHelper
                );
 
             var response = client.Namespaces.Get(resourceGroupName, namespaceName);
+<<<<<<< HEAD
             ThrowIfTrue(!response.Value.Name.Equals(namespaceName), string.Format("Namespace name is not equal to {0}", namespaceName));
+=======
+            ThrowIfTrue(!response.Name.Equals(namespaceName), string.Format("Namespace name is not equal to {0}", namespaceName));
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
         }
 
         public static string GenerateRandomKey()
         {
             byte[] key256 = new byte[32];
+<<<<<<< HEAD
             using (var rngCryptoServiceProvider = new RNGCryptoServiceProvider())
+=======
+            using (var rngCryptoServiceProvider = RandomNumberGenerator.Create())
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
             {
                 rngCryptoServiceProvider.GetBytes(key256);
             }
@@ -220,6 +295,9 @@ namespace NotificationHubs.Tests.TestHelper
             },
             ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
         };
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
     }
 }

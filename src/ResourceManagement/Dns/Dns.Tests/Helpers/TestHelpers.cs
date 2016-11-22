@@ -20,12 +20,14 @@ using Xunit;
 
 namespace Microsoft.Azure.Management.Dns.Testing
 {
+    using System.Net;
+
     public class TestHelpers
     {
         public static bool AreEqualPrereq(
-           ResourceBaseExtended first,
-           ResourceBaseExtended second,
-           bool ignoreEtag = false)
+            Resource first,
+            Resource second,
+            bool ignoreEtag = false)
         {
             if (first == null && second == null)
             {
@@ -44,14 +46,16 @@ namespace Microsoft.Azure.Management.Dns.Testing
 
             if (first.Tags != null || second.Tags != null)
             {
-                if (first.Tags == null || second.Tags == null || first.Tags.Count != second.Tags.Count)
+                if (first.Tags == null || second.Tags == null ||
+                    first.Tags.Count != second.Tags.Count)
                 {
                     return false;
                 }
 
                 foreach (string key in first.Tags.Keys)
                 {
-                    if (!second.Tags.ContainsKey(key) || first.Tags[key] != second.Tags[key])
+                    if (!second.Tags.ContainsKey(key) ||
+                        first.Tags[key] != second.Tags[key])
                     {
                         return false;
                     }
@@ -61,6 +65,7 @@ namespace Microsoft.Azure.Management.Dns.Testing
             return true;
         }
 
+<<<<<<< HEAD
         public static bool AreEqualPrereq(
            RecordSet first,
            RecordSet second,
@@ -101,6 +106,12 @@ namespace Microsoft.Azure.Management.Dns.Testing
         }
 
         public static bool AreEqual(Zone first, Zone second, bool ignoreEtag = false)
+=======
+        public static bool AreEqual(
+            Zone first,
+            Zone second,
+            bool ignoreEtag = false)
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
         {
             if (!AreEqualPrereq(first, second))
             {
@@ -109,51 +120,34 @@ namespace Microsoft.Azure.Management.Dns.Testing
 
             if (first != null && second != null)
             {
-                if (first.Properties == null && second.Properties == null)
-                {
-                    return true;
-                }
-
-                if (first.Properties == null || second.Properties == null)
-                {
-                    return false;
-                }
-
-                return ignoreEtag || (first.ETag == second.ETag);
+                return ignoreEtag || (first.Etag == second.Etag);
             }
 
             return true;
         }
 
-        public static bool AreEqual(Models.RecordSet first, Models.RecordSet second, bool ignoreEtag = false)
+        public static bool AreEqual(
+            Models.RecordSet first,
+            Models.RecordSet second,
+            bool ignoreEtag = false)
         {
-            if (!AreEqualPrereq(first, second))
-            {
-                return false;
-            }
+            //if (!AreEqualPrereq(first, second))
+            //{
+            //    return false;
+            //}
 
             if (first != null && second != null)
             {
-                if (first.Properties == null && second.Properties == null)
-                {
-                    return true;
-                }
-
-                if (first.Properties == null || second.Properties == null)
-                {
-                    return false;
-                }
-
-                return (ignoreEtag || (first.ETag == second.ETag))
-                    && first.Properties.Ttl == second.Properties.Ttl
-                    && AreEqual(first.Properties.ARecords, second.Properties.ARecords)
-                    && AreEqual(first.Properties.AaaaRecords, second.Properties.AaaaRecords)
-                    && AreEqual(first.Properties.MxRecords, second.Properties.MxRecords)
-                    && AreEqual(first.Properties.NsRecords, second.Properties.NsRecords)
-                    && AreEqual(first.Properties.PtrRecords, second.Properties.PtrRecords)
-                    && AreEqual(first.Properties.SrvRecords, second.Properties.SrvRecords)
-                    && AreEqual(first.Properties.CnameRecord, second.Properties.CnameRecord)
-                    && AreEqual(first.Properties.SoaRecord, second.Properties.SoaRecord);
+                return (ignoreEtag || (first.Etag == second.Etag))
+                       && first.TTL == second.TTL
+                       && AreEqual(first.ARecords, second.ARecords)
+                       && AreEqual(first.AaaaRecords, second.AaaaRecords)
+                       && AreEqual(first.MxRecords, second.MxRecords)
+                       && AreEqual(first.NsRecords, second.NsRecords)
+                       && AreEqual(first.PtrRecords, second.PtrRecords)
+                       && AreEqual(first.SrvRecords, second.SrvRecords)
+                       && AreEqual(first.CnameRecord, second.CnameRecord)
+                       && AreEqual(first.SoaRecord, second.SoaRecord);
             }
 
             return true;
@@ -195,11 +189,13 @@ namespace Microsoft.Azure.Management.Dns.Testing
 
         public static bool AreEqualCount<T>(IList<T> first, IList<T> second)
         {
-            if ((first == null || first.Count == 0) && (second == null || second.Count == 0))
+            if ((first == null || first.Count == 0) &&
+                (second == null || second.Count == 0))
             {
                 return true;
             }
-            else if (first == null || second == null || first.Count == 0 || second.Count == 0)
+            else if (first == null || second == null || first.Count == 0 ||
+                     second.Count == 0)
             {
                 return false;
             }
@@ -230,7 +226,9 @@ namespace Microsoft.Azure.Management.Dns.Testing
             return true;
         }
 
-        public static bool AreEqual(IList<AaaaRecord> first, IList<AaaaRecord> second)
+        public static bool AreEqual(
+            IList<AaaaRecord> first,
+            IList<AaaaRecord> second)
         {
             if (!AreEqualCount(first, second))
             {
@@ -253,7 +251,9 @@ namespace Microsoft.Azure.Management.Dns.Testing
             return true;
         }
 
-        public static bool AreEqual(IList<MxRecord> first, IList<MxRecord> second)
+        public static bool AreEqual(
+            IList<MxRecord> first,
+            IList<MxRecord> second)
         {
             if (!AreEqualCount(first, second))
             {
@@ -265,7 +265,7 @@ namespace Microsoft.Azure.Management.Dns.Testing
                 for (int i = 0; i < first.Count; i++)
                 {
                     if (first[i].Exchange != second[i].Exchange
-                            || first[i].Preference != second[i].Preference)
+                        || first[i].Preference != second[i].Preference)
                     {
                         return false;
                     }
@@ -275,7 +275,9 @@ namespace Microsoft.Azure.Management.Dns.Testing
             return true;
         }
 
-        public static bool AreEqual(IList<NsRecord> first, IList<NsRecord> second)
+        public static bool AreEqual(
+            IList<NsRecord> first,
+            IList<NsRecord> second)
         {
             if (!AreEqualCount(first, second))
             {
@@ -296,7 +298,9 @@ namespace Microsoft.Azure.Management.Dns.Testing
             return true;
         }
 
-        public static bool AreEqual(IList<PtrRecord> first, IList<PtrRecord> second)
+        public static bool AreEqual(
+            IList<PtrRecord> first,
+            IList<PtrRecord> second)
         {
             if (!AreEqualCount(first, second))
             {
@@ -317,7 +321,9 @@ namespace Microsoft.Azure.Management.Dns.Testing
             return true;
         }
 
-        public static bool AreEqual(IList<SrvRecord> first, IList<SrvRecord> second)
+        public static bool AreEqual(
+            IList<SrvRecord> first,
+            IList<SrvRecord> second)
         {
             if (!AreEqualCount(first, second))
             {
@@ -329,9 +335,9 @@ namespace Microsoft.Azure.Management.Dns.Testing
                 for (int i = 0; i < first.Count; i++)
                 {
                     if (first[i].Port != second[i].Port
-                            || first[i].Target != second[i].Target
-                            || first[i].Weight != second[i].Weight
-                            || first[i].Priority != second[i].Priority)
+                        || first[i].Target != second[i].Target
+                        || first[i].Weight != second[i].Weight
+                        || first[i].Priority != second[i].Priority)
                     {
                         return false;
                     }
@@ -341,7 +347,9 @@ namespace Microsoft.Azure.Management.Dns.Testing
             return true;
         }
 
-        public static bool AreEqual(IList<TxtRecord> first, IList<TxtRecord> second)
+        public static bool AreEqual(
+            IList<TxtRecord> first,
+            IList<TxtRecord> second)
         {
             if (!AreEqualCount(first, second))
             {
@@ -362,15 +370,20 @@ namespace Microsoft.Azure.Management.Dns.Testing
             return true;
         }
 
-        public static void AssertThrows<T>(Action actionExpectedToThrow, Func<T, bool> exceptionAsserts) where T : Exception
+        public static void AssertThrows<T>(
+            Action actionExpectedToThrow,
+            Func<T, bool> exceptionAsserts) where T : Exception
         {
             try
             {
                 actionExpectedToThrow();
+                Assert.False(true, " Ni exception was thrown where expected");
             }
             catch (T ex)
             {
-                Assert.True(exceptionAsserts(ex), "An exception of the expected type was thrown but custom asserts failed.");
+                Assert.True(
+                    exceptionAsserts(ex),
+                    "An exception of the expected type was thrown but custom asserts failed.");
             }
         }
     }

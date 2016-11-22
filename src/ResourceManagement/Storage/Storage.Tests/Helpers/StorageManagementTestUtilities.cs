@@ -18,12 +18,14 @@ using Microsoft.Azure.Management.Resources;
 using Microsoft.Azure.Management.Resources.Models;
 using Microsoft.Azure.Management.Storage;
 using Microsoft.Azure.Management.Storage.Models;
-using Microsoft.Azure.Test;
+using Microsoft.Rest;
+using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
 using ResourceGroups.Tests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using Xunit;
@@ -33,60 +35,75 @@ namespace Storage.Tests.Helpers
     public static class StorageManagementTestUtilities
     {
         public static bool IsTestTenant = false;
-        private static SubscriptionCloudCredentials Creds = null;
+        private static HttpClientHandler Handler = null;
 
         // These should be filled in only if test tenant is true
+#if DNX451
         private static string certName = null;
         private static string certPassword = null;
-        private static string testSubscription = null;
+#endif
+        private const string testSubscription = null;
         private static Uri testUri = null;
 
         // These are used to create default accounts
+<<<<<<< HEAD
         public static string DefaultLocation = IsTestTenant ? null : "westus";
         public static AccountType DefaultAccountType = AccountType.StandardGRS;
+=======
+        public static string DefaultLocation = IsTestTenant ? null : "eastasia";
+        public static SkuName DefaultSkuName = SkuName.StandardGRS;
+        public static Kind DefaultKind = Kind.Storage;
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
         public static Dictionary<string, string> DefaultTags = new Dictionary<string, string> 
             {
                 {"key1","value1"},
                 {"key2","value2"}
             };
 
-        public static ResourceManagementClient GetResourceManagementClient(RecordedDelegatingHandler handler)
+        public static ResourceManagementClient GetResourceManagementClient(MockContext context, RecordedDelegatingHandler handler)
         {
             if (IsTestTenant)
             {
-                ResourceManagementClient resourcesClient = new ResourceManagementClient(GetCreds());
+                return null;
+            }
+            else
+            {
+                handler.IsPassThrough = true;
+                ResourceManagementClient resourcesClient = context.GetServiceClient<ResourceManagementClient>(handlers: handler);
                 return resourcesClient;
             }
-            else
-            {
-                handler.IsPassThrough = true;
-                return TestBase.GetServiceClient<ResourceManagementClient>(new CSMTestEnvironmentFactory()).WithHandler(handler);
-            }
         }
 
-        public static StorageManagementClient GetStorageManagementClient(RecordedDelegatingHandler handler)
+        public static StorageManagementClient GetStorageManagementClient(MockContext context, RecordedDelegatingHandler handler)
         {
+            StorageManagementClient storageClient;
             if (IsTestTenant)
             {
-                return new StorageManagementClient(GetCreds(), testUri);
+                storageClient = new StorageManagementClient(new TokenCredentials("xyz"), GetHandler());
+                storageClient.SubscriptionId = testSubscription;
+                storageClient.BaseUri = testUri;
             }
             else
             {
                 handler.IsPassThrough = true;
-                return TestBase.GetServiceClient<StorageManagementClient>(new CSMTestEnvironmentFactory()).WithHandler(handler);
+                storageClient = context.GetServiceClient<StorageManagementClient>(handlers: handler);
             }
+            return storageClient;
         }
 
-        private static SubscriptionCloudCredentials GetCreds() 
+        private static HttpClientHandler GetHandler() 
         {
-            if (Creds == null)
+#if DNX451
+            if (Handler == null)
             {
+                //talk to yugangw-msft, if the code doesn't work under dnx451 (same with net451)
                 X509Certificate2 cert = new X509Certificate2(certName, certPassword);
-                Creds = new CertificateCloudCredentials(testSubscription, cert);
+                Handler = new System.Net.Http.WebRequestHandler();
+                ((WebRequestHandler)Handler).ClientCertificates.Add(cert);
                 ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => { return true; };
             }
-
-            return Creds;
+#endif
+            return Handler;
         }
 
         public static StorageAccountCreateParameters GetDefaultStorageAccountParameters()
@@ -95,8 +112,9 @@ namespace Storage.Tests.Helpers
             {
                 Location = DefaultLocation,
                 Tags = DefaultTags,
-                AccountType = DefaultAccountType
-            };
+                Sku = new Sku { Name = DefaultSkuName },
+                Kind = DefaultKind,
+        };
 
             return account;
         }
@@ -131,12 +149,16 @@ namespace Storage.Tests.Helpers
 
         public static void VerifyAccountProperties(StorageAccount account, bool useDefaults)
         {
+            Assert.NotNull(account);
             Assert.NotNull(account.Id);
             Assert.NotNull(account.Location);
             Assert.NotNull(account.Name);
-            Assert.NotNull(account);
-            Assert.NotNull(account.AccountType);
             Assert.NotNull(account.CreationTime);
+            Assert.NotNull(account.Kind);
+
+            Assert.NotNull(account.Sku);
+            Assert.NotNull(account.Sku.Name);
+            Assert.NotNull(account.Sku.Tier);
 
             Assert.Equal(AccountStatus.Available, account.StatusOfPrimary);
             Assert.Equal(account.Location, account.PrimaryLocation);
@@ -144,45 +166,66 @@ namespace Storage.Tests.Helpers
             Assert.NotNull(account.PrimaryEndpoints);
             Assert.NotNull(account.PrimaryEndpoints.Blob);
 
-            if (account.AccountType != AccountType.StandardZRS && account.AccountType != AccountType.PremiumLRS)
+            if (account.Kind == Kind.Storage)
             {
+<<<<<<< HEAD
                 Assert.NotNull(account.PrimaryEndpoints.Queue);
                 Assert.NotNull(account.PrimaryEndpoints.Table);
                 Assert.NotNull(account.PrimaryEndpoints.File);
+=======
+                if (account.Sku.Name != SkuName.StandardZRS && account.Sku.Name != SkuName.PremiumLRS)
+                {
+                    Assert.NotNull(account.PrimaryEndpoints.Queue);
+                    Assert.NotNull(account.PrimaryEndpoints.Table);
+                    Assert.NotNull(account.PrimaryEndpoints.File);
+                }
+
+                if (account.Sku.Name == SkuName.StandardRAGRS)
+                {                    
+                    Assert.NotNull(account.SecondaryEndpoints.Queue);
+                    Assert.NotNull(account.SecondaryEndpoints.Table);
+                }
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
             }
 
-            Assert.Equal(Microsoft.Azure.Management.Storage.Models.ProvisioningState.Succeeded, account.ProvisioningState);
+            Assert.Equal(ProvisioningState.Succeeded, account.ProvisioningState);
             Assert.Null(account.LastGeoFailoverTime);
 
-            switch (account.AccountType)
+            switch (account.Sku.Name)
             {
+<<<<<<< HEAD
                 case AccountType.StandardLRS:
                 case AccountType.StandardZRS:
                 case AccountType.PremiumLRS:
+=======
+                case SkuName.StandardLRS:
+                case SkuName.StandardZRS:
+                case SkuName.PremiumLRS:
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
                     Assert.Null(account.SecondaryLocation);
                     Assert.Null(account.StatusOfSecondary);
                     Assert.Null(account.SecondaryEndpoints);
                     break;
-                case AccountType.StandardRAGRS:
+                case SkuName.StandardGRS:
+                    Assert.Equal(AccountStatus.Available, account.StatusOfSecondary);
+                    Assert.NotNull(account.SecondaryLocation);
+                    Assert.Null(account.SecondaryEndpoints);
+                    break;
+                case SkuName.StandardRAGRS:
                     Assert.Equal(AccountStatus.Available, account.StatusOfSecondary);
                     Assert.NotNull(account.SecondaryLocation);
                     Assert.NotNull(account.SecondaryEndpoints);
                     Assert.NotNull(account.SecondaryEndpoints.Blob);
-                    Assert.NotNull(account.SecondaryEndpoints.Queue);
-                    Assert.NotNull(account.SecondaryEndpoints.Table);
-                    break;
-                case AccountType.StandardGRS:
-                    Assert.Equal(AccountStatus.Available, account.StatusOfSecondary);
-                    Assert.NotNull(account.SecondaryLocation);
-                    Assert.Null(account.SecondaryEndpoints);
                     break;
             }
 
             if (useDefaults)
             {
                 Assert.Equal(StorageManagementTestUtilities.DefaultLocation, account.Location);
-                Assert.Equal(StorageManagementTestUtilities.DefaultAccountType, account.AccountType);
-                
+                Assert.Equal(StorageManagementTestUtilities.DefaultSkuName, account.Sku.Name);
+                Assert.Equal(SkuTier.Standard, account.Sku.Tier);
+                Assert.Equal(StorageManagementTestUtilities.DefaultKind, account.Kind);
+
                 Assert.NotNull(account.Tags);
                 Assert.Equal(2, account.Tags.Count);
                 Assert.Equal(account.Tags["key1"], "value1");

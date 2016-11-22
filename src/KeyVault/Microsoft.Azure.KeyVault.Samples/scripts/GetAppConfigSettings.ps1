@@ -50,8 +50,15 @@ $certificateName = "$applicationName" + "cert"
 $myCertThumbprint = (New-SelfSignedCertificate -Type Custom -Subject "$certificateName"-KeyUsage DigitalSignature -KeyAlgorithm RSA -KeyLength 2048 -CertStoreLocation "Cert:\CurrentUser\My" -Provider "Microsoft Enhanced Cryptographic Provider v1.0" ).Thumbprint
 $x509 = (Get-ChildItem -Path cert:\CurrentUser\My\$myCertthumbprint)
 $password = Read-Host -Prompt "Please enter the certificate password." -AsSecureString
+<<<<<<< HEAD
 Export-Certificate -cert $cert -FilePath ".\$certificateName.cer"
 Export-PfxCertificate -Cert $cert -FilePath ".\$certificateName.pfx" -Password $password
+=======
+
+# Saving the self-signed cert and pfx (private key) in case it's needed later
+Export-Certificate -cert $x509 -FilePath ".\$certificateName.cer"
+Export-PfxCertificate -Cert $x509 -FilePath ".\$certificateName.pfx" -Password $password
+>>>>>>> 4593b3cdf19e4591008914b508b6243b342da301
 
 
 
@@ -108,7 +115,8 @@ Write-Host "Setting access policy"
 Set-AzureRmKeyVaultAccessPolicy -VaultName $vaultName `
 	-ObjectId $servicePrincipal.Id `
 	-PermissionsToKeys all `
-	-PermissionsToSecrets all
+	-PermissionsToSecrets all `
+	-PermissionsToCertificate all `
 
 # **********************************************************************************************
 # Print the XML settings that should be copied into the app.config file

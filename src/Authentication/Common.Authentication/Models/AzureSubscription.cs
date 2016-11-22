@@ -28,6 +28,8 @@ namespace Microsoft.Azure.Common.Authentication.Models
 
         public string Account { get; set; }
 
+        public string State { get; set; }
+
         public Dictionary<Property, string> Properties { get; set; }
 
         public enum Property
@@ -36,11 +38,6 @@ namespace Microsoft.Azure.Common.Authentication.Models
             /// Comma separated registered resource providers, i.e.: websites,compute,hdinsight
             /// </summary>
             RegisteredResourceProviders,
-
-            /// <summary>
-            /// Comma separated mode names that this subscription supports, i.e.: AzureResourceManager,AzureServiceManagement
-            /// </summary>
-            SupportedModes,
 
             /// <summary>
             /// Associated tenants

@@ -12,18 +12,27 @@ namespace Networks.Tests
 {
     using System.Linq;
 
+    using Microsoft.Rest.ClientRuntime.Azure.TestFramework;
+    using Microsoft.Azure.Test.HttpRecorder;
+
     public class UsageTests
     {
+        public UsageTests()
+        {
+            HttpMockServer.RecordsDirectory = "SessionRecords";
+        }
+
         [Fact]
         public void UsageTest()
         {
-            var handler = new RecordedDelegatingHandler {StatusCodeToReturn = HttpStatusCode.OK};
+            var handler1 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
+            var handler2 = new RecordedDelegatingHandler { StatusCodeToReturn = HttpStatusCode.OK };
 
-            using (var context = UndoContext.Current)
+            using (MockContext context = MockContext.Start(this.GetType().FullName))
             {
-                context.Start();
-                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(handler);
-                var networkResourceProviderClient = NetworkManagementTestUtilities.GetNetworkResourceProviderClient(handler);
+                
+                var resourcesClient = ResourcesManagementTestUtilities.GetResourceManagementClientWithHandler(context, handler1);
+                var networkManagementClient = NetworkManagementTestUtilities.GetNetworkManagementClientWithHandler(context, handler2);
 
                 var location = NetworkManagementTestUtilities.GetResourceLocation(resourcesClient, "Microsoft.Network/networkSecurityGroups");
                 
@@ -42,22 +51,19 @@ namespace Networks.Tests
                 };
 
                 // Put Nsg
-                var putNsgResponse = networkResourceProviderClient.NetworkSecurityGroups.CreateOrUpdate(resourceGroupName, networkSecurityGroupName, networkSecurityGroup);
-                Assert.Equal(HttpStatusCode.OK, putNsgResponse.StatusCode);
-                Assert.Equal("Succeeded", putNsgResponse.Status);
+                var putNsgResponse = networkManagementClient.NetworkSecurityGroups.CreateOrUpdate(resourceGroupName, networkSecurityGroupName, networkSecurityGroup);
+                Assert.Equal("Succeeded", putNsgResponse.ProvisioningState);
 
-                var getNsgResponse = networkResourceProviderClient.NetworkSecurityGroups.Get(resourceGroupName, networkSecurityGroupName);
-                Assert.Equal(HttpStatusCode.OK, getNsgResponse.StatusCode);
-
+                var getNsgResponse = networkManagementClient.NetworkSecurityGroups.Get(resourceGroupName, networkSecurityGroupName);
+                
                 // Query for usages
-                var usagesResponse = networkResourceProviderClient.Usages.List(getNsgResponse.NetworkSecurityGroup.Location.Replace(" ", string.Empty));
-                Assert.True(usagesResponse.StatusCode == HttpStatusCode.OK);
-
+                var usagesResponse = networkManagementClient.Usages.List(getNsgResponse.Location.Replace(" ", string.Empty));
+                
                 // Verify that the strings are populated
-                Assert.NotNull(usagesResponse.Usages);
-                Assert.True(usagesResponse.Usages.Any());
+                Assert.NotNull(usagesResponse);
+                Assert.True(usagesResponse.Any());
 
-                foreach (var usage in usagesResponse.Usages)
+                foreach (var usage in usagesResponse)
                 {
                     Assert.True(usage.Limit > 0);
                     Assert.NotNull(usage.Name);
