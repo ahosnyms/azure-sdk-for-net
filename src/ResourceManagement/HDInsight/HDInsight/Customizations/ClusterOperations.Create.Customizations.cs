@@ -574,7 +574,8 @@ namespace Microsoft.Azure.Management.HDInsight
 
         private static readonly Dictionary<string, string> HeadNodeDefaultSizes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { 
                     {"hadoop", "Standard_D3" },
-                    {"spark", "Standard_D12"},
+                    {"spark", "Standard_D12"},                    
+                    {"rserver", "Standard_D12"},
                     {"InteractiveHive", "Standard_D13_v2"},
                 };
 
@@ -587,21 +588,10 @@ namespace Microsoft.Azure.Management.HDInsight
             }
             else
             {
-
-                if (clusterCreateParameters.ClusterType.Equals("Hadoop", StringComparison.OrdinalIgnoreCase))
+                if (!HeadNodeDefaultSizes.TryGetValue(clusterCreateParameters.ClusterType, out headNodeSize))
                 {
-                    headNodeSize = "Standard_D3";
+                    headNodeSize = "Large";
                 }
-                else if (clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase) ||
-                         clusterCreateParameters.ClusterType.Equals("RServer", StringComparison.OrdinalIgnoreCase))
-                {
-                    headNodeSize = "Standard_D12";
-                }
-                else
-                    if (!HeadNodeDefaultSizes.TryGetValue(clusterCreateParameters.ClusterType, out headNodeSize))
-                    {
-                        headNodeSize = "Large";
-                    }
             }
 
             return headNodeSize;
@@ -609,6 +599,7 @@ namespace Microsoft.Azure.Management.HDInsight
 
         private static readonly Dictionary<string, string> WorkerNodeDefaultSizes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { 
                     {"spark", "Standard_D12"},
+                    {"rserver", "Standard_D12"},
                     {"InteractiveHive", "Standard_D13_v2"},
                 };
 
@@ -621,11 +612,6 @@ namespace Microsoft.Azure.Management.HDInsight
             }
             else
             {
-
-                workerNodeSize = clusterCreateParameters.ClusterType.Equals("Spark", StringComparison.OrdinalIgnoreCase) ||
-                                 clusterCreateParameters.ClusterType.Equals("RServer", StringComparison.OrdinalIgnoreCase)
-                    ? "Standard_D12"
-                    : "Standard_D3";
                 if (!WorkerNodeDefaultSizes.TryGetValue(clusterCreateParameters.ClusterType, out workerNodeSize))
                 {
                     workerNodeSize = "Standard_D3";

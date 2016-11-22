@@ -116,7 +116,6 @@
     <None Include="SessionRecords\HDInsight.Tests.ScriptActionsOnRunningCluster\TestScriptActionsOnRunningCluster.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-
     <None Include="TestData\FailingScriptAction.sh">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

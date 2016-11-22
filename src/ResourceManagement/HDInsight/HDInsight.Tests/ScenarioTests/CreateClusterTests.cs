@@ -20,7 +20,6 @@ using Microsoft.Azure.Management.HDInsight;
 using Microsoft.Azure.Management.HDInsight.Models;
 using Microsoft.Azure.Test;
 using Xunit;
-using System.Collections.Generic;
 
 namespace HDInsight.Tests
 {
